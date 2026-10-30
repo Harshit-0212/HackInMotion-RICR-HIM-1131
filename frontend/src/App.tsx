@@ -20,6 +20,7 @@ import { Progress } from '@/pages/Progress';
 import { Achievements } from '@/pages/Achievements';
 import { Profile } from '@/pages/Profile';
 import { Settings } from '@/pages/Settings';
+import { ResumeMaker } from '@/pages/ResumeMaker';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isInitializing } = useAuth();
@@ -134,6 +135,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Settings />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/resume"
+        element={
+          <ProtectedRoute>
+            <ResumeMaker />
           </ProtectedRoute>
         }
       />

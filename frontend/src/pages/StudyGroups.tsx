@@ -82,7 +82,7 @@ export function StudyGroups() {
     };
 
     const onGroupRemoved = ({ groupId, groupName }: { groupId: string; groupName: string }) => {
-      setGroups((prev) => prev.map((g) => (g.id === groupId ? { ...g, isMember: false } : g)));
+      setGroups((prev) => prev.filter((g) => g.id !== groupId));
       setActiveGroup((prev) => {
         if (prev?.id === groupId) {
           showToast(`You were removed from ${groupName}.`, 'info');
@@ -139,20 +139,10 @@ export function StudyGroups() {
     }
   };
 
-  const handleJoin = async (group: StudyGroup) => {
-    try {
-      const updated = await groupService.joinGroup(group.id);
-      setGroups((prev) => prev.map((g) => (g.id === updated.id ? updated : g)));
-      setActiveGroup(updated);
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Could not join this group.', 'error');
-    }
-  };
-
   const handleLeave = async (group: StudyGroup) => {
     try {
-      const updated = await groupService.leaveGroup(group.id);
-      setGroups((prev) => prev.map((g) => (g.id === updated.id ? updated : g)));
+      await groupService.leaveGroup(group.id);
+      setGroups((prev) => prev.filter((g) => g.id !== group.id));
       setActiveGroup(null);
       showToast(`Left ${group.name}.`);
     } catch (err) {
@@ -222,7 +212,6 @@ export function StudyGroups() {
                       </h3>
                       <p className="mt-0.5 text-xs text-ink-500 dark:text-ink-400">{group.examName}</p>
                     </div>
-                    {group.isMember && <Badge tone="success">Joined</Badge>}
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <Badge tone="primary">{group.topic}</Badge>
@@ -231,15 +220,9 @@ export function StudyGroups() {
                     </Badge>
                   </div>
                   <div className="mt-auto pt-4">
-                    {group.isMember ? (
-                      <Button fullWidth onClick={() => setActiveGroup(group)}>
-                        <MessagesSquare size={16} /> Open Chat
-                      </Button>
-                    ) : (
-                      <Button fullWidth variant="outline" onClick={() => handleJoin(group)}>
-                        Join Group
-                      </Button>
-                    )}
+                    <Button fullWidth onClick={() => setActiveGroup(group)}>
+                      <MessagesSquare size={16} /> Open Chat
+                    </Button>
                   </div>
                 </Card>
               </motion.div>

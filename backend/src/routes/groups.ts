@@ -49,7 +49,8 @@ async function broadcastGroupUpdate(group: StoredGroup): Promise<void> {
 
 groupsRouter.get('/', requireAuth, async (req: AuthedRequest, res) => {
   const groups = await groupStore.list();
-  res.json({ data: { groups: groups.map((g) => summarize(g, req.userId!)) } });
+  const mine = groups.filter((g) => g.memberIds.includes(req.userId!));
+  res.json({ data: { groups: mine.map((g) => summarize(g, req.userId!)) } });
 });
 
 groupsRouter.post('/', requireAuth, async (req: AuthedRequest, res) => {
@@ -243,24 +244,13 @@ groupsRouter.post('/remove-member', requireAuth, async (req: AuthedRequest, res)
 });
 
 groupsRouter.get('/:id', requireAuth, async (req: AuthedRequest, res) => {
-  const group = await groupStore.findById(req.params.id);
+  const group = await requireMembership(req.params.id, req.userId!);
   if (!group) {
-    res.status(404).json({ error: { message: 'Group not found.' } });
+    res.status(403).json({ error: { message: 'Join this group before viewing it.' } });
     return;
   }
   const members = await resolveMembers(group);
   res.json({ data: { group: summarize(group, req.userId!), members } });
-});
-
-groupsRouter.post('/:id/join', requireAuth, async (req: AuthedRequest, res) => {
-  const group = await groupStore.findById(req.params.id);
-  if (!group) {
-    res.status(404).json({ error: { message: 'Group not found.' } });
-    return;
-  }
-  const updated = await groupStore.addMember(req.params.id, req.userId!);
-  if (updated) await broadcastGroupUpdate(updated);
-  res.json({ data: { group: summarize(updated!, req.userId!) } });
 });
 
 groupsRouter.post('/:id/leave', requireAuth, async (req: AuthedRequest, res) => {

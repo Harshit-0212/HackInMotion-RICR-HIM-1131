@@ -2,14 +2,12 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
-  CalendarRange,
-  MessageSquare,
-  Users,
-  ClipboardList,
+  BookOpen,
+  Target,
+  Sparkles,
   LineChart,
-  Trophy,
-  User as UserIcon,
   Settings as SettingsIcon,
+  HelpCircle,
   PanelLeftClose,
   PanelLeft,
   LogOut,
@@ -19,6 +17,7 @@ import {
   X,
   Bell,
   Search,
+  FileText,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Logo } from '@/components/ui/Logo';
@@ -28,18 +27,17 @@ import { useTheme } from '@/store/ThemeContext';
 import { useNotifications } from '@/store/NotificationContext';
 
 const NAV = [
-  { to: '/app', label: 'Dashboard', icon: LayoutDashboard, end: true },
-  { to: '/app/plan', label: 'My Study Plan', icon: CalendarRange, end: false },
-  { to: '/app/tutor', label: 'AI Tutor', icon: MessageSquare, end: false },
-  { to: '/app/groups', label: 'Study Groups', icon: Users, end: false },
-  { to: '/app/assessments', label: 'Assessments', icon: ClipboardList, end: false },
+  { to: '/app', label: 'Overview', icon: LayoutDashboard, end: true },
+  { to: '/app/plan', label: 'My Learning', icon: BookOpen, end: false },
+  { to: '/app/assessments', label: 'Practice', icon: Target, end: false },
+  { to: '/app/tutor', label: 'AI Tutor', icon: Sparkles, end: false },
   { to: '/app/progress', label: 'Progress', icon: LineChart, end: false },
-  { to: '/app/achievements', label: 'Achievements', icon: Trophy, end: false },
+  { to: '/app/resume', label: 'Resume Maker', icon: FileText, end: false },
 ];
 
 const SECONDARY_NAV = [
-  { to: '/app/profile', label: 'Profile', icon: UserIcon },
   { to: '/app/settings', label: 'Settings', icon: SettingsIcon },
+  { to: '/app/profile', label: 'Help & Profile', icon: HelpCircle },
 ];
 
 const SEARCHABLE_PAGES = [...NAV, ...SECONDARY_NAV];
@@ -262,9 +260,19 @@ export function AppLayout({ children }: { children: ReactNode }) {
       >
         {/* Desktop/Laptop Header Bar */}
         <header className="relative z-30 hidden lg:flex h-16 items-center justify-between border border-[var(--nova-border)] bg-white/92 rounded-3xl px-6 mb-6 shadow-[0_1px_3px_rgba(15,23,42,0.06)] dark:border-[#1E293B] dark:bg-[#111827]/92 backdrop-blur-md">
-          <span className="text-[10px] font-bold tracking-widest text-[var(--nova-text-secondary)] dark:text-[#94A3B8] uppercase">
-            Cadence Learning Hub
-          </span>
+          <div className="flex flex-col">
+            <h1 className="font-space text-sm font-bold text-slate-900 dark:text-white leading-tight">
+              {(() => {
+                const hour = new Date().getHours();
+                const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+                const firstName = user?.name ? user.name.split(' ')[0] : 'Student';
+                return `${greeting}, ${firstName}`;
+              })()}
+            </h1>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+              Continue your learning journey
+            </p>
+          </div>
 
           <div className="flex items-center gap-4">
             {/* Search Action */}

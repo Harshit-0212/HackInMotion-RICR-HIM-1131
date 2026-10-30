@@ -6,7 +6,8 @@ export default {
     extend: {
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-        display: ['"Lexend"', 'system-ui', 'sans-serif'],
+        space: ['"Space Grotesk"', '"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        display: ['"Space Grotesk"', '"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
       },
       colors: {
         // Brand: Electric Indigo

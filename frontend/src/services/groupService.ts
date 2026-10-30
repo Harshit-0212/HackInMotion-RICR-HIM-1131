@@ -16,11 +16,6 @@ export const groupService = {
     return (await fetchApi(`/groups/${groupId}`)) as { group: StudyGroup; members: GroupMember[] };
   },
 
-  async joinGroup(groupId: string): Promise<StudyGroup> {
-    const data = (await fetchApi(`/groups/${groupId}/join`, { method: 'POST' })) as { group: StudyGroup };
-    return data.group;
-  },
-
   async leaveGroup(groupId: string): Promise<StudyGroup> {
     const data = (await fetchApi(`/groups/${groupId}/leave`, { method: 'POST' })) as { group: StudyGroup };
     return data.group;

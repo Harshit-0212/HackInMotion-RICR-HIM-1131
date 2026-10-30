@@ -321,7 +321,7 @@ Study Plan, Study Groups, Reset Password) — e.g. in an `assets/screenshots/` f
 
 ## Deployment Link
 
-Not deployed yet — currently runs locally only (see [Installation Guide](#installation-guide)).
+https:1cadence.netlify.app
 
 ## Future Scope
 
