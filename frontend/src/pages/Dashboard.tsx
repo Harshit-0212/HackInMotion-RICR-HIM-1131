@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Sparkles, ArrowRight, Brain, RefreshCw, FileText } from 'lucide-react';
+import { Sparkles, ArrowRight, Brain, RefreshCw, FileText, Users } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/store/AuthContext';
 import { useAppData } from '@/store/AppDataContext';
@@ -87,6 +87,15 @@ export function Dashboard() {
                       <Brain size={16} className="text-indigo-600 dark:text-indigo-400" /> Ask AI Tutor
                     </motion.button>
                   </Link>
+                  <Link to="/app/groups">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/30 px-6 text-sm font-bold text-emerald-700 dark:text-emerald-300 transition-all"
+                    >
+                      <Users size={16} className="text-emerald-600 dark:text-emerald-400" /> Study Groups
+                    </motion.button>
+                  </Link>
                   <Link to="/app/resume">
                     <motion.button
                       whileHover={{ scale: 1.02 }}
@@ -167,31 +176,60 @@ export function Dashboard() {
           <MyCoursesSection plan={plan} />
         </section>
 
-        {/* RESUME MAKER QUICK ACCESS CARD */}
-        <section>
-          <div className="rounded-2xl border border-purple-200 dark:border-purple-900/50 bg-gradient-to-r from-purple-50 via-indigo-50 to-blue-50 dark:from-purple-950/20 dark:via-indigo-950/20 dark:to-blue-950/20 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-600 text-white shadow-md shadow-purple-600/20 shrink-0">
-                <FileText size={24} />
+        {/* RESUME & STUDY GROUPS CARDS */}
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="rounded-2xl border border-purple-200 dark:border-purple-900/50 bg-gradient-to-r from-purple-50 via-indigo-50 to-blue-50 dark:from-purple-950/20 dark:via-indigo-950/20 dark:to-blue-950/20 p-5 flex flex-col justify-between gap-4 shadow-sm">
+            <div className="flex items-start gap-3.5">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-purple-600 text-white shadow-md shadow-purple-600/20 shrink-0">
+                <FileText size={22} />
               </div>
               <div>
-                <h4 className="font-space text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  Resume Maker & AI Bullet Optimizer <Sparkles size={16} className="text-purple-600 dark:text-purple-400" />
+                <h4 className="font-space text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                  Resume Maker & AI Optimizer <Sparkles size={14} className="text-purple-600 dark:text-purple-400" />
                 </h4>
-                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
-                  Build ATS-ready resumes, polish achievements with Gemini AI, and export professional PDFs.
+                <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
+                  Build ATS-ready resumes, polish achievements with Gemini AI, and export PDF.
                 </p>
               </div>
             </div>
-            <Link to="/app/resume" className="shrink-0">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-2"
-              >
-                Open Resume Maker <ArrowRight size={14} />
-              </motion.button>
-            </Link>
+            <div className="flex justify-end">
+              <Link to="/app/resume">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
+                >
+                  Open Resume Maker <ArrowRight size={13} />
+                </motion.button>
+              </Link>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-emerald-200 dark:border-emerald-900/50 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 dark:from-emerald-950/20 dark:via-teal-950/20 dark:to-cyan-950/20 p-5 flex flex-col justify-between gap-4 shadow-sm">
+            <div className="flex items-start gap-3.5">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-md shadow-emerald-600/20 shrink-0">
+                <Users size={22} />
+              </div>
+              <div>
+                <h4 className="font-space text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                  Collaborative Study Groups <Sparkles size={14} className="text-emerald-600 dark:text-emerald-400" />
+                </h4>
+                <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
+                  Join real-time peer study groups, discuss topics with AI, and prepare together.
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <Link to="/app/groups">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
+                >
+                  Explore Groups <ArrowRight size={13} />
+                </motion.button>
+              </Link>
+            </div>
           </div>
         </section>
 

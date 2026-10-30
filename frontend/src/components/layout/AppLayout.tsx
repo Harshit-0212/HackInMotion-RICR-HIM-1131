@@ -18,6 +18,7 @@ import {
   Bell,
   Search,
   FileText,
+  Users,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Logo } from '@/components/ui/Logo';
@@ -31,6 +32,7 @@ const NAV = [
   { to: '/app/plan', label: 'My Learning', icon: BookOpen, end: false },
   { to: '/app/assessments', label: 'Practice', icon: Target, end: false },
   { to: '/app/tutor', label: 'AI Tutor', icon: Sparkles, end: false },
+  { to: '/app/groups', label: 'Study Groups', icon: Users, end: false },
   { to: '/app/progress', label: 'Progress', icon: LineChart, end: false },
   { to: '/app/resume', label: 'Resume Maker', icon: FileText, end: false },
 ];
