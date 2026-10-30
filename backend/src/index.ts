@@ -23,8 +23,36 @@ const app = express();
 const httpServer = http.createServer(app);
 initSocket(httpServer);
 
+const normalizeOrigin = (origin?: string) =>
+  origin?.replace(/\/+$/, '');
+
+const clientOrigin = normalizeOrigin(process.env.CLIENT_ORIGIN);
+
+const allowedOrigins = [
+  clientOrigin,
+  'http://localhost:5173',
+].filter(Boolean) as string[];
+
+console.log('CORS allowed origins:', allowedOrigins);
+
 app.use(helmet());
-app.use(cors({ origin: config.clientOrigin }));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      const normalizedOrigin = normalizeOrigin(origin);
+
+      if (!normalizedOrigin || allowedOrigins.includes(normalizedOrigin)) {
+        return callback(null, true);
+      }
+
+      console.warn('CORS blocked origin:', origin);
+      return callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
 app.use(express.json({ limit: '1mb' }));
 
 app.get('/api/health', (_req, res) => {
