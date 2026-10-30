@@ -21,6 +21,7 @@ import { Achievements } from '@/pages/Achievements';
 import { Profile } from '@/pages/Profile';
 import { Settings } from '@/pages/Settings';
 import { ResumeMaker } from '@/pages/ResumeMaker';
+import { CodeDebugger } from '@/pages/CodeDebugger';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isInitializing } = useAuth();
@@ -145,6 +146,18 @@ function AppRoutes() {
             <ResumeMaker />
           </ProtectedRoute>
         }
+      />
+      <Route
+        path="/app/debugger"
+        element={
+          <ProtectedRoute>
+            <CodeDebugger />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/debugger"
+        element={<Navigate to="/app/debugger" replace />}
       />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

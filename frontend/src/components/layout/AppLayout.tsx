@@ -19,6 +19,7 @@ import {
   Search,
   FileText,
   Users,
+  Code2,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Logo } from '@/components/ui/Logo';
@@ -35,6 +36,7 @@ const NAV = [
   { to: '/app/groups', label: 'Study Groups', icon: Users, end: false },
   { to: '/app/progress', label: 'Progress', icon: LineChart, end: false },
   { to: '/app/resume', label: 'Resume Maker', icon: FileText, end: false },
+  { to: '/app/debugger', label: 'Code Debugger', icon: Code2, end: false },
 ];
 
 const SECONDARY_NAV = [

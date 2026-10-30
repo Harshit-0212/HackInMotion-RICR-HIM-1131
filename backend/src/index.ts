@@ -14,6 +14,7 @@ import { progressRouter } from './routes/progress.js';
 import { resumeRouter } from './routes/resume.js';
 import { resumeBuilderRouter } from './routes/resumeBuilder.js';
 import { resumeAnalyzerRouter } from './routes/resumeAnalyzer.js';
+import { debuggerRouter } from './routes/debugger.js';
 import { getDb } from './lib/db.js';
 import { initSocket } from './lib/socket.js';
 import { sendDueStudyReminders } from './lib/reminders.js';
@@ -46,6 +47,7 @@ app.use('/api/progress', progressRouter);
 app.use('/api/resume', resumeRouter);
 app.use('/api/resume-builder', resumeBuilderRouter);
 app.use('/api/resume-analyzer', resumeAnalyzerRouter);
+app.use('/api/debugger', debuggerRouter);
 
 app.use((req, res) => {
   res.status(404).json({ error: { message: `No route for ${req.method} ${req.path}` } });
