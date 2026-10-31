@@ -1,3 +1,4 @@
+import { executeCodeSync } from '../lib/codeExecution.js';
 import type { Response } from 'express';
 import type { AuthedRequest } from '../middleware/auth.js';
 import { codingProblemStore } from '../lib/codingStore.js';
@@ -83,6 +84,21 @@ export const studentCodingController = {
    * Retrieve full details of a published problem including public sample test cases
    * NEVER exposes hidden test cases, reference solutions, or internal notes
    */
+  async runCode(req: AuthedRequest, res: Response): Promise<void> {
+    const { language, code, input } = req.body || {};
+    if (!language || !code) {
+      res.status(400).json({ error: { message: 'Language and code are required.' } });
+      return;
+    }
+    try {
+      const result = await executeCodeSync({ language, code, input });
+      res.json({ data: result });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Code execution failed.';
+      res.status(500).json({ error: { message } });
+    }
+  },
+
   async getProblemBySlug(req: AuthedRequest, res: Response): Promise<void> {
     const { slug } = req.params;
     if (!slug || typeof slug !== 'string') {

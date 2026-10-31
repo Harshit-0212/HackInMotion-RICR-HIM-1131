@@ -267,7 +267,7 @@ export function CodingProblemsList() {
 
         {/* Problems Grid */}
         {!isLoading && !error && problems.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 min-w-0">
             {problems.map((problem) => (
               <Link
                 key={problem.id}

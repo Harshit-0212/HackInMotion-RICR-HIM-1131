@@ -118,31 +118,32 @@ export function AppLayout({ children }: { children: ReactNode }) {
   }
 
   const SidebarContent = (
-    <div className="flex h-full flex-col justify-between py-6">
-      {/* Top Section */}
-      <div>
-        <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'} px-6 h-12 mb-6`}>
-          {collapsed ? (
-            <Logo size="sm" to="/app" className="animate-float" iconOnly />
-          ) : (
-            <div className="flex items-center gap-2">
-              <Logo to="/app" className="animate-float" />
-            </div>
-          )}
-          {!collapsed && (
-            <button
-              onClick={() => setCollapsed(true)}
-              aria-label="Collapse sidebar"
-              className="hidden rounded-xl p-2 text-[var(--nova-text-secondary)] transition-colors duration-200 hover:bg-slate-100 dark:hover:bg-white/5 lg:block"
-            >
-              <PanelLeftClose size={18} />
-            </button>
-          )}
-        </div>
+    <div className="flex h-full flex-col min-h-0 py-4">
+      {/* Top Header Section */}
+      <div className={`shrink-0 flex items-center ${collapsed ? 'justify-center' : 'justify-between'} px-5 h-12 mb-2`}>
+        {collapsed ? (
+          <Logo size="sm" to="/app" className="animate-float" iconOnly />
+        ) : (
+          <div className="flex items-center gap-2">
+            <Logo to="/app" className="animate-float" />
+          </div>
+        )}
+        {!collapsed && (
+          <button
+            onClick={() => setCollapsed(true)}
+            aria-label="Collapse sidebar"
+            className="hidden rounded-xl p-2 text-[var(--nova-text-secondary)] transition-colors duration-200 hover:bg-slate-100 dark:hover:bg-white/5 lg:block"
+          >
+            <PanelLeftClose size={18} />
+          </button>
+        )}
+      </div>
 
-        <nav className="space-y-1.5 px-4">
+      {/* Independently Scrollable Navigation */}
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-1 space-y-1">
+        <nav className="space-y-1">
           <span
-            className={`block px-3 text-[9px] font-bold tracking-widest text-[var(--nova-text-muted)] uppercase mb-2 ${collapsed ? 'text-center' : ''}`}
+            className={`block px-3 text-[9px] font-bold tracking-widest text-[var(--nova-text-muted)] uppercase mb-1.5 ${collapsed ? 'text-center' : ''}`}
           >
             {collapsed ? '—' : 'Main Menu'}
           </span>
@@ -150,10 +151,10 @@ export function AppLayout({ children }: { children: ReactNode }) {
             <SidebarLink key={item.to} {...item} collapsed={collapsed} onClick={() => setMobileOpen(false)} />
           ))}
 
-          <div className="my-5 border-t border-[var(--nova-border)] dark:border-[#1E293B] mx-2" />
+          <div className="my-3 border-t border-[var(--nova-border)] dark:border-[#1E293B] mx-2" />
 
           <span
-            className={`block px-3 text-[9px] font-bold tracking-widest text-[var(--nova-text-muted)] uppercase mb-2 ${collapsed ? 'text-center' : ''}`}
+            className={`block px-3 text-[9px] font-bold tracking-widest text-[var(--nova-text-muted)] uppercase mb-1.5 ${collapsed ? 'text-center' : ''}`}
           >
             {collapsed ? '—' : 'Account'}
           </span>
@@ -169,12 +170,12 @@ export function AppLayout({ children }: { children: ReactNode }) {
         </nav>
       </div>
 
-      {/* Bottom Section */}
-      <div className="space-y-4 px-4">
+      {/* Bottom Section (Fixed / shrink-0) */}
+      <div className="shrink-0 space-y-3 px-4 pt-3 border-t border-[var(--nova-border)]/60 dark:border-[#1E293B]/60">
         {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
-          className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-bold text-[var(--nova-text-secondary)] transition hover:bg-slate-100 dark:hover:bg-white/5 ${collapsed ? 'justify-center' : ''}`}
+          className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-xs font-bold text-[var(--nova-text-secondary)] transition hover:bg-slate-100 dark:hover:bg-white/5 ${collapsed ? 'justify-center' : ''}`}
         >
           {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
           {!collapsed && <span>{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>}
@@ -182,15 +183,15 @@ export function AppLayout({ children }: { children: ReactNode }) {
 
         {/* User Card */}
         <div
-          className={`rounded-2xl border border-[var(--nova-border)] bg-slate-50 dark:border-[#1E293B] dark:bg-[#172033]/50 p-3 shadow-sm ${collapsed ? 'flex justify-center' : ''}`}
+          className={`rounded-2xl border border-[var(--nova-border)] bg-slate-50 dark:border-[#1E293B] dark:bg-[#172033]/50 p-2.5 shadow-sm ${collapsed ? 'flex justify-center' : ''}`}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             {/* Avatar */}
             <div className="relative shrink-0">
               <div className="absolute -inset-[1.5px] rounded-full bg-[var(--nova-primary)] dark:bg-[#3B82F6] opacity-75 blur-[0.5px]" />
               <Avatar
                 user={user}
-                size={32}
+                size={30}
                 className="relative text-xs border border-white dark:border-[#111827]"
               />
               <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full bg-[var(--nova-primary)] border border-white dark:border-[#111827] animate-pulse" />
@@ -209,7 +210,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
               <button
                 onClick={handleLogout}
                 aria-label="Log out"
-                className="rounded-lg p-2 text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-[var(--nova-primary)] dark:hover:text-[#3B82F6]"
+                className="rounded-lg p-1.5 text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-[var(--nova-primary)] dark:hover:text-[#3B82F6]"
               >
                 <LogOut size={14} />
               </button>
@@ -221,14 +222,14 @@ export function AppLayout({ children }: { children: ReactNode }) {
   );
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-[var(--nova-bg)] text-[var(--nova-text-secondary)] dark:bg-[#0B1220] dark:text-[#CBD5E1] transition-colors duration-300">
+    <div className="min-h-screen relative overflow-x-hidden bg-[var(--nova-bg)] text-[var(--nova-text-secondary)] dark:bg-[#0B1220] dark:text-[#CBD5E1] transition-colors duration-300">
       {/* Decorative background radial glows */}
       <div className="absolute top-0 right-0 h-[450px] w-[450px] bg-gradient-radial from-[var(--nova-primary)]/4 to-transparent blur-3xl pointer-events-none -z-10" />
       <div className="absolute bottom-0 left-[20%] h-[550px] w-[550px] bg-gradient-radial from-[var(--nova-primary)]/4 to-transparent blur-3xl pointer-events-none -z-10" />
 
       {/* Desktop Sidebar */}
       <aside
-        className={`fixed inset-y-4 left-4 z-30 hidden rounded-3xl border border-[var(--nova-border)] bg-[var(--nova-surface)] shadow-sm dark:border-[#1E293B] dark:bg-[#111827] transition-all duration-300 lg:block ${
+        className={`fixed inset-y-4 left-4 z-30 hidden rounded-3xl border border-[var(--nova-border)] bg-[var(--nova-surface)] shadow-sm dark:border-[#1E293B] dark:bg-[#111827] transition-all duration-300 lg:flex flex-col min-h-0 overflow-hidden ${
           collapsed ? 'w-[80px]' : 'w-68'
         }`}
       >
@@ -260,7 +261,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className="absolute inset-y-4 left-4 w-68 rounded-3xl border border-[var(--nova-border)] bg-[var(--nova-surface)] shadow-card dark:border-[#1E293B] dark:bg-[#111827] backdrop-blur-2xl"
+              className="absolute inset-y-4 left-4 w-68 max-w-[calc(100vw-2rem)] rounded-3xl border border-[var(--nova-border)] bg-[var(--nova-surface)] shadow-card dark:border-[#1E293B] dark:bg-[#111827] backdrop-blur-2xl flex flex-col min-h-0 overflow-hidden"
             >
               {SidebarContent}
             </motion.aside>
@@ -270,7 +271,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
 
       {/* Content Area Wrapper */}
       <div
-        className={`transition-all duration-300 ${collapsed ? 'lg:pl-[112px]' : 'lg:pl-[312px]'} pr-0 lg:pr-6 pt-4 pb-6`}
+        className={`min-w-0 flex-1 transition-all duration-300 ${collapsed ? 'lg:pl-[112px]' : 'lg:pl-[312px]'} pr-0 lg:pr-6 pt-4 pb-6 overflow-x-hidden`}
       >
         {/* Desktop/Laptop Header Bar */}
         <header className="relative z-30 hidden lg:flex h-16 items-center justify-between border border-[var(--nova-border)] bg-white/92 rounded-3xl px-6 mb-6 shadow-[0_1px_3px_rgba(15,23,42,0.06)] dark:border-[#1E293B] dark:bg-[#111827]/92 backdrop-blur-md">
@@ -445,7 +446,7 @@ function SidebarLink({
       end={end}
       onClick={onClick}
       className={({ isActive }) =>
-        `group relative flex items-center gap-3.5 rounded-2xl px-4 py-3 text-xs font-bold transition-all duration-300 border ${
+        `group relative flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-semibold transition-all duration-200 border ${
           collapsed ? 'justify-center' : ''
         } ${
           isActive

@@ -42,6 +42,10 @@ export const codingService = {
     return fetchApi('/coding/problems/filters');
   },
 
+  async getCapabilities(): Promise<{ supportedLanguages: import('@/types/coding').SupportedCodingLanguage[]; compilers: Record<string, string> }> {
+    return fetchApi('/coding/capabilities');
+  },
+
   async getProblemBySlug(slug: string): Promise<PublicCodingProblemDetail> {
     return fetchApi(`/coding/problems/${encodeURIComponent(slug)}`);
   },

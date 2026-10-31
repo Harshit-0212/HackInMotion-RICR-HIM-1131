@@ -1,23 +1,31 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
-  Code2,
-  Clock,
-  HardDrive,
-  Layers,
-  Sparkles,
   ChevronLeft,
+  ChevronDown,
+  ChevronUp,
+  Play,
+  RotateCcw,
   Copy,
   Check,
+  Sparkles,
   AlertCircle,
   FileCode,
-  Info,
+  Layers,
   Terminal,
+  Clock,
+  HardDrive,
+  Info,
+  CheckCircle2,
+  XCircle,
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { PageHeader } from '@/components/layout/PageHeader';
 import { codingService } from '@/services/codingService';
-import type { PublicCodingProblemDetail, SupportedCodingLanguage } from '@/types/coding';
+import type {
+  PublicCodingProblemDetail,
+  SupportedCodingLanguage,
+  RunCodeResult,
+} from '@/types/coding';
 import { useToast } from '@/store/ToastContext';
 
 export function CodingProblemDetail() {
@@ -28,21 +36,51 @@ export function CodingProblemDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Selected language for starter code scaffolding
-  const [selectedLang, setSelectedLang] = useState<SupportedCodingLanguage>('cpp');
-  const [copiedCode, setCopiedCode] = useState(false);
-  const [copiedCaseIdx, setCopiedCaseIdx] = useState<number | null>(null);
+  // Editor states
+  const [selectedLang, setSelectedLang] = useState<SupportedCodingLanguage>('python');
+  const [code, setCode] = useState<string>('');
+  const [userCodeByLang, setUserCodeByLang] = useState<Partial<Record<SupportedCodingLanguage, string>>>({});
+  const [verifiedLangs, setVerifiedLangs] = useState<SupportedCodingLanguage[]>(['c', 'cpp', 'java', 'python']);
+  const [inputVal, setInputVal] = useState<string>('');
+  const [activeBottomTab, setActiveBottomTab] = useState<'input' | 'output'>('input');
+  const [activeMobileTab, setActiveMobileTab] = useState<'problem' | 'code'>('problem');
 
+  // Execution states
+  const [isRunning, setIsRunning] = useState(false);
+  const [runResult, setRunResult] = useState<RunCodeResult | null>(null);
+  const [copiedCode, setCopiedCode] = useState(false);
+  const [copiedOutput, setCopiedOutput] = useState(false);
+  const [copiedCaseIdx, setCopiedCaseIdx] = useState<number | null>(null);
+  const [constraintsOpen, setConstraintsOpen] = useState(false);
+
+  const outputRef = useRef<HTMLDivElement>(null);
+
+  // Load problem details
   useEffect(() => {
     if (!slug) return;
     setIsLoading(true);
     setError(null);
-    codingService
-      .getProblemBySlug(slug)
-      .then((data) => {
+    Promise.all([
+      codingService.getProblemBySlug(slug),
+      codingService.getCapabilities().catch(() => ({ supportedLanguages: ['c', 'cpp', 'java', 'python'] as SupportedCodingLanguage[] })),
+    ])
+      .then(([data, caps]) => {
         setProblem(data);
-        if (data.supportedLanguages?.length > 0) {
-          setSelectedLang(data.supportedLanguages[0]);
+        const availableCaps = (caps.supportedLanguages || ['c', 'cpp', 'java', 'python']) as SupportedCodingLanguage[];
+        setVerifiedLangs(availableCaps);
+
+        // Intersection of problem languages and verified execution languages
+        const availableOptions = (data.supportedLanguages || []).filter((l) => availableCaps.includes(l));
+        const initialLang = availableOptions.includes('python')
+          ? 'python'
+          : (availableOptions[0] || 'python');
+        setSelectedLang(initialLang);
+        setCode(data.starterCodeByLanguage?.[initialLang] || '');
+        setUserCodeByLang({
+          [initialLang]: data.starterCodeByLanguage?.[initialLang] || '',
+        });
+        if (data.sampleCases?.length > 0) {
+          setInputVal(data.sampleCases[0].input);
         }
       })
       .catch((err: unknown) => {
@@ -54,15 +92,76 @@ export function CodingProblemDetail() {
       });
   }, [slug]);
 
-  const handleCopyStarterCode = async () => {
-    if (!problem?.starterCodeByLanguage?.[selectedLang]) return;
+  // Update starter code when language switches
+  const handleLanguageChange = (lang: SupportedCodingLanguage) => {
+    // Preserve current code in cache before switching
+    setUserCodeByLang((prev) => ({ ...prev, [selectedLang]: code }));
+    setSelectedLang(lang);
+    // Load cached code or fall back to problem starter code
+    const cachedCode = userCodeByLang[lang];
+    if (typeof cachedCode === 'string') {
+      setCode(cachedCode);
+    } else if (problem?.starterCodeByLanguage?.[lang]) {
+      setCode(problem.starterCodeByLanguage[lang] || '');
+    } else {
+      setCode('');
+    }
+  };
+
+  const handleResetCode = () => {
+    const starter = problem?.starterCodeByLanguage?.[selectedLang] || '';
+    setCode(starter);
+    setUserCodeByLang((prev) => ({ ...prev, [selectedLang]: starter }));
+    showToast('Starter code restored.', 'info');
+  };
+
+  const handleLoadSample = (sampleInput: string) => {
+    setInputVal(sampleInput);
+    setActiveBottomTab('input');
+    showToast('Sample input loaded.', 'info');
+  };
+
+  const handleRunCode = async () => {
+    if (!code.trim()) {
+      showToast('Please write code before running.', 'error');
+      return;
+    }
+    setIsRunning(true);
     try {
-      await navigator.clipboard.writeText(problem.starterCodeByLanguage[selectedLang]);
-      setCopiedCode(true);
-      showToast('Starter code copied to clipboard!', 'success');
-      setTimeout(() => setCopiedCode(false), 2000);
+      const res = await codingService.runCode({
+        language: selectedLang,
+        code,
+        input: inputVal,
+      });
+      setRunResult(res);
+      setActiveBottomTab('output');
+      if (window.innerWidth < 1024) {
+        setActiveMobileTab('code');
+        setTimeout(() => outputRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Execution failed';
+      setRunResult({
+        status: 'error',
+        output: '',
+        error: msg,
+      });
+      setActiveBottomTab('output');
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
+  const handleCopyOutput = async () => {
+    const textToCopy = runResult?.output || runResult?.error || '';
+    if (!textToCopy) return;
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      setCopiedOutput(true);
+      showToast('Output copied to clipboard', 'success');
+      setTimeout(() => setCopiedOutput(false), 2000);
     } catch {
-      // fallback
+      // ignore
     }
   };
 
@@ -72,7 +171,32 @@ export function CodingProblemDetail() {
       setCopiedCaseIdx(idx);
       setTimeout(() => setCopiedCaseIdx(null), 1800);
     } catch {
-      // fallback
+      // ignore
+    }
+  };
+
+  const getDifficultyBadge = (diff: string) => {
+    switch (diff) {
+      case 'easy':
+        return (
+          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+            Easy
+          </span>
+        );
+      case 'medium':
+        return (
+          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+            Medium
+          </span>
+        );
+      case 'hard':
+        return (
+          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-400 border border-rose-200 dark:border-rose-800">
+            Hard
+          </span>
+        );
+      default:
+        return null;
     }
   };
 
@@ -81,7 +205,7 @@ export function CodingProblemDetail() {
       <AppLayout>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center space-y-3">
           <Sparkles className="w-8 h-8 text-blue-500 animate-spin mx-auto" />
-          <p className="text-xs text-gray-500 dark:text-slate-400">Loading problem specification...</p>
+          <p className="text-xs text-gray-500 dark:text-slate-400">Loading coding workspace...</p>
         </div>
       </AppLayout>
     );
@@ -94,7 +218,7 @@ export function CodingProblemDetail() {
           <AlertCircle className="w-10 h-10 text-rose-500 mx-auto" />
           <h2 className="text-base font-bold text-gray-900 dark:text-white">Problem Unavailable</h2>
           <p className="text-xs text-gray-500 dark:text-slate-400 max-w-md mx-auto">
-            {error || 'This challenge could not be found or has not been published.'}
+            {error || 'This challenge could not be found or is not published.'}
           </p>
           <Link
             to="/app/coding"
@@ -107,246 +231,453 @@ export function CodingProblemDetail() {
     );
   }
 
+  const lineCount = code.split('\n').length;
+
   return (
     <AppLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        {/* Breadcrumb Navigation */}
-        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-slate-400">
-          <Link to="/app/coding" className="hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-1">
-            <ChevronLeft className="w-3.5 h-3.5" /> Practice Library
-          </Link>
-          <span>/</span>
-          <span className="text-gray-800 dark:text-slate-200 font-medium truncate">{problem.title}</span>
-        </div>
-
-        {/* Top Header Summary Card */}
-        <div className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-6 shadow-xs space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2.5">
-                <span
-                  className={`px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase ${
-                    problem.difficulty === 'easy'
-                      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
-                      : problem.difficulty === 'medium'
-                        ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400 border border-amber-200 dark:border-amber-800'
-                        : 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-400 border border-rose-200 dark:border-rose-800'
-                  }`}
-                >
-                  {problem.difficulty}
-                </span>
-
-                <span className="text-xs font-medium text-gray-500 dark:text-slate-400 flex items-center gap-1">
-                  <Layers className="w-3.5 h-3.5" /> {problem.topic}
-                </span>
-              </div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{problem.title}</h1>
-            </div>
-
-            <div className="flex items-center gap-4 text-xs font-mono text-gray-600 dark:text-slate-400 bg-gray-50 dark:bg-slate-800/60 px-3.5 py-2 rounded-xl border border-gray-100 dark:border-slate-700">
-              <div className="flex items-center gap-1.5" title="Execution time limit">
-                <Clock className="w-4 h-4 text-blue-500" />
-                <span>{problem.executionLimits.timeLimitMs} ms</span>
-              </div>
-              <div className="flex items-center gap-1.5" title="Memory limit">
-                <HardDrive className="w-4 h-4 text-purple-500" />
-                <span>{problem.executionLimits.memoryLimitMb} MB</span>
-              </div>
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4">
+        {/* Compact Page Header */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-gray-200 dark:border-slate-800">
+          <div className="flex items-center gap-3 min-w-0">
+            <Link
+              to="/app/coding"
+              aria-label="Back to problems"
+              className="p-1.5 rounded-lg border border-gray-200 dark:border-slate-700 text-gray-500 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Link>
+            <h1 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white truncate">
+              {problem.title}
+            </h1>
+            <div className="flex items-center gap-2 shrink-0">
+              {getDifficultyBadge(problem.difficulty)}
+              <span className="text-[11px] font-medium text-gray-500 dark:text-slate-400 flex items-center gap-1">
+                <Layers className="w-3 h-3" /> {problem.topic}
+              </span>
             </div>
           </div>
 
-          {problem.tags?.length > 0 && (
-            <div className="flex flex-wrap items-center gap-1.5 pt-1">
-              {problem.tags.map((t, idx) => (
-                <span
-                  key={idx}
-                  className="px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 border border-gray-200 dark:border-slate-700"
-                >
-                  #{t}
-                </span>
-              ))}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Mobile Tab Switcher */}
+            <div className="flex lg:hidden rounded-lg border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 p-0.5 text-xs font-medium">
+              <button
+                type="button"
+                onClick={() => setActiveMobileTab('problem')}
+                className={`px-3 py-1 rounded-md transition-colors ${
+                  activeMobileTab === 'problem'
+                    ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
+                    : 'text-gray-600 dark:text-slate-400'
+                }`}
+              >
+                Problem
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveMobileTab('code')}
+                className={`px-3 py-1 rounded-md transition-colors ${
+                  activeMobileTab === 'code'
+                    ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
+                    : 'text-gray-600 dark:text-slate-400'
+                }`}
+              >
+                Code & Run
+              </button>
             </div>
-          )}
+          </div>
         </div>
 
-        {/* Main Grid: Problem Statement (Left 7 cols) & Scaffolding (Right 5 cols) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column: Problem Description & Testcases */}
-          <div className="lg:col-span-7 space-y-6">
-            {/* Statement Card */}
-            <div className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-6 shadow-xs space-y-5">
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400 mb-2 flex items-center gap-1.5">
-                  <FileCode className="w-4 h-4 text-blue-500" /> Problem Statement
-                </h3>
+        {/* Two-Panel Workspace Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start min-w-0">
+          {/* Left Panel: Problem Statement & Examples (5 cols on large screens) */}
+          <div
+            className={`lg:col-span-5 min-w-0 space-y-4 ${
+              activeMobileTab === 'problem' ? 'block' : 'hidden lg:block'
+            }`}
+          >
+            <div className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs p-5 space-y-5 lg:max-h-[calc(100vh-12rem)] lg:overflow-y-auto">
+              {/* Problem Statement */}
+              <div className="space-y-2">
+                <h2 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400 flex items-center gap-1.5">
+                  <FileCode className="w-3.5 h-3.5 text-blue-500" /> Description
+                </h2>
                 <div className="text-xs sm:text-sm text-gray-800 dark:text-slate-200 leading-relaxed whitespace-pre-line font-sans">
                   {problem.statement}
                 </div>
               </div>
 
-              {/* Input Format */}
-              <div className="pt-4 border-t border-gray-100 dark:border-slate-800">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5">
-                  Input Format
-                </h4>
-                <div className="text-xs text-gray-600 dark:text-slate-300 leading-relaxed whitespace-pre-line bg-gray-50 dark:bg-slate-800/40 p-3 rounded-xl border border-gray-100 dark:border-slate-800">
-                  {problem.inputFormat}
+              {/* Input & Output Format */}
+              <div className="space-y-3 pt-3 border-t border-gray-100 dark:border-slate-800 text-xs">
+                <div>
+                  <h3 className="text-[11px] font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1">
+                    Input Format
+                  </h3>
+                  <div className="text-xs text-gray-600 dark:text-slate-400 bg-gray-50 dark:bg-slate-800/40 p-2.5 rounded-xl border border-gray-100 dark:border-slate-800 whitespace-pre-line">
+                    {problem.inputFormat}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-[11px] font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1">
+                    Output Format
+                  </h3>
+                  <div className="text-xs text-gray-600 dark:text-slate-400 bg-gray-50 dark:bg-slate-800/40 p-2.5 rounded-xl border border-gray-100 dark:border-slate-800 whitespace-pre-line">
+                    {problem.outputFormat}
+                  </div>
                 </div>
               </div>
 
-              {/* Output Format */}
-              <div className="pt-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5">
-                  Output Format
-                </h4>
-                <div className="text-xs text-gray-600 dark:text-slate-300 leading-relaxed whitespace-pre-line bg-gray-50 dark:bg-slate-800/40 p-3 rounded-xl border border-gray-100 dark:border-slate-800">
-                  {problem.outputFormat}
-                </div>
-              </div>
-
-              {/* Constraints */}
-              <div className="pt-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5">
-                  Constraints
-                </h4>
-                <pre className="text-xs font-mono text-gray-700 dark:text-slate-300 leading-relaxed bg-gray-50 dark:bg-slate-800/40 p-3 rounded-xl border border-gray-100 dark:border-slate-800 overflow-x-auto whitespace-pre-wrap">
-                  {problem.constraints}
-                </pre>
-              </div>
-            </div>
-
-            {/* Public Sample Test Cases */}
-            <div className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-6 shadow-xs space-y-4">
-              <div className="flex items-center justify-between">
+              {/* Examples */}
+              <div className="space-y-3 pt-3 border-t border-gray-100 dark:border-slate-800">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400 flex items-center gap-1.5">
-                  <Terminal className="w-4 h-4 text-emerald-500" /> Sample Test Cases ({problem.sampleCases?.length || 0})
+                  <Terminal className="w-3.5 h-3.5 text-emerald-500" /> Examples ({problem.sampleCases?.length || 0})
                 </h3>
-                <span className="text-[11px] text-gray-400">Public verification cases</span>
+
+                {problem.sampleCases?.map((sc, idx) => (
+                  <div
+                    key={sc.caseKey || idx}
+                    className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/60 dark:bg-slate-800/40 p-3.5 space-y-2.5 text-xs"
+                  >
+                    <div className="flex items-center justify-between text-xs font-semibold text-gray-700 dark:text-slate-300">
+                      <span>Example {idx + 1}</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleLoadSample(sc.input)}
+                          className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline"
+                        >
+                          Use as Input
+                        </button>
+                        <span>•</span>
+                        <button
+                          type="button"
+                          onClick={() => handleCopyTestCaseInput(sc.input, idx)}
+                          className="flex items-center gap-1 text-[11px] text-gray-500 hover:text-gray-800 dark:hover:text-slate-200"
+                        >
+                          {copiedCaseIdx === idx ? (
+                            <>
+                              <Check className="w-3 h-3 text-emerald-500" /> Copied
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3 h-3" /> Copy
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 font-mono text-xs">
+                      <div>
+                        <span className="text-[10px] uppercase font-bold text-gray-400 block mb-0.5">Input:</span>
+                        <pre className="p-2 bg-slate-950 text-slate-100 rounded-lg overflow-x-auto whitespace-pre">
+                          {sc.input}
+                        </pre>
+                      </div>
+                      <div>
+                        <span className="text-[10px] uppercase font-bold text-gray-400 block mb-0.5">Output:</span>
+                        <pre className="p-2 bg-slate-950 text-emerald-400 rounded-lg overflow-x-auto whitespace-pre">
+                          {sc.expectedOutput}
+                        </pre>
+                      </div>
+                    </div>
+
+                    {sc.explanation && (
+                      <p className="text-[11px] text-gray-500 dark:text-slate-400 font-sans italic pt-1 border-t border-gray-200 dark:border-slate-700/60">
+                        {sc.explanation}
+                      </p>
+                    )}
+                  </div>
+                ))}
               </div>
 
-              {(!problem.sampleCases || problem.sampleCases.length === 0) && (
-                <p className="text-xs text-gray-400 italic">No public sample cases provided.</p>
-              )}
-
-              {problem.sampleCases?.map((sc, idx) => (
-                <div
-                  key={sc.caseKey || idx}
-                  className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30 p-4 space-y-3"
+              {/* Collapsible Constraints */}
+              <div className="pt-2 border-t border-gray-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setConstraintsOpen(!constraintsOpen)}
+                  className="flex items-center justify-between w-full py-1 text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
-                  <div className="flex items-center justify-between text-xs font-semibold text-gray-700 dark:text-slate-300">
-                    <span>Sample Case {idx + 1}</span>
-                    <button
-                      type="button"
-                      onClick={() => handleCopyTestCaseInput(sc.input, idx)}
-                      className="flex items-center gap-1 text-[11px] text-gray-500 hover:text-gray-800 dark:hover:text-slate-200"
-                    >
-                      {copiedCaseIdx === idx ? (
-                        <>
-                          <Check className="w-3 h-3 text-emerald-500" /> Copied Input
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3 h-3" /> Copy Input
-                        </>
-                      )}
-                    </button>
-                  </div>
+                  <span>Constraints & Limits</span>
+                  {constraintsOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
-                    <div>
-                      <span className="text-[10px] text-gray-400 uppercase tracking-wider block mb-1">
-                        Input:
+                {constraintsOpen && (
+                  <div className="mt-2.5 space-y-2 text-xs">
+                    <pre className="p-2.5 rounded-lg bg-gray-50 dark:bg-slate-800/40 text-gray-700 dark:text-slate-300 font-mono overflow-x-auto whitespace-pre-wrap border border-gray-100 dark:border-slate-800">
+                      {problem.constraints}
+                    </pre>
+                    <div className="flex items-center gap-4 text-[11px] text-gray-500 font-mono">
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5" /> Time: {problem.executionLimits.timeLimitMs}ms
                       </span>
-                      <pre className="p-2.5 rounded-lg bg-slate-950 text-slate-100 overflow-x-auto whitespace-pre">
-                        {sc.input}
-                      </pre>
-                    </div>
-
-                    <div>
-                      <span className="text-[10px] text-gray-400 uppercase tracking-wider block mb-1">
-                        Expected Output:
+                      <span className="flex items-center gap-1">
+                        <HardDrive className="w-3.5 h-3.5" /> Memory: {problem.executionLimits.memoryLimitMb}MB
                       </span>
-                      <pre className="p-2.5 rounded-lg bg-slate-950 text-emerald-400 overflow-x-auto whitespace-pre">
-                        {sc.expectedOutput}
-                      </pre>
                     </div>
                   </div>
-
-                  {sc.explanation && (
-                    <div className="text-[11px] text-gray-600 dark:text-slate-400 font-sans border-t border-gray-200 dark:border-slate-800 pt-2">
-                      <span className="font-semibold text-gray-700 dark:text-slate-300 mr-1">Explanation:</span>
-                      {sc.explanation}
-                    </div>
-                  )}
-                </div>
-              ))}
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Right Column: Starter Code & Scaffolding */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs overflow-hidden">
-              <div className="p-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/80 dark:bg-slate-800/60 flex items-center justify-between">
+          {/* Right Panel: Editor + Input/Output Workspace (7 cols on large screens) */}
+          <div
+            className={`lg:col-span-7 min-w-0 space-y-4 ${
+              activeMobileTab === 'code' ? 'block' : 'hidden lg:block'
+            }`}
+          >
+            {/* Editor Container */}
+            <div className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs overflow-hidden flex flex-col">
+              {/* Minimal Editor Toolbar */}
+              <div className="px-4 py-2.5 border-b border-gray-200 dark:border-slate-800 bg-gray-50/90 dark:bg-slate-800/60 flex items-center justify-between gap-3 text-xs">
                 <div className="flex items-center gap-2">
-                  <Code2 className="w-4 h-4 text-blue-500" />
-                  <span className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
-                    Starter Code
-                  </span>
+                  <label htmlFor="language-select" className="text-gray-500 font-medium text-[11px]">
+                    Language:
+                  </label>
+                  <select
+                    id="language-select"
+                    value={selectedLang}
+                    onChange={(e) => handleLanguageChange(e.target.value as SupportedCodingLanguage)}
+                    className="px-2.5 py-1 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-semibold uppercase text-gray-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  >
+                    {problem.supportedLanguages
+                      ?.filter((l) => verifiedLangs.includes(l))
+                      .map((l) => (
+                        <option key={l} value={l}>
+                          {l}
+                        </option>
+                      ))}
+                  </select>
                 </div>
 
-                {/* Language Switcher */}
-                <div className="flex items-center border border-gray-200 dark:border-slate-700 rounded-lg p-0.5 bg-white dark:bg-slate-900 text-xs">
-                  {problem.supportedLanguages?.map((lang) => (
-                    <button
-                      key={lang}
-                      type="button"
-                      onClick={() => setSelectedLang(lang)}
-                      className={`px-2 py-0.5 rounded text-[11px] font-mono uppercase font-semibold transition-colors ${
-                        selectedLang === lang
-                          ? 'bg-blue-600 text-white'
-                          : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white'
-                      }`}
-                    >
-                      {lang}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Code Scaffolding Display */}
-              <div className="relative bg-slate-950 p-4 font-mono text-xs">
-                <pre className="text-slate-100 overflow-x-auto max-h-[460px] leading-relaxed">
-                  {problem.starterCodeByLanguage?.[selectedLang] || '// No starter code available for this language'}
-                </pre>
-
-                <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
-                  <span className="text-[11px] text-slate-500">Full-program standard I/O</span>
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={handleCopyStarterCode}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-200 hover:bg-slate-700 hover:text-white transition-colors"
+                    onClick={handleResetCode}
+                    title="Restore default starter code"
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-[11px]"
                   >
-                    {copiedCode ? (
-                      <>
-                        <Check className="w-3.5 h-3.5 text-emerald-400" /> Copied
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3.5 h-3.5" /> Copy Scaffolding
-                      </>
-                    )}
+                    <RotateCcw className="w-3 h-3" /> Reset
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={isRunning}
+                    onClick={handleRunCode}
+                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold text-xs transition-colors shadow-xs"
+                  >
+                    <Play className={`w-3.5 h-3.5 ${isRunning ? 'animate-spin' : 'fill-white'}`} />
+                    {isRunning ? 'Running…' : 'Run Code'}
                   </button>
                 </div>
               </div>
 
-              {/* Disclaimer / Notice */}
-              <div className="p-4 bg-gray-50/70 dark:bg-slate-800/40 text-[11px] text-gray-500 dark:text-slate-400 border-t border-gray-100 dark:border-slate-800 flex items-start gap-2">
-                <Info className="w-3.5 h-3.5 text-blue-500 shrink-0 mt-0.5" />
-                <span>
-                  Code execution and online judging are handled via isolated sandboxes in a subsequent phase. Copy
-                  the template above into your local IDE or the Cadence Code Debugger to experiment.
-                </span>
+              {/* Monospace Code Editor Area */}
+              <div className="relative bg-slate-950 flex font-mono text-xs">
+                {/* Line Numbers */}
+                <div
+                  aria-hidden="true"
+                  className="py-3 px-2 bg-slate-900/60 text-slate-600 select-none text-right font-mono text-[11px] leading-relaxed shrink-0 border-r border-slate-800/80"
+                  style={{ minWidth: '2.5rem' }}
+                >
+                  {Array.from({ length: Math.max(12, lineCount) }).map((_, i) => (
+                    <div key={i}>{i + 1}</div>
+                  ))}
+                </div>
+
+                {/* Editor Textarea */}
+                <textarea
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  placeholder="Type or paste your code here..."
+                  rows={16}
+                  className="w-full p-3 bg-transparent text-slate-100 font-mono text-xs leading-relaxed focus:outline-none resize-y selection:bg-blue-600/40 overflow-x-auto whitespace-pre"
+                  spellCheck={false}
+                />
               </div>
+
+              {/* Status bar */}
+              <div className="px-4 py-1.5 bg-slate-900 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
+                <span>
+                  {lineCount} lines • {code.length} chars
+                </span>
+                <span className="text-slate-500">Standard input/output</span>
+              </div>
+            </div>
+
+            {/* Input / Output Tabbed Panel */}
+            <div
+              ref={outputRef}
+              className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs overflow-hidden"
+            >
+              {/* Tabs */}
+              <div className="px-4 py-2 border-b border-gray-200 dark:border-slate-800 bg-gray-50/80 dark:bg-slate-800/50 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setActiveBottomTab('input')}
+                    className={`px-3 py-1 rounded-lg font-semibold transition-colors ${
+                      activeBottomTab === 'input'
+                        ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
+                        : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white'
+                    }`}
+                  >
+                    Custom Input
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveBottomTab('output')}
+                    className={`px-3 py-1 rounded-lg font-semibold transition-colors flex items-center gap-1.5 ${
+                      activeBottomTab === 'output'
+                        ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
+                        : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white'
+                    }`}
+                  >
+                    <span>Output</span>
+                    {runResult && (
+                      <span
+                        className={`w-2 h-2 rounded-full ${
+                          runResult.status === 'success' ? 'bg-emerald-500' : 'bg-rose-500'
+                        }`}
+                      />
+                    )}
+                  </button>
+                </div>
+
+                {activeBottomTab === 'output' && (runResult?.output || runResult?.error) && (
+                  <button
+                    type="button"
+                    onClick={handleCopyOutput}
+                    className="flex items-center gap-1 text-[11px] text-gray-500 hover:text-gray-800 dark:hover:text-slate-200"
+                  >
+                    {copiedOutput ? (
+                      <>
+                        <Check className="w-3 h-3 text-emerald-500" /> Copied
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3 h-3" /> Copy Output
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+
+              {/* Tab 1: Custom Input */}
+              {activeBottomTab === 'input' && (
+                <div className="p-4 space-y-2">
+                  <div className="flex items-center justify-between text-[11px] text-gray-500">
+                    <span>Provide standard input (stdin) for your execution:</span>
+                    {problem.sampleCases?.length > 0 && (
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] uppercase">Load:</span>
+                        {problem.sampleCases.map((_, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => handleLoadSample(problem.sampleCases[i].input)}
+                            className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-[10px] font-mono text-gray-700 dark:text-slate-300"
+                          >
+                            Ex {i + 1}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <textarea
+                    rows={4}
+                    value={inputVal}
+                    onChange={(e) => setInputVal(e.target.value)}
+                    placeholder="Enter custom stdin here..."
+                    className="w-full p-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-800/40 text-xs font-mono text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500 whitespace-pre"
+                  />
+                </div>
+              )}
+
+              {/* Tab 2: Output */}
+              {activeBottomTab === 'output' && (
+                <div className="p-4 space-y-3 font-mono text-xs">
+                  {/* Status header banner */}
+                  {isRunning ? (
+                    <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">
+                      <Sparkles className="w-4 h-4 animate-spin" />
+                      <span>Running your code in sandbox...</span>
+                    </div>
+                  ) : !runResult ? (
+                    <div className="text-gray-400 dark:text-slate-500 italic py-4 text-center">
+                      Click "Run Code" to compile and execute your solution.
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                        <div className="flex items-center gap-1.5">
+                          {runResult.status === 'success' ? (
+                            <>
+                              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                              <span className="font-semibold text-emerald-700 dark:text-emerald-400 font-sans">
+                                Execution completed
+                              </span>
+                            </>
+                          ) : runResult.status === 'compile_error' ? (
+                            <>
+                              <XCircle className="w-4 h-4 text-rose-500" />
+                              <span className="font-semibold text-rose-700 dark:text-rose-400 font-sans">
+                                Compilation error
+                              </span>
+                            </>
+                          ) : runResult.status === 'timeout' ? (
+                            <>
+                              <Clock className="w-4 h-4 text-amber-500" />
+                              <span className="font-semibold text-amber-700 dark:text-amber-400 font-sans">
+                                Execution timed out
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <AlertCircle className="w-4 h-4 text-rose-500" />
+                              <span className="font-semibold text-rose-700 dark:text-rose-400 font-sans">
+                                Runtime error
+                              </span>
+                            </>
+                          )}
+                        </div>
+
+                        {(runResult.time || runResult.memory) && (
+                          <div className="flex items-center gap-3 text-[11px] text-gray-500">
+                            {runResult.time && <span>Time: {runResult.time}s</span>}
+                            {runResult.memory && <span>Memory: {runResult.memory}KB</span>}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Actual standard output */}
+                      {runResult.output ? (
+                        <div className="space-y-1">
+                          <span className="text-[10px] uppercase font-bold text-gray-400">Program Output:</span>
+                          <pre className="p-3 rounded-xl bg-slate-950 text-slate-100 max-h-48 overflow-auto whitespace-pre leading-relaxed border border-slate-800">
+                            {runResult.output}
+                          </pre>
+                        </div>
+                      ) : (
+                        runResult.status === 'success' && (
+                          <p className="text-[11px] text-gray-400 italic">No output produced.</p>
+                        )
+                      )}
+
+                      {/* Error details if any */}
+                      {runResult.error && (
+                        <div className="space-y-1">
+                          <span className="text-[10px] uppercase font-bold text-rose-500">Error Details:</span>
+                          <pre className="p-3 rounded-xl bg-rose-950/40 text-rose-300 max-h-48 overflow-auto whitespace-pre text-[11px] leading-relaxed border border-rose-900/60">
+                            {runResult.error}
+                          </pre>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -354,4 +685,3 @@ export function CodingProblemDetail() {
     </AppLayout>
   );
 }
-

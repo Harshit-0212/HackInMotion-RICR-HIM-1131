@@ -97,6 +97,7 @@ export interface GeneratedQuestionDraftResult {
     caseSensitive: boolean;
   };
   starterCodeByLanguage: {
+    c?: string;
     cpp: string;
     java: string;
     python: string;
@@ -159,11 +160,12 @@ const draftQuestionSchema = {
     starterCodeByLanguage: {
       type: SchemaType.OBJECT,
       properties: {
+        c: { type: SchemaType.STRING },
         cpp: { type: SchemaType.STRING },
         java: { type: SchemaType.STRING },
         python: { type: SchemaType.STRING },
       },
-      required: ['cpp', 'java', 'python'],
+      required: ['c', 'cpp', 'java', 'python'],
     },
     sampleTestCases: {
       type: SchemaType.ARRAY,
@@ -194,7 +196,7 @@ const draftQuestionSchema = {
       items: {
         type: SchemaType.OBJECT,
         properties: {
-          language: { type: SchemaType.STRING, enum: ['cpp', 'java', 'python'] },
+          language: { type: SchemaType.STRING, enum: ['c', 'cpp', 'java', 'python'] },
           solutionCode: { type: SchemaType.STRING },
           approachExplanation: { type: SchemaType.STRING },
           timeComplexity: { type: SchemaType.STRING },
@@ -257,6 +259,7 @@ CRITICAL PROBLEM SPECIFICATION RULES:
 - Output format must explicitly explain the exact output printed to stdout including newlines.
 - Constraints must be mathematically rigorous (e.g., "1 <= N <= 10^5", "-10^9 <= A[i] <= 10^9").
 - Starter code must be scaffolding only (NOT completed solutions).
+  * For C: includes <stdio.h>, int main(void) reading input with scanf/fgets and TODO comment.
   * For C++: includes <iostream>, using namespace std;, int main() reading input and TODO comment.
   * For Java: class Main { public static void main(String[] args) { ... } } reading from Scanner/BufferedReader.
   * For Python: standard reading from sys.stdin or input() with TODO.
@@ -264,7 +267,7 @@ CRITICAL PROBLEM SPECIFICATION RULES:
   * Provide at least 2 clear sampleTestCases with detailed explanations.
   * Provide at least 3 hiddenTestCases covering edge cases (min constraints, max constraints, duplicates, zeroes, negatives).
 - Reference solutions:
-  * Provide complete, optimal solutions in all 3 languages: cpp, java, and python.
+  * Provide complete, optimal solutions in all 4 languages: c, cpp, java, and python.
   * Ensure Java class name is Main.
 - Progressive hints:
   * Provide 3 sequential hints from high-level observation to algorithm direction.

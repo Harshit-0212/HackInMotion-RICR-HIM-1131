@@ -24,9 +24,10 @@ import type {
 
 const VALID_DIFFICULTIES: ReadonlySet<ProblemDifficulty> = new Set(['easy', 'medium', 'hard']);
 const VALID_STATUSES: ReadonlySet<ProblemStatus> = new Set(['draft', 'reviewed', 'published', 'archived']);
-const VALID_LANGUAGES: ReadonlySet<SupportedCodingLanguage> = new Set(['cpp', 'java', 'python']);
+const VALID_LANGUAGES: ReadonlySet<SupportedCodingLanguage> = new Set(['c', 'cpp', 'java', 'python']);
 
 const DEFAULT_STARTER_CODE = {
+  c: '#include <stdio.h>\n\nint main(void) {\n    // Read input from stdin\n    // TODO: Implement solution\n    return 0;\n}\n',
   cpp: '#include <iostream>\nusing namespace std;\n\nint main() {\n    // Read input from stdin\n    // TODO: Implement solution\n    return 0;\n}\n',
   java: 'import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // TODO: Implement solution\n    }\n}\n',
   python: 'import sys\n\ndef main():\n    # TODO: Read from sys.stdin and implement solution\n    pass\n\nif __name__ == "__main__":\n    main()\n',
@@ -100,6 +101,7 @@ export const adminCodingController = {
         ? body.supportedLanguages.filter((l) => VALID_LANGUAGES.has(l))
         : ['cpp', 'java', 'python'],
       starterCodeByLanguage: {
+        c: body.starterCodeByLanguage?.c || DEFAULT_STARTER_CODE.c,
         cpp: body.starterCodeByLanguage?.cpp || DEFAULT_STARTER_CODE.cpp,
         java: body.starterCodeByLanguage?.java || DEFAULT_STARTER_CODE.java,
         python: body.starterCodeByLanguage?.python || DEFAULT_STARTER_CODE.python,

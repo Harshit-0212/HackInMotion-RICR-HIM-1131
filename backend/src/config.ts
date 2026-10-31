@@ -12,6 +12,7 @@ export const config = {
   mongoUri: process.env.MONGODB_URI || 'mongodb://localhost:27017/',
   mongoDbName: process.env.MONGODB_DB_NAME || 'nova',
   googleClientId: process.env.GOOGLE_CLIENT_ID || '',
+  codeExecutionApiKey: process.env.CODE_EXECUTION_API_KEY || '',
   resendApiKey: process.env.RESEND_API_KEY || '',
   emailFrom: process.env.EMAIL_FROM || 'Cadence <onboarding@resend.dev>',
 };

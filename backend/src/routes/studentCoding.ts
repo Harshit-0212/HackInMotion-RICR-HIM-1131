@@ -11,4 +11,19 @@ studentCodingRouter.use(requireAuth);
 studentCodingRouter.get('/problems/filters', studentCodingController.getFilters);
 studentCodingRouter.get('/problems', studentCodingController.listProblems);
 studentCodingRouter.get('/problems/:slug', studentCodingController.getProblemBySlug);
+studentCodingRouter.post('/run', studentCodingController.runCode);
 
+// Execution capabilities discovery endpoint
+studentCodingRouter.get('/capabilities', (req, res) => {
+  res.json({
+    data: {
+      supportedLanguages: ['c', 'cpp', 'java', 'python'],
+      compilers: {
+        c: 'gcc-15',
+        cpp: 'g++-15',
+        java: 'openjdk-25',
+        python: 'python-3.14',
+      },
+    },
+  });
+});

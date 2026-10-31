@@ -1,4 +1,4 @@
-export type SupportedCodingLanguage = 'cpp' | 'java' | 'python';
+export type SupportedCodingLanguage = 'c' | 'cpp' | 'java' | 'python';
 
 export type ProblemDifficulty = 'easy' | 'medium' | 'hard';
 
@@ -22,9 +22,10 @@ export interface ExecutionLimits {
 }
 
 export interface StarterCodeMap {
-  cpp: string;
-  java: string;
-  python: string;
+  c?: string;
+  cpp?: string;
+  java?: string;
+  python?: string;
 }
 
 export interface StoredCodingProblem {

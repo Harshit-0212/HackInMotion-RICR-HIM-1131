@@ -1,4 +1,4 @@
-export type SupportedCodingLanguage = 'cpp' | 'java' | 'python';
+export type SupportedCodingLanguage = 'c' | 'cpp' | 'java' | 'python';
 
 export type ProblemDifficulty = 'easy' | 'medium' | 'hard';
 
@@ -22,9 +22,10 @@ export interface ExecutionLimits {
 }
 
 export interface StarterCodeMap {
-  cpp: string;
-  java: string;
-  python: string;
+  c?: string;
+  cpp?: string;
+  java?: string;
+  python?: string;
 }
 
 export interface PublicSampleCase {
@@ -210,3 +211,12 @@ export interface GenerateDraftInput {
   additionalConstraints?: string;
 }
 
+
+export interface RunCodeResult {
+  status: 'success' | 'error' | 'timeout' | 'compile_error' | 'runtime_error';
+  output: string;
+  error?: string;
+  exitCode?: number | null;
+  time?: string;
+  memory?: string;
+}

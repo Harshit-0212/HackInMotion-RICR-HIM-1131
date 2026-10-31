@@ -64,6 +64,24 @@ export function AdminCodingStudio() {
   const [isAiDraftOpen, setIsAiDraftOpen] = useState(false);
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [isAddTestCaseOpen, setIsAddTestCaseOpen] = useState(false);
+  const [isEditProblemOpen, setIsEditProblemOpen] = useState(false);
+  const [isAddSolutionOpen, setIsAddSolutionOpen] = useState(false);
+
+  // Edit Problem Form State
+  const [editLanguages, setEditLanguages] = useState<SupportedCodingLanguage[]>(['cpp', 'java', 'python']);
+  const [starterCodeC, setStarterCodeC] = useState('');
+  const [starterCodeCpp, setStarterCodeCpp] = useState('');
+  const [starterCodeJava, setStarterCodeJava] = useState('');
+  const [starterCodePython, setStarterCodePython] = useState('');
+  const [isUpdatingProblem, setIsUpdatingProblem] = useState(false);
+
+  // Add Solution Form State
+  const [solutionLang, setSolutionLang] = useState<SupportedCodingLanguage>('c');
+  const [solutionCode, setSolutionCode] = useState('');
+  const [solutionApproach, setSolutionApproach] = useState('');
+  const [timeComplexity, setTimeComplexity] = useState('O(N)');
+  const [spaceComplexity, setSpaceComplexity] = useState('O(1)');
+  const [isSavingSolution, setIsSavingSolution] = useState(false);
 
   // Create Form State
   const [createForm, setCreateForm] = useState<CreateCodingProblemInput>({
@@ -93,6 +111,76 @@ export function AdminCodingStudio() {
   const [reviewMethod, setReviewMethod] = useState('Manual verification by instructor');
   const [reviewNotes, setReviewNotes] = useState('All test cases and edge cases verified.');
   const [isReviewing, setIsReviewing] = useState(false);
+
+  const openEditProblem = () => {
+    if (!selectedDetail) return;
+    const p = selectedDetail.problem;
+    setEditLanguages(p.supportedLanguages || ['cpp', 'java', 'python']);
+    setStarterCodeC(p.starterCodeByLanguage?.c || '#include <stdio.h>\n\nint main(void) {\n    return 0;\n}\n');
+    setStarterCodeCpp(p.starterCodeByLanguage?.cpp || '');
+    setStarterCodeJava(p.starterCodeByLanguage?.java || '');
+    setStarterCodePython(p.starterCodeByLanguage?.python || '');
+    setIsEditProblemOpen(true);
+  };
+
+  const handleSaveProblemLanguages = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedDetail) return;
+    setIsUpdatingProblem(true);
+    try {
+      await codingService.updateProblem(selectedDetail.problem._id, {
+        supportedLanguages: editLanguages,
+        starterCodeByLanguage: {
+          c: starterCodeC,
+          cpp: starterCodeCpp,
+          java: starterCodeJava,
+          python: starterCodePython,
+        },
+      });
+      showToast('Problem languages and starter code updated.', 'success');
+      setIsEditProblemOpen(false);
+      loadProblemDetail(selectedDetail.problem._id);
+      loadProblems();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to update problem';
+      showToast(msg, 'error');
+    } finally {
+      setIsUpdatingProblem(false);
+    }
+  };
+
+  const handleSaveSolution = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedDetail) return;
+    setIsSavingSolution(true);
+    try {
+      const existingSolutions = selectedDetail.privateContent?.referenceSolutions || [];
+      const updatedSolutions = [
+        ...existingSolutions.filter((s) => s.language !== solutionLang),
+        {
+          language: solutionLang,
+          solutionCode,
+          approachExplanation: solutionApproach || 'Optimal reference solution',
+          timeComplexity,
+          spaceComplexity,
+        },
+      ];
+      await codingService.updatePrivateContent(selectedDetail.problem._id, {
+        referenceSolutions: updatedSolutions,
+        editorial: selectedDetail.privateContent?.editorial,
+        hints: selectedDetail.privateContent?.hints,
+      });
+      showToast(`${solutionLang.toUpperCase()} reference solution saved.`, 'success');
+      setIsAddSolutionOpen(false);
+      setSolutionCode('');
+      loadProblemDetail(selectedDetail.problem._id);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to save solution';
+      showToast(msg, 'error');
+    } finally {
+      setIsSavingSolution(false);
+    }
+  };
 
   // Add Test Case Form State
   const [tcVisibility, setTcVisibility] = useState<'sample' | 'hidden'>('sample');
@@ -398,9 +486,9 @@ export function AdminCodingStudio() {
         </div>
 
         {/* Master-Detail Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start min-w-0">
           {/* Left List (5 cols) */}
-          <div className="lg:col-span-5 rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-xs">
+          <div className="lg:col-span-5 rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-xs min-w-0">
             <div className="p-3.5 border-b border-gray-100 dark:border-slate-800 bg-gray-50/70 dark:bg-slate-800/40 flex items-center justify-between text-xs">
               <span className="font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300">
                 Problems ({problems.length})
@@ -460,7 +548,7 @@ export function AdminCodingStudio() {
           </div>
 
           {/* Right Detail Pane (7 cols) */}
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-7 min-w-0 space-y-5">
             {!selectedDetail && (
               <div className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-12 text-center text-xs text-gray-400 space-y-2">
                 <FileText className="w-10 h-10 mx-auto text-gray-300 dark:text-slate-600" />
@@ -498,6 +586,14 @@ export function AdminCodingStudio() {
 
                     {/* Review & Publish Actions */}
                     <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={openEditProblem}
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-slate-200 border border-gray-200 dark:border-slate-700 hover:bg-gray-200 transition-colors flex items-center gap-1"
+                      >
+                        <Edit className="w-3.5 h-3.5" /> Edit Languages
+                      </button>
+
                       <button
                         type="button"
                         onClick={() => setIsReviewOpen(true)}
@@ -627,10 +723,23 @@ export function AdminCodingStudio() {
 
                 {/* Private Content / Solutions Panel */}
                 <div className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs space-y-4">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300 flex items-center gap-1.5">
-                    <FileText className="w-4 h-4 text-purple-500" />
-                    Private Content & Reference Solutions
-                  </h3>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300 flex items-center gap-1.5">
+                      <FileText className="w-4 h-4 text-purple-500" />
+                      Private Content & Reference Solutions
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSolutionLang('c');
+                        setSolutionCode('');
+                        setIsAddSolutionOpen(true);
+                      }}
+                      className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800 hover:bg-purple-100 transition-colors flex items-center gap-1"
+                    >
+                      <Plus className="w-3.5 h-3.5" /> Add Solution
+                    </button>
+                  </div>
 
                   {!selectedDetail.privateContent && (
                     <p className="text-xs text-gray-400 italic">No private solutions or hints recorded yet.</p>
@@ -1031,6 +1140,192 @@ export function AdminCodingStudio() {
                     className="px-4 py-2 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 disabled:opacity-50"
                   >
                     {isAddingTc ? 'Saving...' : 'Add Test Case'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+        {/* Modal 5: Edit Languages & Starter Code */}
+        {isEditProblemOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
+            <div className="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-xl p-6 space-y-4 max-h-[90vh] overflow-auto">
+              <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white">Supported Languages & Starter Code</h3>
+                <button type="button" onClick={() => setIsEditProblemOpen(false)} className="text-gray-400 hover:text-gray-600">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveProblemLanguages} className="space-y-4 text-xs">
+                <div>
+                  <label className="block font-medium text-gray-700 dark:text-slate-300 mb-2">Supported Languages</label>
+                  <div className="flex flex-wrap gap-3">
+                    {(['c', 'cpp', 'java', 'python'] as SupportedCodingLanguage[]).map((lang) => (
+                      <label key={lang} className="flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={editLanguages.includes(lang)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setEditLanguages([...editLanguages, lang]);
+                            } else {
+                              if (editLanguages.length > 1) {
+                                setEditLanguages(editLanguages.filter((l) => l !== lang));
+                              }
+                            }
+                          }}
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="uppercase font-semibold text-gray-800 dark:text-slate-200">{lang}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {editLanguages.includes('c') && (
+                  <div>
+                    <label className="block font-medium text-gray-700 dark:text-slate-300 mb-1">C Starter Code</label>
+                    <textarea
+                      rows={4}
+                      value={starterCodeC}
+                      onChange={(e) => setStarterCodeC(e.target.value)}
+                      className="w-full p-2.5 rounded-lg border border-gray-200 dark:border-slate-700 bg-slate-950 text-slate-100 font-mono text-xs focus:outline-none"
+                    />
+                  </div>
+                )}
+
+                {editLanguages.includes('cpp') && (
+                  <div>
+                    <label className="block font-medium text-gray-700 dark:text-slate-300 mb-1">C++ Starter Code</label>
+                    <textarea
+                      rows={4}
+                      value={starterCodeCpp}
+                      onChange={(e) => setStarterCodeCpp(e.target.value)}
+                      className="w-full p-2.5 rounded-lg border border-gray-200 dark:border-slate-700 bg-slate-950 text-slate-100 font-mono text-xs focus:outline-none"
+                    />
+                  </div>
+                )}
+
+                {editLanguages.includes('java') && (
+                  <div>
+                    <label className="block font-medium text-gray-700 dark:text-slate-300 mb-1">Java Starter Code</label>
+                    <textarea
+                      rows={4}
+                      value={starterCodeJava}
+                      onChange={(e) => setStarterCodeJava(e.target.value)}
+                      className="w-full p-2.5 rounded-lg border border-gray-200 dark:border-slate-700 bg-slate-950 text-slate-100 font-mono text-xs focus:outline-none"
+                    />
+                  </div>
+                )}
+
+                {editLanguages.includes('python') && (
+                  <div>
+                    <label className="block font-medium text-gray-700 dark:text-slate-300 mb-1">Python Starter Code</label>
+                    <textarea
+                      rows={4}
+                      value={starterCodePython}
+                      onChange={(e) => setStarterCodePython(e.target.value)}
+                      className="w-full p-2.5 rounded-lg border border-gray-200 dark:border-slate-700 bg-slate-950 text-slate-100 font-mono text-xs focus:outline-none"
+                    />
+                  </div>
+                )}
+
+                <div className="pt-2 flex justify-end gap-2 border-t border-gray-100 dark:border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditProblemOpen(false)}
+                    className="px-4 py-2 rounded-lg border border-gray-200 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-800"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isUpdatingProblem}
+                    className="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {isUpdatingProblem ? 'Saving...' : 'Save Changes'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Modal 6: Add Reference Solution */}
+        {isAddSolutionOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
+            <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-xl p-6 space-y-4 max-h-[90vh] overflow-auto">
+              <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white">Add Reference Solution</h3>
+                <button type="button" onClick={() => setIsAddSolutionOpen(false)} className="text-gray-400 hover:text-gray-600">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveSolution} className="space-y-4 text-xs">
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block font-medium text-gray-700 dark:text-slate-300 mb-1">Language</label>
+                    <select
+                      value={solutionLang}
+                      onChange={(e) => setSolutionLang(e.target.value as SupportedCodingLanguage)}
+                      className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 uppercase focus:outline-none"
+                    >
+                      <option value="c">C</option>
+                      <option value="cpp">C++</option>
+                      <option value="java">Java</option>
+                      <option value="python">Python</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block font-medium text-gray-700 dark:text-slate-300 mb-1">Time</label>
+                    <input
+                      type="text"
+                      value={timeComplexity}
+                      onChange={(e) => setTimeComplexity(e.target.value)}
+                      placeholder="e.g. O(N)"
+                      className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-medium text-gray-700 dark:text-slate-300 mb-1">Space</label>
+                    <input
+                      type="text"
+                      value={spaceComplexity}
+                      onChange={(e) => setSpaceComplexity(e.target.value)}
+                      placeholder="e.g. O(1)"
+                      className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-medium text-gray-700 dark:text-slate-300 mb-1">Solution Code</label>
+                  <textarea
+                    rows={8}
+                    required
+                    value={solutionCode}
+                    onChange={(e) => setSolutionCode(e.target.value)}
+                    placeholder="Complete working reference code..."
+                    className="w-full p-2.5 rounded-lg border border-gray-200 dark:border-slate-700 bg-slate-950 text-slate-100 font-mono text-xs focus:outline-none whitespace-pre"
+                  />
+                </div>
+
+                <div className="pt-2 flex justify-end gap-2 border-t border-gray-100 dark:border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setIsAddSolutionOpen(false)}
+                    className="px-4 py-2 rounded-lg border border-gray-200 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-800"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSavingSolution}
+                    className="px-4 py-2 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-700 disabled:opacity-50"
+                  >
+                    {isSavingSolution ? 'Saving...' : 'Save Solution'}
                   </button>
                 </div>
               </form>
