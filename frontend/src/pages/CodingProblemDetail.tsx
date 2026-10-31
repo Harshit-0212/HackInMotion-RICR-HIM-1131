@@ -18,6 +18,8 @@ import {
   Info,
   CheckCircle2,
   XCircle,
+  RefreshCw,
+  Loader2,
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { codingService } from '@/services/codingService';
@@ -33,14 +35,20 @@ export function CodingProblemDetail() {
   const { showToast } = useToast();
 
   const [problem, setProblem] = useState<PublicCodingProblemDetail | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [isLoadingProblem, setIsLoadingProblem] = useState(true);
+  const [problemError, setProblemError] = useState<string | null>(null);
+
+  // Capabilities states
+  const [verifiedLangs, setVerifiedLangs] = useState<SupportedCodingLanguage[]>([]);
+  const [isLoadingCaps, setIsLoadingCaps] = useState(true);
+  const [capsError, setCapsError] = useState<string | null>(null);
 
   // Editor states
-  const [selectedLang, setSelectedLang] = useState<SupportedCodingLanguage>('python');
+  const [selectedLang, setSelectedLang] = useState<SupportedCodingLanguage | null>(null);
   const [code, setCode] = useState<string>('');
   const [userCodeByLang, setUserCodeByLang] = useState<Partial<Record<SupportedCodingLanguage, string>>>({});
-  const [verifiedLangs, setVerifiedLangs] = useState<SupportedCodingLanguage[]>(['c', 'cpp', 'java', 'python']);
+  const [isSwitchingLang, setIsSwitchingLang] = useState(false);
+
   const [inputVal, setInputVal] = useState<string>('');
   const [activeBottomTab, setActiveBottomTab] = useState<'input' | 'output'>('input');
   const [activeMobileTab, setActiveMobileTab] = useState<'problem' | 'code'>('problem');
@@ -48,56 +56,83 @@ export function CodingProblemDetail() {
   // Execution states
   const [isRunning, setIsRunning] = useState(false);
   const [runResult, setRunResult] = useState<RunCodeResult | null>(null);
-  const [copiedCode, setCopiedCode] = useState(false);
   const [copiedOutput, setCopiedOutput] = useState(false);
   const [copiedCaseIdx, setCopiedCaseIdx] = useState<number | null>(null);
   const [constraintsOpen, setConstraintsOpen] = useState(false);
 
   const outputRef = useRef<HTMLDivElement>(null);
 
-  // Load problem details
-  useEffect(() => {
+  // 1. Fetch problem details
+  const loadProblem = () => {
     if (!slug) return;
-    setIsLoading(true);
-    setError(null);
-    Promise.all([
-      codingService.getProblemBySlug(slug),
-      codingService.getCapabilities().catch(() => ({ supportedLanguages: ['c', 'cpp', 'java', 'python'] as SupportedCodingLanguage[] })),
-    ])
-      .then(([data, caps]) => {
+    setIsLoadingProblem(true);
+    setProblemError(null);
+    codingService
+      .getProblemBySlug(slug)
+      .then((data) => {
         setProblem(data);
-        const availableCaps = (caps.supportedLanguages || ['c', 'cpp', 'java', 'python']) as SupportedCodingLanguage[];
-        setVerifiedLangs(availableCaps);
-
-        // Intersection of problem languages and verified execution languages
-        const availableOptions = (data.supportedLanguages || []).filter((l) => availableCaps.includes(l));
-        const initialLang = availableOptions.includes('python')
-          ? 'python'
-          : (availableOptions[0] || 'python');
-        setSelectedLang(initialLang);
-        setCode(data.starterCodeByLanguage?.[initialLang] || '');
-        setUserCodeByLang({
-          [initialLang]: data.starterCodeByLanguage?.[initialLang] || '',
-        });
         if (data.sampleCases?.length > 0) {
           setInputVal(data.sampleCases[0].input);
         }
       })
       .catch((err: unknown) => {
         const message = err instanceof Error ? err.message : 'Problem not found or not published.';
-        setError(message);
+        setProblemError(message);
       })
       .finally(() => {
-        setIsLoading(false);
+        setIsLoadingProblem(false);
       });
+  };
+
+  // 2. Fetch capabilities
+  const loadCapabilities = () => {
+    setIsLoadingCaps(true);
+    setCapsError(null);
+    codingService
+      .getCapabilities()
+      .then((res) => {
+        setVerifiedLangs(res.supportedLanguages || []);
+      })
+      .catch((err: unknown) => {
+        console.warn('Could not fetch capabilities:', err);
+        setCapsError('Failed to load language capabilities.');
+      })
+      .finally(() => {
+        setIsLoadingCaps(false);
+      });
+  };
+
+  useEffect(() => {
+    loadProblem();
+    loadCapabilities();
   }, [slug]);
 
-  // Update starter code when language switches
+  // Compute available languages (Intersection of problem languages and verified capabilities)
+  const availableLanguages: SupportedCodingLanguage[] = (problem?.supportedLanguages || []).filter((l) =>
+    verifiedLangs.includes(l)
+  );
+
+  // Initialize or reconcile selected language when problem or capabilities arrive
+  useEffect(() => {
+    if (availableLanguages.length > 0) {
+      if (!selectedLang || !availableLanguages.includes(selectedLang)) {
+        const preferred = availableLanguages.includes('python') ? 'python' : availableLanguages[0];
+        setSelectedLang(preferred);
+        const initialCode = problem?.starterCodeByLanguage?.[preferred] || '';
+        setCode(initialCode);
+        setUserCodeByLang((prev) => ({ ...prev, [preferred]: initialCode }));
+      }
+    }
+  }, [availableLanguages, selectedLang, problem]);
+
+  // Update starter code when language switches (preserves user code)
   const handleLanguageChange = (lang: SupportedCodingLanguage) => {
-    // Preserve current code in cache before switching
-    setUserCodeByLang((prev) => ({ ...prev, [selectedLang]: code }));
+    if (selectedLang) {
+      setUserCodeByLang((prev) => ({ ...prev, [selectedLang]: code }));
+    }
+    setIsSwitchingLang(true);
     setSelectedLang(lang);
-    // Load cached code or fall back to problem starter code
+
     const cachedCode = userCodeByLang[lang];
     if (typeof cachedCode === 'string') {
       setCode(cachedCode);
@@ -106,13 +141,16 @@ export function CodingProblemDetail() {
     } else {
       setCode('');
     }
+    setTimeout(() => setIsSwitchingLang(false), 80);
   };
 
   const handleResetCode = () => {
-    const starter = problem?.starterCodeByLanguage?.[selectedLang] || '';
-    setCode(starter);
-    setUserCodeByLang((prev) => ({ ...prev, [selectedLang]: starter }));
-    showToast('Starter code restored.', 'info');
+    if (selectedLang) {
+      const starter = problem?.starterCodeByLanguage?.[selectedLang] || '';
+      setCode(starter);
+      setUserCodeByLang((prev) => ({ ...prev, [selectedLang]: starter }));
+      showToast('Starter code restored.', 'info');
+    }
   };
 
   const handleLoadSample = (sampleInput: string) => {
@@ -122,6 +160,10 @@ export function CodingProblemDetail() {
   };
 
   const handleRunCode = async () => {
+    if (!selectedLang) {
+      showToast('No execution language is currently selected.', 'error');
+      return;
+    }
     if (!code.trim()) {
       showToast('Please write code before running.', 'error');
       return;
@@ -200,43 +242,43 @@ export function CodingProblemDetail() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <AppLayout>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center space-y-3">
-          <Sparkles className="w-8 h-8 text-blue-500 animate-spin mx-auto" />
-          <p className="text-xs text-gray-500 dark:text-slate-400">Loading coding workspace...</p>
-        </div>
-      </AppLayout>
-    );
-  }
-
-  if (error || !problem) {
+  // If problem fetch failed completely
+  if (!isLoadingProblem && (problemError || !problem)) {
     return (
       <AppLayout>
         <div className="max-w-4xl mx-auto px-4 py-16 text-center space-y-4">
           <AlertCircle className="w-10 h-10 text-rose-500 mx-auto" />
           <h2 className="text-base font-bold text-gray-900 dark:text-white">Problem Unavailable</h2>
           <p className="text-xs text-gray-500 dark:text-slate-400 max-w-md mx-auto">
-            {error || 'This challenge could not be found or is not published.'}
+            {problemError || 'This challenge could not be found or is not published.'}
           </p>
-          <Link
-            to="/app/coding"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-colors"
-          >
-            <ChevronLeft className="w-4 h-4" /> Back to Practice Library
-          </Link>
+          <div className="flex items-center justify-center gap-3 pt-2">
+            <button
+              type="button"
+              onClick={loadProblem}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-colors"
+            >
+              <RefreshCw className="w-3.5 h-3.5" /> Retry Loading
+            </button>
+            <Link
+              to="/app/coding"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-slate-200 text-xs font-semibold hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" /> Back to Library
+            </Link>
+          </div>
         </div>
       </AppLayout>
     );
   }
 
   const lineCount = code.split('\n').length;
+  const isRunDisabled = isRunning || isLoadingCaps || !selectedLang || availableLanguages.length === 0;
 
   return (
     <AppLayout>
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4">
-        {/* Compact Page Header */}
+        {/* Compact Page Header (with skeleton for loading) */}
         <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-gray-200 dark:border-slate-800">
           <div className="flex items-center gap-3 min-w-0">
             <Link
@@ -246,15 +288,25 @@ export function CodingProblemDetail() {
             >
               <ChevronLeft className="w-4 h-4" />
             </Link>
-            <h1 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white truncate">
-              {problem.title}
-            </h1>
-            <div className="flex items-center gap-2 shrink-0">
-              {getDifficultyBadge(problem.difficulty)}
-              <span className="text-[11px] font-medium text-gray-500 dark:text-slate-400 flex items-center gap-1">
-                <Layers className="w-3 h-3" /> {problem.topic}
-              </span>
-            </div>
+
+            {isLoadingProblem ? (
+              <div className="flex items-center gap-2.5 animate-pulse">
+                <div className="h-5 w-44 sm:w-64 rounded-md bg-slate-200 dark:bg-slate-800" />
+                <div className="h-4 w-14 rounded-full bg-slate-200 dark:bg-slate-800" />
+              </div>
+            ) : (
+              <>
+                <h1 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white truncate">
+                  {problem?.title}
+                </h1>
+                <div className="flex items-center gap-2 shrink-0">
+                  {problem && getDifficultyBadge(problem.difficulty)}
+                  <span className="text-[11px] font-medium text-gray-500 dark:text-slate-400 flex items-center gap-1">
+                    <Layers className="w-3 h-3" /> {problem?.topic}
+                  </span>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
@@ -288,139 +340,165 @@ export function CodingProblemDetail() {
 
         {/* Two-Panel Workspace Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start min-w-0">
-          {/* Left Panel: Problem Statement & Examples (5 cols on large screens) */}
+          {/* Left Panel: Problem Statement & Examples */}
           <div
             className={`lg:col-span-5 min-w-0 space-y-4 ${
               activeMobileTab === 'problem' ? 'block' : 'hidden lg:block'
             }`}
           >
             <div className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs p-5 space-y-5 lg:max-h-[calc(100vh-12rem)] lg:overflow-y-auto">
-              {/* Problem Statement */}
-              <div className="space-y-2">
-                <h2 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400 flex items-center gap-1.5">
-                  <FileCode className="w-3.5 h-3.5 text-blue-500" /> Description
-                </h2>
-                <div className="text-xs sm:text-sm text-gray-800 dark:text-slate-200 leading-relaxed whitespace-pre-line font-sans">
-                  {problem.statement}
-                </div>
-              </div>
+              {isLoadingProblem ? (
+                /* Skeleton for Problem Panel */
+                <div className="space-y-5 animate-pulse" aria-busy="true">
+                  <div className="space-y-2">
+                    <div className="h-4 w-28 rounded bg-slate-200 dark:bg-slate-800" />
+                    <div className="h-3 w-full rounded bg-slate-200/70 dark:bg-slate-800/60" />
+                    <div className="h-3 w-5/6 rounded bg-slate-200/70 dark:bg-slate-800/60" />
+                    <div className="h-3 w-4/6 rounded bg-slate-200/70 dark:bg-slate-800/60" />
+                  </div>
 
-              {/* Input & Output Format */}
-              <div className="space-y-3 pt-3 border-t border-gray-100 dark:border-slate-800 text-xs">
-                <div>
-                  <h3 className="text-[11px] font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1">
-                    Input Format
-                  </h3>
-                  <div className="text-xs text-gray-600 dark:text-slate-400 bg-gray-50 dark:bg-slate-800/40 p-2.5 rounded-xl border border-gray-100 dark:border-slate-800 whitespace-pre-line">
-                    {problem.inputFormat}
+                  <div className="pt-3 border-t border-gray-100 dark:border-slate-800 space-y-3">
+                    <div className="h-3.5 w-24 rounded bg-slate-200 dark:bg-slate-800" />
+                    <div className="h-10 w-full rounded-xl bg-slate-100 dark:bg-slate-800/40" />
+                    <div className="h-3.5 w-24 rounded bg-slate-200 dark:bg-slate-800" />
+                    <div className="h-10 w-full rounded-xl bg-slate-100 dark:bg-slate-800/40" />
+                  </div>
+
+                  <div className="pt-3 border-t border-gray-100 dark:border-slate-800 space-y-3">
+                    <div className="h-3.5 w-32 rounded bg-slate-200 dark:bg-slate-800" />
+                    <div className="h-28 w-full rounded-xl bg-slate-100 dark:bg-slate-800/40" />
                   </div>
                 </div>
-
-                <div>
-                  <h3 className="text-[11px] font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1">
-                    Output Format
-                  </h3>
-                  <div className="text-xs text-gray-600 dark:text-slate-400 bg-gray-50 dark:bg-slate-800/40 p-2.5 rounded-xl border border-gray-100 dark:border-slate-800 whitespace-pre-line">
-                    {problem.outputFormat}
+              ) : (
+                <>
+                  {/* Problem Statement */}
+                  <div className="space-y-2">
+                    <h2 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400 flex items-center gap-1.5">
+                      <FileCode className="w-3.5 h-3.5 text-blue-500" /> Description
+                    </h2>
+                    <div className="text-xs sm:text-sm text-gray-800 dark:text-slate-200 leading-relaxed whitespace-pre-line font-sans">
+                      {problem?.statement}
+                    </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Examples */}
-              <div className="space-y-3 pt-3 border-t border-gray-100 dark:border-slate-800">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400 flex items-center gap-1.5">
-                  <Terminal className="w-3.5 h-3.5 text-emerald-500" /> Examples ({problem.sampleCases?.length || 0})
-                </h3>
-
-                {problem.sampleCases?.map((sc, idx) => (
-                  <div
-                    key={sc.caseKey || idx}
-                    className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/60 dark:bg-slate-800/40 p-3.5 space-y-2.5 text-xs"
-                  >
-                    <div className="flex items-center justify-between text-xs font-semibold text-gray-700 dark:text-slate-300">
-                      <span>Example {idx + 1}</span>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleLoadSample(sc.input)}
-                          className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline"
-                        >
-                          Use as Input
-                        </button>
-                        <span>•</span>
-                        <button
-                          type="button"
-                          onClick={() => handleCopyTestCaseInput(sc.input, idx)}
-                          className="flex items-center gap-1 text-[11px] text-gray-500 hover:text-gray-800 dark:hover:text-slate-200"
-                        >
-                          {copiedCaseIdx === idx ? (
-                            <>
-                              <Check className="w-3 h-3 text-emerald-500" /> Copied
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-3 h-3" /> Copy
-                            </>
-                          )}
-                        </button>
+                  {/* Input & Output Format */}
+                  <div className="space-y-3 pt-3 border-t border-gray-100 dark:border-slate-800 text-xs">
+                    <div>
+                      <h3 className="text-[11px] font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1">
+                        Input Format
+                      </h3>
+                      <div className="text-xs text-gray-600 dark:text-slate-400 bg-gray-50 dark:bg-slate-800/40 p-2.5 rounded-xl border border-gray-100 dark:border-slate-800 whitespace-pre-line">
+                        {problem?.inputFormat}
                       </div>
                     </div>
 
-                    <div className="space-y-2 font-mono text-xs">
-                      <div>
-                        <span className="text-[10px] uppercase font-bold text-gray-400 block mb-0.5">Input:</span>
-                        <pre className="p-2 bg-slate-950 text-slate-100 rounded-lg overflow-x-auto whitespace-pre">
-                          {sc.input}
-                        </pre>
-                      </div>
-                      <div>
-                        <span className="text-[10px] uppercase font-bold text-gray-400 block mb-0.5">Output:</span>
-                        <pre className="p-2 bg-slate-950 text-emerald-400 rounded-lg overflow-x-auto whitespace-pre">
-                          {sc.expectedOutput}
-                        </pre>
+                    <div>
+                      <h3 className="text-[11px] font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1">
+                        Output Format
+                      </h3>
+                      <div className="text-xs text-gray-600 dark:text-slate-400 bg-gray-50 dark:bg-slate-800/40 p-2.5 rounded-xl border border-gray-100 dark:border-slate-800 whitespace-pre-line">
+                        {problem?.outputFormat}
                       </div>
                     </div>
+                  </div>
 
-                    {sc.explanation && (
-                      <p className="text-[11px] text-gray-500 dark:text-slate-400 font-sans italic pt-1 border-t border-gray-200 dark:border-slate-700/60">
-                        {sc.explanation}
-                      </p>
+                  {/* Examples */}
+                  <div className="space-y-3 pt-3 border-t border-gray-100 dark:border-slate-800">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400 flex items-center gap-1.5">
+                      <Terminal className="w-3.5 h-3.5 text-emerald-500" /> Examples ({problem?.sampleCases?.length || 0})
+                    </h3>
+
+                    {problem?.sampleCases?.map((sc, idx) => (
+                      <div
+                        key={sc.caseKey || idx}
+                        className="rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50/60 dark:bg-slate-800/40 p-3.5 space-y-2.5 text-xs"
+                      >
+                        <div className="flex items-center justify-between text-xs font-semibold text-gray-700 dark:text-slate-300">
+                          <span>Example {idx + 1}</span>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleLoadSample(sc.input)}
+                              className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline"
+                            >
+                              Use as Input
+                            </button>
+                            <span>•</span>
+                            <button
+                              type="button"
+                              onClick={() => handleCopyTestCaseInput(sc.input, idx)}
+                              className="flex items-center gap-1 text-[11px] text-gray-500 hover:text-gray-800 dark:hover:text-slate-200"
+                            >
+                              {copiedCaseIdx === idx ? (
+                                <>
+                                  <Check className="w-3 h-3 text-emerald-500" /> Copied
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3 h-3" /> Copy
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2 font-mono text-xs">
+                          <div>
+                            <span className="text-[10px] uppercase font-bold text-gray-400 block mb-0.5">Input:</span>
+                            <pre className="p-2 bg-slate-950 text-slate-100 rounded-lg overflow-x-auto whitespace-pre">
+                              {sc.input}
+                            </pre>
+                          </div>
+                          <div>
+                            <span className="text-[10px] uppercase font-bold text-gray-400 block mb-0.5">Output:</span>
+                            <pre className="p-2 bg-slate-950 text-emerald-400 rounded-lg overflow-x-auto whitespace-pre">
+                              {sc.expectedOutput}
+                            </pre>
+                          </div>
+                        </div>
+
+                        {sc.explanation && (
+                          <p className="text-[11px] text-gray-500 dark:text-slate-400 font-sans italic pt-1 border-t border-gray-200 dark:border-slate-700/60">
+                            {sc.explanation}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Collapsible Constraints */}
+                  <div className="pt-2 border-t border-gray-100 dark:border-slate-800">
+                    <button
+                      type="button"
+                      onClick={() => setConstraintsOpen(!constraintsOpen)}
+                      className="flex items-center justify-between w-full py-1 text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                    >
+                      <span>Constraints & Limits</span>
+                      {constraintsOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </button>
+
+                    {constraintsOpen && problem && (
+                      <div className="mt-2.5 space-y-2 text-xs">
+                        <pre className="p-2.5 rounded-lg bg-gray-50 dark:bg-slate-800/40 text-gray-700 dark:text-slate-300 font-mono overflow-x-auto whitespace-pre-wrap border border-gray-100 dark:border-slate-800">
+                          {problem.constraints}
+                        </pre>
+                        <div className="flex items-center gap-4 text-[11px] text-gray-500 font-mono">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3.5 h-3.5" /> Time: {problem.executionLimits.timeLimitMs}ms
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <HardDrive className="w-3.5 h-3.5" /> Memory: {problem.executionLimits.memoryLimitMb}MB
+                          </span>
+                        </div>
+                      </div>
                     )}
                   </div>
-                ))}
-              </div>
-
-              {/* Collapsible Constraints */}
-              <div className="pt-2 border-t border-gray-100 dark:border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setConstraintsOpen(!constraintsOpen)}
-                  className="flex items-center justify-between w-full py-1 text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-                >
-                  <span>Constraints & Limits</span>
-                  {constraintsOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                </button>
-
-                {constraintsOpen && (
-                  <div className="mt-2.5 space-y-2 text-xs">
-                    <pre className="p-2.5 rounded-lg bg-gray-50 dark:bg-slate-800/40 text-gray-700 dark:text-slate-300 font-mono overflow-x-auto whitespace-pre-wrap border border-gray-100 dark:border-slate-800">
-                      {problem.constraints}
-                    </pre>
-                    <div className="flex items-center gap-4 text-[11px] text-gray-500 font-mono">
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" /> Time: {problem.executionLimits.timeLimitMs}ms
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <HardDrive className="w-3.5 h-3.5" /> Memory: {problem.executionLimits.memoryLimitMb}MB
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
+                </>
+              )}
             </div>
           </div>
 
-          {/* Right Panel: Editor + Input/Output Workspace (7 cols on large screens) */}
+          {/* Right Panel: Editor + Input/Output Workspace */}
           <div
             className={`lg:col-span-7 min-w-0 space-y-4 ${
               activeMobileTab === 'code' ? 'block' : 'hidden lg:block'
@@ -429,40 +507,62 @@ export function CodingProblemDetail() {
             {/* Editor Container */}
             <div className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs overflow-hidden flex flex-col">
               {/* Minimal Editor Toolbar */}
-              <div className="px-4 py-2.5 border-b border-gray-200 dark:border-slate-800 bg-gray-50/90 dark:bg-slate-800/60 flex items-center justify-between gap-3 text-xs">
-                <div className="flex items-center gap-2">
-                  <label htmlFor="language-select" className="text-gray-500 font-medium text-[11px]">
+              <div className="px-4 py-2.5 border-b border-gray-200 dark:border-slate-800 bg-gray-50/90 dark:bg-slate-800/60 flex flex-wrap items-center justify-between gap-3 text-xs">
+                {/* Language Selection / Loading Area */}
+                <div className="flex items-center gap-2 min-w-0">
+                  <label htmlFor="language-select" className="text-gray-500 font-medium text-[11px] shrink-0">
                     Language:
                   </label>
-                  <select
-                    id="language-select"
-                    value={selectedLang}
-                    onChange={(e) => handleLanguageChange(e.target.value as SupportedCodingLanguage)}
-                    className="px-2.5 py-1 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-semibold uppercase text-gray-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  >
-                    {problem.supportedLanguages
-                      ?.filter((l) => verifiedLangs.includes(l))
-                      .map((l) => (
+
+                  {isLoadingCaps ? (
+                    <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 px-2.5 py-1 rounded-lg">
+                      <Loader2 className="w-3 h-3 animate-spin text-blue-500" />
+                      <span className="text-[11px]">Loading languages…</span>
+                    </div>
+                  ) : capsError && availableLanguages.length === 0 ? (
+                    <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+                      <span className="text-[11px]">No execution languages available.</span>
+                      <button
+                        type="button"
+                        onClick={loadCapabilities}
+                        title="Retry loading capabilities"
+                        className="p-1 hover:bg-slate-200 dark:hover:bg-slate-800 rounded"
+                      >
+                        <RefreshCw className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ) : availableLanguages.length === 0 ? (
+                    <span className="text-[11px] text-gray-400 italic">No execution languages are currently available.</span>
+                  ) : (
+                    <select
+                      id="language-select"
+                      value={selectedLang || ''}
+                      onChange={(e) => handleLanguageChange(e.target.value as SupportedCodingLanguage)}
+                      className="px-2.5 py-1 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-semibold uppercase text-gray-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    >
+                      {availableLanguages.map((l) => (
                         <option key={l} value={l}>
                           {l}
                         </option>
                       ))}
-                  </select>
+                    </select>
+                  )}
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                   <button
                     type="button"
                     onClick={handleResetCode}
+                    disabled={!selectedLang}
                     title="Restore default starter code"
-                    className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-[11px]"
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-[11px] disabled:opacity-40"
                   >
                     <RotateCcw className="w-3 h-3" /> Reset
                   </button>
 
                   <button
                     type="button"
-                    disabled={isRunning}
+                    disabled={isRunDisabled}
                     onClick={handleRunCode}
                     className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold text-xs transition-colors shadow-xs"
                   >
@@ -473,7 +573,15 @@ export function CodingProblemDetail() {
               </div>
 
               {/* Monospace Code Editor Area */}
-              <div className="relative bg-slate-950 flex font-mono text-xs">
+              <div className="relative bg-slate-950 flex font-mono text-xs min-h-[300px]">
+                {/* Lightweight loading state when switching language */}
+                {isSwitchingLang && (
+                  <div className="absolute inset-0 z-10 bg-slate-950/70 backdrop-blur-2xs flex items-center justify-center gap-2 text-xs text-slate-300">
+                    <Loader2 className="w-4 h-4 animate-spin text-blue-400" />
+                    <span>Loading starter template…</span>
+                  </div>
+                )}
+
                 {/* Line Numbers */}
                 <div
                   aria-hidden="true"
@@ -489,7 +597,13 @@ export function CodingProblemDetail() {
                 <textarea
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
-                  placeholder="Type or paste your code here..."
+                  placeholder={
+                    isLoadingProblem
+                      ? 'Loading workspace...'
+                      : selectedLang
+                      ? 'Type or paste your code here...'
+                      : 'Select a language above to start coding...'
+                  }
                   rows={16}
                   className="w-full p-3 bg-transparent text-slate-100 font-mono text-xs leading-relaxed focus:outline-none resize-y selection:bg-blue-600/40 overflow-x-auto whitespace-pre"
                   spellCheck={false}
@@ -501,7 +615,9 @@ export function CodingProblemDetail() {
                 <span>
                   {lineCount} lines • {code.length} chars
                 </span>
-                <span className="text-slate-500">Standard input/output</span>
+                <span className="text-slate-500">
+                  {selectedLang ? `Standard I/O (${selectedLang})` : 'Awaiting language selection'}
+                </span>
               </div>
             </div>
 
@@ -569,7 +685,7 @@ export function CodingProblemDetail() {
                 <div className="p-4 space-y-2">
                   <div className="flex items-center justify-between text-[11px] text-gray-500">
                     <span>Provide standard input (stdin) for your execution:</span>
-                    {problem.sampleCases?.length > 0 && (
+                    {problem?.sampleCases && problem.sampleCases.length > 0 && (
                       <div className="flex items-center gap-1.5">
                         <span className="text-[10px] uppercase">Load:</span>
                         {problem.sampleCases.map((_, i) => (
@@ -600,8 +716,8 @@ export function CodingProblemDetail() {
                 <div className="p-4 space-y-3 font-mono text-xs">
                   {/* Status header banner */}
                   {isRunning ? (
-                    <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">
-                      <Sparkles className="w-4 h-4 animate-spin" />
+                    <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 py-3">
+                      <Loader2 className="w-4 h-4 animate-spin" />
                       <span>Running your code in sandbox...</span>
                     </div>
                   ) : !runResult ? (
