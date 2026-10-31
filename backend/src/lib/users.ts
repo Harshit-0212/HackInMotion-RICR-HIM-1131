@@ -7,6 +7,7 @@ export interface StoredUser {
   passwordHash?: string;
   googleId?: string;
   full_name: string;
+  role?: 'admin' | 'user';
   created_at: string;
   avatar_image?: string;
 }
@@ -89,5 +90,11 @@ export const userStore = {
   async updateAvatar(userId: string, avatarImage: string): Promise<void> {
     const col = await usersCollection();
     await col.updateOne({ id: userId }, { $set: { avatar_image: avatarImage } });
+  },
+
+  async setRole(userId: string, role: 'admin' | 'user'): Promise<boolean> {
+    const col = await usersCollection();
+    const res = await col.updateOne({ id: userId }, { $set: { role } });
+    return res.matchedCount > 0;
   },
 };
