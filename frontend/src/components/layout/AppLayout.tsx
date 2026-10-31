@@ -20,6 +20,8 @@ import {
   FileText,
   Users,
   Code2,
+  Code,
+  ShieldAlert,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Logo } from '@/components/ui/Logo';
@@ -37,6 +39,7 @@ const NAV = [
   { to: '/app/progress', label: 'Progress', icon: LineChart, end: false },
   { to: '/app/resume', label: 'Resume Maker', icon: FileText, end: false },
   { to: '/app/debugger', label: 'Code Debugger', icon: Code2, end: false },
+  { to: '/app/coding', label: 'Coding Practice', icon: Code, end: false },
 ];
 
 const SECONDARY_NAV = [
@@ -70,9 +73,16 @@ export function AppLayout({ children }: { children: ReactNode }) {
     setSearchQuery('');
   }, [location.pathname]);
 
+  const navItems = [
+    ...NAV,
+    ...(user?.role === 'admin' ? [{ to: '/app/admin/coding', label: 'Question Studio (Admin)', icon: ShieldAlert, end: false }] : []),
+  ];
+
+  const allSearchable = [...navItems, ...SECONDARY_NAV];
+
   const searchResults = searchQuery.trim()
-    ? SEARCHABLE_PAGES.filter((p) => p.label.toLowerCase().includes(searchQuery.trim().toLowerCase()))
-    : SEARCHABLE_PAGES;
+    ? allSearchable.filter((p) => p.label.toLowerCase().includes(searchQuery.trim().toLowerCase()))
+    : allSearchable;
 
   const openSearch = () => {
     setSearchOpen(true);
@@ -136,7 +146,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
           >
             {collapsed ? '—' : 'Main Menu'}
           </span>
-          {NAV.map((item) => (
+          {navItems.map((item) => (
             <SidebarLink key={item.to} {...item} collapsed={collapsed} onClick={() => setMobileOpen(false)} />
           ))}
 

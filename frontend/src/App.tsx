@@ -22,11 +22,36 @@ import { Profile } from '@/pages/Profile';
 import { Settings } from '@/pages/Settings';
 import { ResumeMaker } from '@/pages/ResumeMaker';
 import { CodeDebugger } from '@/pages/CodeDebugger';
+import { CodingProblemsList } from '@/pages/CodingProblemsList';
+import { CodingProblemDetail } from '@/pages/CodingProblemDetail';
+import { AdminCodingStudio } from '@/pages/AdminCodingStudio';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isInitializing } = useAuth();
   if (isInitializing) return null;
   if (!user) return <Navigate to="/login" replace />;
+  return <>{children}</>;
+}
+
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  const { user, isInitializing } = useAuth();
+  if (isInitializing) return null;
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role !== 'admin') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950 p-4">
+        <div className="max-w-md w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-6 text-center space-y-3">
+          <div className="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto text-lg font-bold">
+            403
+          </div>
+          <h3 className="text-base font-bold text-gray-900 dark:text-white">Access Denied</h3>
+          <p className="text-xs text-gray-500 dark:text-slate-400">
+            This studio portal is restricted to authorized instructors and system administrators.
+          </p>
+        </div>
+      </div>
+    );
+  }
   return <>{children}</>;
 }
 
@@ -153,6 +178,30 @@ function AppRoutes() {
           <ProtectedRoute>
             <CodeDebugger />
           </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/coding"
+        element={
+          <ProtectedRoute>
+            <CodingProblemsList />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/coding/problems/:slug"
+        element={
+          <ProtectedRoute>
+            <CodingProblemDetail />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/admin/coding"
+        element={
+          <AdminRoute>
+            <AdminCodingStudio />
+          </AdminRoute>
         }
       />
       <Route

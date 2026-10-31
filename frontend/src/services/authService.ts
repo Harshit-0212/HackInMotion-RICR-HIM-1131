@@ -9,6 +9,7 @@ function transformBackendUser(dataUser: any): User {
     email: dataUser.email,
     name: dataUser.user_metadata?.full_name || dataUser.email.split('@')[0],
     avatarColor: '#17B891',
+    role: dataUser.role,
     avatarImage: dataUser.user_metadata?.avatar_image ?? null,
     createdAt: dataUser.created_at,
     dailyStudyTargetMinutes: 60,
