@@ -29,6 +29,8 @@ export interface DryRunVariable {
 export type DryRunEvent =
   | 'assignment'
   | 'condition'
+  | 'loop-check'
+  | 'loop-body'
   | 'loop-iteration'
   | 'function-call'
   | 'return'
@@ -59,6 +61,7 @@ export interface GeminiDebugAnalysisResult {
   narrationHinglish: string[];
   concepts: string[];
   learningTips: string[];
+  isTruncated?: boolean;
 }
 
 export interface StoredDebugSessionSummary {
@@ -75,6 +78,7 @@ export interface StoredDebugSessionSummary {
   };
   createdAt: string;
   updatedAt: string;
+  isTruncated?: boolean;
 }
 
 export interface StoredDebugSession extends StoredDebugSessionSummary {
@@ -106,4 +110,3 @@ export interface ExplainCodeResult {
   keyTakeaways: string[];
   exampleSnippet?: string;
 }
-

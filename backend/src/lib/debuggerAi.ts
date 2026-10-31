@@ -8,6 +8,8 @@ import type {
   ExplainCodeResult,
   DryRunOnlyInput,
   DryRunOnlyResult,
+  DryRunStep,
+  DryRunEvent,
 } from '../types/debugger.js';
 
 let client: GoogleGenerativeAI | null = null;
@@ -29,6 +31,7 @@ function extractJsonText(raw: string): string {
 
 const MAX_OVERLOAD_RETRIES = 2;
 const RETRY_DELAY_MS = 1500;
+const MAX_DRY_RUN_STEPS = 300;
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -136,7 +139,7 @@ const debugAnalysisSchema = {
           line: { type: SchemaType.INTEGER },
           event: {
             type: SchemaType.STRING,
-            enum: ['assignment', 'condition', 'loop-iteration', 'function-call', 'return', 'output', 'error'],
+            enum: ['assignment', 'condition', 'loop-check', 'loop-body', 'loop-iteration', 'function-call', 'return', 'output', 'error'],
           },
           description: { type: SchemaType.STRING },
           variables: {
@@ -207,7 +210,7 @@ const dryRunOnlySchema = {
           line: { type: SchemaType.INTEGER },
           event: {
             type: SchemaType.STRING,
-            enum: ['assignment', 'condition', 'loop-iteration', 'function-call', 'return', 'output', 'error'],
+            enum: ['assignment', 'condition', 'loop-check', 'loop-body', 'loop-iteration', 'function-call', 'return', 'output', 'error'],
           },
           description: { type: SchemaType.STRING },
           variables: {
@@ -259,6 +262,114 @@ const explainSchema = {
   required: ['explanation', 'keyTakeaways', 'exampleSnippet'],
 };
 
+/**
+ * Validates, repairs, and sanitizes dry-run steps and narration arrays
+ */
+function sanitizeAndRepairTrace(
+  rawDryRun: DryRunStep[],
+  rawNarrationEn: string[],
+  rawNarrationHi: string[]
+): { dryRun: DryRunStep[]; narrationEnglish: string[]; narrationHinglish: string[]; isTruncated: boolean } {
+  let isTruncated = false;
+  let steps = Array.isArray(rawDryRun) ? rawDryRun : [];
+
+  // Truncate safely if exceeding maximum steps
+  if (steps.length > MAX_DRY_RUN_STEPS) {
+    steps = steps.slice(0, MAX_DRY_RUN_STEPS);
+    isTruncated = true;
+  }
+
+  // Repair steps if missing required fields
+  const validEvents: Set<string> = new Set([
+    'assignment',
+    'condition',
+    'loop-check',
+    'loop-body',
+    'loop-iteration',
+    'function-call',
+    'return',
+    'output',
+    'error',
+  ]);
+
+  const sanitizedSteps: DryRunStep[] = steps.map((s, idx) => {
+    const stepNum = typeof s.step === 'number' && s.step > 0 ? s.step : idx + 1;
+    const lineNum = typeof s.line === 'number' && s.line > 0 ? s.line : 1;
+    const event: DryRunEvent = validEvents.has(s.event) ? (s.event as DryRunEvent) : 'assignment';
+    const description = typeof s.description === 'string' && s.description.trim() ? s.description : `Step ${stepNum}`;
+    const variables = Array.isArray(s.variables)
+      ? s.variables.map((v) => ({
+          name: typeof v?.name === 'string' ? v.name : 'var',
+          value: typeof v?.value === 'string' ? v.value : String(v?.value ?? ''),
+          type: typeof v?.type === 'string' ? v.type : 'any',
+          scope: typeof v?.scope === 'string' ? v.scope : 'local',
+        }))
+      : [];
+    const callStack = Array.isArray(s.callStack)
+      ? s.callStack.map((frame) => (typeof frame === 'string' ? frame : String(frame)))
+      : ['main'];
+    const output = typeof s.output === 'string' ? s.output : '';
+    const isErrorStep = Boolean(s.isErrorStep);
+    const errorMessage = typeof s.errorMessage === 'string' ? s.errorMessage : '';
+
+    return {
+      step: stepNum,
+      line: lineNum,
+      event,
+      description,
+      variables,
+      callStack,
+      output,
+      isErrorStep,
+      errorMessage,
+    };
+  });
+
+  // If trace was completely empty, add a baseline step
+  if (sanitizedSteps.length === 0) {
+    sanitizedSteps.push({
+      step: 1,
+      line: 1,
+      event: 'assignment',
+      description: 'Program execution started.',
+      variables: [],
+      callStack: ['main'],
+      output: '',
+      isErrorStep: false,
+      errorMessage: '',
+    });
+  }
+
+  const dryRunLen = sanitizedSteps.length;
+  let narrationEnglish = Array.isArray(rawNarrationEn) ? [...rawNarrationEn] : [];
+  let narrationHinglish = Array.isArray(rawNarrationHi) ? [...rawNarrationHi] : [];
+
+  if (narrationEnglish.length < dryRunLen) {
+    while (narrationEnglish.length < dryRunLen) {
+      const idx = narrationEnglish.length;
+      narrationEnglish.push(sanitizedSteps[idx]?.description || `Step ${idx + 1}`);
+    }
+  } else if (narrationEnglish.length > dryRunLen) {
+    narrationEnglish = narrationEnglish.slice(0, dryRunLen);
+  }
+
+  if (narrationHinglish.length < dryRunLen) {
+    while (narrationHinglish.length < dryRunLen) {
+      const idx = narrationHinglish.length;
+      narrationHinglish.push(sanitizedSteps[idx]?.description || `Step ${idx + 1}`);
+    }
+  } else if (narrationHinglish.length > dryRunLen) {
+    narrationHinglish = narrationHinglish.slice(0, dryRunLen);
+  }
+
+  return {
+    dryRun: sanitizedSteps,
+    narrationEnglish,
+    narrationHinglish,
+    isTruncated,
+  };
+}
+
 export async function analyzeCodeWithGemini(input: AnalyzeCodeInput): Promise<GeminiDebugAnalysisResult> {
   const prompt = `You are an expert static analyzer, code debugger, and computer science tutor for Cadence.
 Analyze the following ${input.language} code thoroughly.
@@ -267,15 +378,33 @@ RULES FOR ANALYSIS & TRACE GENERATION:
 1. Detect all syntax, logic, runtime, performance, style, and security issues. For each issue provide type, severity, 1-based line number, exact offending snippet, clear message, explanation of why it happens, recommended fix, and correctedSnippet.
 2. Provide a full working correctedCode string.
 3. Provide lineByLineExplanation covering important lines (1-based line numbers).
-4. Generate a deterministic step-by-step dry run trace of the code execution:
-   - Max 100 steps. If loops run longer, summarize or trace the first few iterations and terminate cleanly.
-   - Every step MUST have 1-based line number matching the source code.
-   - event must be one of: "assignment", "condition", "loop-iteration", "function-call", "return", "output", "error".
-   - Include complete visible variable state after each step (every value must be a string, e.g. "0", "[1, 2, 3]", "None", "\"hello\"").
+4. DRY-RUN TRACE GENERATION RULES (CRITICAL):
+   “Generate a complete line-by-line dry run. Include a separate step for every meaningful execution event, including variable initialization, condition evaluation, loop-condition checks, loop-body execution, variable updates, function calls, argument passing, return values, recursion, input reading, and output printing. Do not skip any important step. The number of narration entries must exactly equal the number of dry-run steps.”
+
+   - For loops, generate separate steps for:
+     * Loop condition check (event: "loop-check")
+     * Loop body execution statement by statement (event: "loop-body" or "assignment")
+     * Loop counter/variable update (event: "loop-iteration" or "assignment")
+     * Next loop condition check
+   - For functions and recursion, generate separate steps for:
+     * Function call (event: "function-call")
+     * Parameter assignment in new stack frame (event: "assignment")
+     * Function body execution
+     * Return value calculation (event: "return")
+     * Return to caller and popping stack frame
+     * Caller resuming execution
+   - For conditional statements, generate separate steps for:
+     * Condition evaluation (event: "condition")
+     * Taken or not-taken branch determination
+     * Statements inside the taken branch
+   - “Simulate program output exactly. Include every printed value, newline, and partial output state at the correct execution step. Do not invent output that the code would not produce.”
+   - Every step MUST have exact 1-based line number matching the source code line executing.
+   - event must be one of: "assignment", "condition", "loop-check", "loop-body", "loop-iteration", "function-call", "return", "output", "error".
+   - Include complete visible variable state after each step (every value must be a string, e.g. "0", "[1, 2, 3]", "None", "\\"hello\\"").
    - Include callStack for active function calls (e.g. ["main"], ["main", "factorial(3)"]).
-   - Include cumulative program output string up to that step.
+   - Include cumulative program output string up to that step, preserving newlines (\\n) and spaces.
    - If there is a runtime error (e.g. index out of bounds, division by zero, null pointer, recursion depth), include an error step (isErrorStep: true) with an informative errorMessage where the execution crashes.
-   - If there is an infinite loop or potential hang, mark the step clearly and do not exceed 40 loop iterations in trace.
+   - If there is an infinite loop or high iteration count, simulate up to 300 steps and terminate cleanly.
 5. Narration requirements:
    - Provide "narrationEnglish" and "narrationHinglish" arrays.
    - CRITICAL: "narrationEnglish" and "narrationHinglish" MUST have the EXACT SAME length as the "dryRun" array (one narration sentence corresponding to each dry run step).
@@ -294,41 +423,34 @@ ${input.code}
 
   const result = await callGeminiJson<GeminiDebugAnalysisResult>(prompt, debugAnalysisSchema);
 
-  // Safeguard: Ensure narration arrays match dryRun length
-  const dryRunLen = result.dryRun.length;
-  if (result.narrationEnglish.length < dryRunLen) {
-    while (result.narrationEnglish.length < dryRunLen) {
-      const idx = result.narrationEnglish.length;
-      result.narrationEnglish.push(result.dryRun[idx]?.description || `Step ${idx + 1}`);
-    }
-  } else if (result.narrationEnglish.length > dryRunLen) {
-    result.narrationEnglish = result.narrationEnglish.slice(0, dryRunLen);
-  }
-
-  if (result.narrationHinglish.length < dryRunLen) {
-    while (result.narrationHinglish.length < dryRunLen) {
-      const idx = result.narrationHinglish.length;
-      result.narrationHinglish.push(result.dryRun[idx]?.description || `Step ${idx + 1}`);
-    }
-  } else if (result.narrationHinglish.length > dryRunLen) {
-    result.narrationHinglish = result.narrationHinglish.slice(0, dryRunLen);
-  }
+  // Validate, sanitize, and repair trace & narrations
+  const repaired = sanitizeAndRepairTrace(result.dryRun, result.narrationEnglish, result.narrationHinglish);
+  result.dryRun = repaired.dryRun;
+  result.narrationEnglish = repaired.narrationEnglish;
+  result.narrationHinglish = repaired.narrationHinglish;
+  result.isTruncated = repaired.isTruncated;
 
   return result;
 }
 
 export async function generateDryRunTraceWithGemini(input: DryRunOnlyInput): Promise<DryRunOnlyResult> {
   const prompt = `You are a code execution visualizer and dry-run tracer for Cadence.
-Generate a deterministic, step-by-step dry run trace for this ${input.language} code.
+Generate a deterministic, complete line-by-line step-by-step dry run trace for this ${input.language} code.
 
 RULES:
-1. Max 100 steps.
-2. Every step must have 1-based line number matching the source code line.
-3. Every step includes event, description, visible variables (with serialized string values), callStack array, cumulative output string, isErrorStep boolean, and errorMessage string.
-4. If the code crashes or has an error, mark isErrorStep: true on the step it fails.
-5. Provide matching narrationEnglish and narrationHinglish arrays.
-6. CRITICAL: narrationEnglish and narrationHinglish MUST have the EXACT SAME length as the dryRun array.
-7. Hinglish must be conversational and natural (e.g. "Variable count ko 1 se badhaya gaya").
+“Generate a complete line-by-line dry run. Include a separate step for every meaningful execution event, including variable initialization, condition evaluation, loop-condition checks, loop-body execution, variable updates, function calls, argument passing, return values, recursion, input reading, and output printing. Do not skip any important step. The number of narration entries must exactly equal the number of dry-run steps.”
+
+- For loops: separate step for condition check ("loop-check"), body execution ("loop-body"), variable update ("loop-iteration").
+- For functions & recursion: function call ("function-call"), argument binding, body lines, return ("return").
+- For conditions: evaluation step ("condition"), branching step.
+- “Simulate program output exactly. Include every printed value, newline, and partial output state at the correct execution step. Do not invent output that the code would not produce.”
+- Max 300 steps.
+- Every step must have 1-based line number matching the source code line.
+- Every step includes event, description, visible variables (with serialized string values), callStack array, cumulative output string, isErrorStep boolean, and errorMessage string.
+- If the code crashes or has an error, mark isErrorStep: true on the step it fails.
+- Provide matching narrationEnglish and narrationHinglish arrays.
+- CRITICAL: narrationEnglish and narrationHinglish MUST have the EXACT SAME length as the dryRun array.
+- Hinglish must be conversational and natural (e.g. "Variable count ko 1 se badhaya gaya").
 
 Language: ${input.language}
 CODE:
@@ -339,24 +461,11 @@ ${input.code}
 
   const result = await callGeminiJson<DryRunOnlyResult>(prompt, dryRunOnlySchema);
 
-  const dryRunLen = result.dryRun.length;
-  if (result.narrationEnglish.length < dryRunLen) {
-    while (result.narrationEnglish.length < dryRunLen) {
-      const idx = result.narrationEnglish.length;
-      result.narrationEnglish.push(result.dryRun[idx]?.description || `Step ${idx + 1}`);
-    }
-  } else if (result.narrationEnglish.length > dryRunLen) {
-    result.narrationEnglish = result.narrationEnglish.slice(0, dryRunLen);
-  }
-
-  if (result.narrationHinglish.length < dryRunLen) {
-    while (result.narrationHinglish.length < dryRunLen) {
-      const idx = result.narrationHinglish.length;
-      result.narrationHinglish.push(result.dryRun[idx]?.description || `Step ${idx + 1}`);
-    }
-  } else if (result.narrationHinglish.length > dryRunLen) {
-    result.narrationHinglish = result.narrationHinglish.slice(0, dryRunLen);
-  }
+  const repaired = sanitizeAndRepairTrace(result.dryRun, result.narrationEnglish, result.narrationHinglish);
+  result.dryRun = repaired.dryRun;
+  result.narrationEnglish = repaired.narrationEnglish;
+  result.narrationHinglish = repaired.narrationHinglish;
+  result.isTruncated = repaired.isTruncated;
 
   return result;
 }
@@ -381,4 +490,3 @@ Explain the core principle, why it behaves this way, provide 2-4 key takeaways, 
 
   return callGeminiJson<ExplainCodeResult>(prompt, explainSchema);
 }
-
