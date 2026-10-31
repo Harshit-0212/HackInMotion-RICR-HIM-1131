@@ -27,6 +27,7 @@ function toBackendUser(user: StoredUser) {
   return {
     id: user.id,
     email: user.email,
+    role: user.role,
     created_at: user.created_at,
     user_metadata: { full_name: user.full_name, avatar_image: user.avatar_image ?? null },
   };
