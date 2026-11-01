@@ -213,7 +213,7 @@ export interface GenerateDraftInput {
 
 
 export interface RunCodeResult {
-  status: 'success' | 'error' | 'timeout' | 'compile_error' | 'runtime_error';
+  status: 'success' | 'error' | 'timeout' | 'compile_error' | 'runtime_error' | 'request_error';
   output: string;
   error?: string;
   exitCode?: number | null;

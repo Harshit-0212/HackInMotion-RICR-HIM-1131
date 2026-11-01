@@ -2,6 +2,7 @@ import { fetchApi } from './api';
 import type {
   PublicCodingProblemListItem,
   PublicCodingProblemDetail,
+  RunCodeResult,
   StoredCodingProblem,
   StoredCodingTestCase,
   StoredCodingProblemPrivate,
@@ -48,6 +49,13 @@ export const codingService = {
 
   async getProblemBySlug(slug: string): Promise<PublicCodingProblemDetail> {
     return fetchApi(`/coding/problems/${encodeURIComponent(slug)}`);
+  },
+
+  async runCode(payload: { language: string; code: string; input?: string }): Promise<RunCodeResult> {
+    return fetchApi('/coding/run', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
   },
 
   // --- Admin-Facing Studio APIs ---

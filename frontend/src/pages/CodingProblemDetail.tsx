@@ -182,11 +182,11 @@ export function CodingProblemDetail() {
         setTimeout(() => outputRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Execution failed';
+      const msg = err instanceof Error ? err.message : 'Could not run code';
       setRunResult({
-        status: 'error',
+        status: 'request_error',
         output: '',
-        error: msg,
+        error: `Could not run code: ${msg}`,
       });
       setActiveBottomTab('output');
     } finally {
@@ -747,6 +747,13 @@ export function CodingProblemDetail() {
                               <Clock className="w-4 h-4 text-amber-500" />
                               <span className="font-semibold text-amber-700 dark:text-amber-400 font-sans">
                                 Execution timed out
+                              </span>
+                            </>
+                          ) : runResult.status === 'request_error' ? (
+                            <>
+                              <AlertCircle className="w-4 h-4 text-rose-500" />
+                              <span className="font-semibold text-rose-700 dark:text-rose-400 font-sans">
+                                Could not run code
                               </span>
                             </>
                           ) : (
