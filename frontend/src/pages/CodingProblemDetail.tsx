@@ -23,8 +23,10 @@ import {
   Loader2,
   Maximize2,
   Minimize2,
+  Info,
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PanelErrorBoundary } from '@/components/ui/PanelErrorBoundary';
 import { codingService } from '@/services/codingService';
 import type {
   PublicCodingProblemDetail,
@@ -980,6 +982,7 @@ export function CodingProblemDetail() {
               {/* Console Body */}
               {!isConsoleCollapsed && (
                 <div className="flex-1 min-h-0 overflow-y-auto p-3 text-xs font-mono">
+                  <PanelErrorBoundary fallbackTitle="Console view encountered an error">
                   {/* Tab 1: Custom Input */}
                   {activeConsoleTab === 'input' && (
                     <div className="space-y-2 h-full flex flex-col">
@@ -1118,6 +1121,7 @@ export function CodingProblemDetail() {
                       </div>
                     </div>
                   )}
+                  </PanelErrorBoundary>
                 </div>
               )}
             </div>

@@ -34,6 +34,7 @@ import type {
   GenerateDraftInput,
   ProblemStatus,
   ProblemDifficulty,
+  SupportedCodingLanguage,
 } from '@/types/coding';
 import { useToast } from '@/store/ToastContext';
 
@@ -168,7 +169,7 @@ export function AdminCodingStudio() {
       await codingService.updatePrivateContent(selectedDetail.problem._id, {
         referenceSolutions: updatedSolutions,
         editorial: selectedDetail.privateContent?.editorial,
-        hints: selectedDetail.privateContent?.hints,
+        progressiveHints: selectedDetail.privateContent?.progressiveHints,
       });
       showToast(`${solutionLang.toUpperCase()} reference solution saved.`, 'success');
       setIsAddSolutionOpen(false);

@@ -54,7 +54,7 @@ export function Signup() {
       showToast('Account created. Welcome to Cadence!');
       setTimeout(() => {
         navigate('/app');
-      }, 700);
+      }, 150);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong.');
       setLoading(false);
@@ -65,7 +65,7 @@ export function Signup() {
     setError(null);
     setSuccess(true);
     showToast(`Welcome, ${loggedInUser.name.split(' ')[0]}!`);
-    setTimeout(() => navigate('/app'), 700);
+    setTimeout(() => navigate('/app'), 150);
   };
 
   const handleGoogleError = (message: string) => {

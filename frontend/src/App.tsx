@@ -25,17 +25,21 @@ import { CodeDebugger } from '@/pages/CodeDebugger';
 import { CodingProblemsList } from '@/pages/CodingProblemsList';
 import { CodingProblemDetail } from '@/pages/CodingProblemDetail';
 import { AdminCodingStudio } from '@/pages/AdminCodingStudio';
+import { LearningJourney } from '@/pages/LearningJourney';
+import { StageDetail } from '@/pages/StageDetail';
+import { StageCheckpoint } from '@/pages/StageCheckpoint';
+import { FullPageLoader } from '@/components/ui/FullPageLoader';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isInitializing } = useAuth();
-  if (isInitializing) return null;
+  if (isInitializing) return <FullPageLoader message="Verifying session…" submessage="Please wait while we check your login credentials" />;
   if (!user) return <Navigate to="/login" replace />;
   return <>{children}</>;
 }
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const { user, isInitializing } = useAuth();
-  if (isInitializing) return null;
+  if (isInitializing) return <FullPageLoader message="Verifying permissions…" submessage="Accessing administrative studio" />;
   if (!user) return <Navigate to="/login" replace />;
   if (user.role !== 'admin') {
     return (
@@ -57,7 +61,7 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
 
 function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
   const { user, isInitializing } = useAuth();
-  if (isInitializing) return null;
+  if (isInitializing) return <FullPageLoader message="Loading Cadence…" submessage="Checking active session" />;
   if (user) return <Navigate to="/app" replace />;
   return <>{children}</>;
 }
@@ -177,6 +181,30 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <CodeDebugger />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/journey"
+        element={
+          <ProtectedRoute>
+            <LearningJourney />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/journey/:journeySlug/stage/:stageSlug"
+        element={
+          <ProtectedRoute>
+            <StageDetail />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/journey/:journeySlug/stage/:stageSlug/checkpoint"
+        element={
+          <ProtectedRoute>
+            <StageCheckpoint />
           </ProtectedRoute>
         }
       />

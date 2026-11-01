@@ -17,9 +17,13 @@ import { resumeAnalyzerRouter } from './routes/resumeAnalyzer.js';
 import { debuggerRouter } from './routes/debugger.js';
 import { adminCodingRouter } from './routes/adminCoding.js';
 import { studentCodingRouter } from './routes/studentCoding.js';
+import { studentJourneyRouter } from './routes/studentJourney.js';
+import { adminJourneyRouter } from './routes/adminJourney.js';
 import { getDb } from './lib/db.js';
 import { initSocket } from './lib/socket.js';
 import { sendDueStudyReminders } from './lib/reminders.js';
+import { warmUpGoogleClient } from './lib/googleAuth.js';
+import { seedArraysJourneyIfMissing } from './lib/seedArraysJourney.js';
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -80,6 +84,8 @@ app.use('/api/resume-analyzer', resumeAnalyzerRouter);
 app.use('/api/debugger', debuggerRouter);
 app.use('/api/admin/coding', adminCodingRouter);
 app.use('/api/coding', studentCodingRouter);
+app.use('/api/learn', studentJourneyRouter);
+app.use('/api/admin/journey', adminJourneyRouter);
 
 app.use((req, res) => {
   res.status(404).json({ error: { message: `No route for ${req.method} ${req.path}` } });
@@ -109,12 +115,20 @@ async function start() {
   try {
     await getDb();
     console.log(`[nova-server] MongoDB connected (${config.mongoUri} / db "${config.mongoDbName}")`);
+    await seedArraysJourneyIfMissing().catch((err) => console.error('[nova-server] Seed journey failed:', err));
   } catch (err) {
     console.error(
       '[nova-server] Could not connect to MongoDB. Auth (signup/signin) will fail until this is fixed. ' +
         'Check MONGODB_URI in server/.env and that a MongoDB server is running.',
       err instanceof Error ? err.message : err,
     );
+  }
+
+  // Pre-warm Google OAuth2 client so the first login does not incur
+  // cold-start key-fetch latency. This is a no-op if GOOGLE_CLIENT_ID is unset.
+  if (config.googleClientId) {
+    warmUpGoogleClient();
+    console.log('[nova-server] Google OAuth2 client pre-warmed.');
   }
 
   if (config.resendApiKey) {

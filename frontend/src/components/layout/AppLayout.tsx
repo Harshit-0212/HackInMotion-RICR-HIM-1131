@@ -22,6 +22,7 @@ import {
   Code2,
   Code,
   ShieldAlert,
+  Compass,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Logo } from '@/components/ui/Logo';
@@ -32,6 +33,7 @@ import { useNotifications } from '@/store/NotificationContext';
 
 const NAV = [
   { to: '/app', label: 'Overview', icon: LayoutDashboard, end: true },
+  { to: '/app/journey', label: 'Learning Journey', icon: Compass, end: false },
   { to: '/app/plan', label: 'My Learning', icon: BookOpen, end: false },
   { to: '/app/assessments', label: 'Practice', icon: Target, end: false },
   { to: '/app/tutor', label: 'AI Tutor', icon: Sparkles, end: false },

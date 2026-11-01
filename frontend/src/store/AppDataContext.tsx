@@ -113,10 +113,24 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     }
     setIsReady(false);
     (async () => {
-      const [existingGoal, existingPlan] = await Promise.all([goalService.getCurrent(), studyPlanService.getPlan()]);
+      // Fetch all dashboard data in parallel — no sequential waterfall.
+      const [
+        existingGoal,
+        existingPlan,
+        { snapshot, achievements: unlockedAchievements, weakTopics: weak },
+        results,
+      ] = await Promise.all([
+        goalService.getCurrent(),
+        studyPlanService.getPlan(),
+        progressService.getAll(),
+        mockTestService.getResults(),
+      ]);
       setGoal(existingGoal);
       setPlan(existingPlan);
-      await refreshProgress();
+      setProgress(snapshot);
+      setAchievements(unlockedAchievements);
+      setWeakTopics(weak);
+      setQuizHistory([...results].reverse());
       setIsReady(true);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps

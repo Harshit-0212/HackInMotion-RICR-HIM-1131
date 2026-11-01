@@ -32,10 +32,10 @@ export function Login() {
       const user = await login({ email, password });
       setSuccess(true);
       showToast(`Welcome back, ${user.name.split(' ')[0]}!`);
-      // Hold navigation for 700ms to allow success animation to complete
+      // Brief hold so the success toast is visible before the page transitions
       setTimeout(() => {
         navigate('/app');
-      }, 700);
+      }, 150);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong.');
       setLoading(false);
@@ -46,7 +46,7 @@ export function Login() {
     setError(null);
     setSuccess(true);
     showToast(`Welcome, ${loggedInUser.name.split(' ')[0]}!`);
-    setTimeout(() => navigate('/app'), 700);
+    setTimeout(() => navigate('/app'), 150);
   };
 
   const handleGoogleError = (message: string) => {

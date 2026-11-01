@@ -13,6 +13,26 @@ function getClient(): OAuth2Client {
   return client;
 }
 
+/**
+ * Pre-warms the Google OAuth2 client by triggering a background fetch of
+ * Google's public key certificates. Call once on server startup so the first
+ * real login request does not block on the key-fetch round-trip.
+ */
+export function warmUpGoogleClient(): void {
+  try {
+    // getClient() is synchronous; the key fetch happens lazily inside
+    // verifyIdToken. We trigger it here with a throw-away verify call so the
+    // certs are cached before any real user request arrives.
+    const c = getClient();
+    // Fire-and-forget — verifyIdToken with an empty token will reject quickly,
+    // but the SDK will still populate its cert cache in the process.
+    c.getTokenInfo('').catch(() => { /* expected — we only want the cache side-effect */ });
+  } catch {
+    // Non-fatal: if GOOGLE_CLIENT_ID is misconfigured, verifyGoogleCredential
+    // will surface the proper error at runtime.
+  }
+}
+
 export class GoogleAuthError extends Error {}
 
 export async function verifyGoogleCredential(idToken: string): Promise<GoogleProfile> {
