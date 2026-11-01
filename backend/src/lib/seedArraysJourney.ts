@@ -9,9 +9,54 @@
  * 5. Arrays Checkpoint Milestone
  *
  * Idempotent: checks for existing slug before inserting.
+ * Partial-failure resilience: cleans up orphaned stage/activity/question docs
+ * (i.e. records created in a previous crashed seed attempt whose journey
+ * document was never written) before re-seeding.
  */
+import { getDb } from './db.js';
 import { journeyStore, stageStore, activityStore, knowledgeQuestionStore, newJourneyId, newStageId, newActivityId, newKnowledgeQuestionId } from '../lib/journeyStore.js';
 import { codingProblemStore } from '../lib/codingStore.js';
+
+const STAGE_SLUGS = [
+  'arrays-access-traversal',
+  'arrays-adjacent-compare',
+  'arrays-count-conditions',
+  'arrays-boundary-cases',
+  'arrays-milestone-checkpoint',
+];
+
+/**
+ * Remove any orphaned stage/activity/question documents from a previous
+ * crashed seed attempt.  We identify orphaned stages by their known slugs.
+ * Activities and questions are deleted by journeyId so we need to find
+ * orphaned stage _ids first.
+ */
+async function cleanupOrphanedSeedData(): Promise<void> {
+  const db = await getDb();
+  // Use Document (any) collections to avoid ObjectId type conflicts on raw _id.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const stagesCol = db.collection<any>('journey_stages');
+  const orphans = await stagesCol
+    .find({ slug: { $in: STAGE_SLUGS } }, { projection: { _id: 1, journeyId: 1 } })
+    .toArray();
+  if (orphans.length === 0) return;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const orphanIds: any[] = orphans.map((s: any) => s._id);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const orphanJourneyIds: any[] = [...new Set<string>(orphans.map((s: any) => s.journeyId as string).filter(Boolean))];
+
+  console.log(`[journey-seed] Cleaning up ${orphans.length} orphaned stage(s) from previous failed seed…`);
+  await stagesCol.deleteMany({ _id: { $in: orphanIds } });
+  if (orphanJourneyIds.length > 0) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const col = db.collection<any>;
+    await col('journey_activities').deleteMany({ journeyId: { $in: orphanJourneyIds } });
+    await col('journey_knowledge_questions').deleteMany({ journeyId: { $in: orphanJourneyIds } });
+    await col('journey_journeys').deleteMany({ _id: { $in: orphanJourneyIds } });
+  }
+  console.log('[journey-seed] Orphaned records removed; proceeding with fresh seed.');
+}
 
 export async function seedArraysJourneyIfMissing(): Promise<void> {
   const existing = await journeyStore.findBySlug('arrays-fundamentals');
@@ -19,6 +64,9 @@ export async function seedArraysJourneyIfMissing(): Promise<void> {
     console.log('[journey-seed] Arrays Fundamentals journey already exists.');
     return;
   }
+
+  // Remove any orphaned documents left by a previous partial-failure seed run.
+  await cleanupOrphanedSeedData();
 
   console.log('[journey-seed] Seeding Arrays Fundamentals journey slice...');
   const now = new Date().toISOString();
