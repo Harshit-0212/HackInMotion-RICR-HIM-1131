@@ -49,7 +49,13 @@ const SECONDARY_NAV = [
 
 const SEARCHABLE_PAGES = [...NAV, ...SECONDARY_NAV];
 
-export function AppLayout({ children }: { children: ReactNode }) {
+export interface AppLayoutProps {
+  children: ReactNode;
+  focusMode?: boolean;
+  onOpenMobileMenu?: () => void;
+}
+
+export function AppLayout({ children, focusMode = false, onOpenMobileMenu }: AppLayoutProps) {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { notifications, unreadCount, markAllRead } = useNotifications();
@@ -57,6 +63,23 @@ export function AppLayout({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    const handleOpenNav = () => setMobileOpen(true);
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMobileOpen(false);
+        setSearchOpen(false);
+        setNotifOpen(false);
+      }
+    };
+    window.addEventListener('cadence:open-navigation', handleOpenNav);
+    window.addEventListener('keydown', handleEscape);
+    return () => {
+      window.removeEventListener('cadence:open-navigation', handleOpenNav);
+      window.removeEventListener('keydown', handleEscape);
+    };
+  }, []);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [notifOpen, setNotifOpen] = useState(false);
@@ -228,6 +251,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
       <div className="absolute bottom-0 left-[20%] h-[550px] w-[550px] bg-gradient-radial from-[var(--nova-primary)]/4 to-transparent blur-3xl pointer-events-none -z-10" />
 
       {/* Desktop Sidebar */}
+      {!focusMode && (
       <aside
         className={`fixed inset-y-4 left-4 z-30 hidden rounded-3xl border border-[var(--nova-border)] bg-[var(--nova-surface)] shadow-sm dark:border-[#1E293B] dark:bg-[#111827] transition-all duration-300 lg:flex flex-col min-h-0 overflow-hidden ${
           collapsed ? 'w-[80px]' : 'w-68'
@@ -244,11 +268,13 @@ export function AppLayout({ children }: { children: ReactNode }) {
           </button>
         )}
       </aside>
+      )}
 
       {/* Mobile Drawer */}
       <AnimatePresence>
         {mobileOpen && (
-          <div className="fixed inset-0 z-40 lg:hidden">
+          <div className={`fixed inset-0 z-50 ${focusMode ? '' : 'lg:hidden'}`}>
+            {/* Accessible Close / Escape */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -271,9 +297,10 @@ export function AppLayout({ children }: { children: ReactNode }) {
 
       {/* Content Area Wrapper */}
       <div
-        className={`min-w-0 flex-1 transition-all duration-300 ${collapsed ? 'lg:pl-[112px]' : 'lg:pl-[312px]'} pr-0 lg:pr-6 pt-4 pb-6 overflow-x-hidden`}
+        className={`min-w-0 flex-1 transition-all duration-300 ${focusMode ? 'lg:pl-0 pr-0 pt-0 pb-0' : (collapsed ? 'lg:pl-[112px] pr-0 lg:pr-6 pt-4 pb-6' : 'lg:pl-[312px] pr-0 lg:pr-6 pt-4 pb-6')} overflow-x-hidden`}
       >
         {/* Desktop/Laptop Header Bar */}
+        {!focusMode && (
         <header className="relative z-30 hidden lg:flex h-16 items-center justify-between border border-[var(--nova-border)] bg-white/92 rounded-3xl px-6 mb-6 shadow-[0_1px_3px_rgba(15,23,42,0.06)] dark:border-[#1E293B] dark:bg-[#111827]/92 backdrop-blur-md">
           <div className="flex flex-col">
             <h1 className="font-space text-sm font-bold text-slate-900 dark:text-white leading-tight">
@@ -400,8 +427,10 @@ export function AppLayout({ children }: { children: ReactNode }) {
             </Link>
           </div>
         </header>
+        )}
 
         {/* Mobile top bar */}
+        {!focusMode && (
         <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-[var(--nova-border)] bg-[var(--nova-bg)] px-4 dark:border-white/5 dark:bg-[#0B1220] lg:hidden mb-4">
           <button
             onClick={() => setMobileOpen(true)}
@@ -413,9 +442,10 @@ export function AppLayout({ children }: { children: ReactNode }) {
           <Logo size="sm" to="/app" />
           <div className="w-9" />
         </header>
+        )}
 
         {/* Content Container */}
-        <main className="min-h-[calc(100vh-8rem)]">
+        <main className={focusMode ? "h-screen min-h-0 overflow-hidden" : "min-h-[calc(100vh-8rem)]"}>
           <div key={location.pathname} className="animate-fade-in">
             {children}
           </div>
