@@ -8,7 +8,7 @@
  * - Start/continue the checkpoint when eligible
  */
 import { useEffect, useState, useCallback } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft,
@@ -316,6 +316,7 @@ export function StageDetail() {
     stageSlug: string;
   }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [stage, setStage] = useState<Stage | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -339,6 +340,13 @@ export function StageDetail() {
       setStage(s);
       setActivities(acts);
       setProgress(p);
+
+      // Auto-open activity if query parameter is present (e.g. from comprehension hub)
+      const targetActId = searchParams.get('activity');
+      if (targetActId) {
+        const found = acts.find((a) => a.id === targetActId);
+        if (found) setActiveActivity(found);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not load stage.');
     } finally {

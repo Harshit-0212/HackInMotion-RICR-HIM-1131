@@ -28,6 +28,7 @@ import { AdminCodingStudio } from '@/pages/AdminCodingStudio';
 import { LearningJourney } from '@/pages/LearningJourney';
 import { StageDetail } from '@/pages/StageDetail';
 import { StageCheckpoint } from '@/pages/StageCheckpoint';
+import { CodeComprehensionList } from '@/pages/CodeComprehensionList';
 import { FullPageLoader } from '@/components/ui/FullPageLoader';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -205,6 +206,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <StageCheckpoint />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/comprehension"
+        element={
+          <ProtectedRoute>
+            <CodeComprehensionList />
           </ProtectedRoute>
         }
       />

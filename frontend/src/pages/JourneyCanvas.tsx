@@ -1,19 +1,19 @@
 /**
- * JourneyCanvas.tsx — React Flow powered learning roadmap canvas.
+ * JourneyCanvas.tsx — React Flow powered learning roadmap canvas with custom toolbar controls.
  *
- * Features:
- * - Zoom in/out/fit/reset, pan, minimap
- * - Read-only: nodes cannot be dragged or reconnected
- * - Viewport persisted in localStorage per journey
- * - Accessible labels; respects prefers-reduced-motion
- * - Distinct node states with text + icon + color
- * - Locked nodes explain missing prerequisites on hover/focus
+ * Implements:
+ * - Zoom in / Zoom out
+ * - Real-time zoom percentage readout
+ * - Fit view / Reset view
+ * - Jump to current actionable stage
+ * - Minimap & background grid
+ * - Read-only graph (no dragging/reconnecting)
+ * - Restrained Framer Motion node entrance & interactions
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ReactFlow,
   Background,
-  Controls,
   MiniMap,
   useNodesState,
   useEdgesState,
@@ -26,6 +26,7 @@ import {
   BackgroundVariant,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import { motion } from 'framer-motion';
 import {
   CheckCircle2,
   Circle,
@@ -34,15 +35,18 @@ import {
   AlertCircle,
   Target,
   Star,
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
+  RotateCcw,
+  Navigation,
 } from 'lucide-react';
 import type { Stage, StudentJourneyProgress, StageProgressState } from '@/types/journey';
 
-// ─── Viewport persistence ─────────────────────────────────────────────────────
-
 const VIEWPORT_KEY = (slug: string) => `cadence_journey_vp_${slug}`;
-const DEFAULT_VIEWPORT: Viewport = { x: 60, y: 60, zoom: 0.9 };
+const DEFAULT_VIEWPORT: Viewport = { x: 80, y: 80, zoom: 0.9 };
 const MIN_ZOOM = 0.35;
-const MAX_ZOOM = 2;
+const MAX_ZOOM = 2.0;
 
 function loadViewport(journeySlug: string): Viewport {
   try {
@@ -57,8 +61,6 @@ function saveViewport(journeySlug: string, vp: Viewport) {
     localStorage.setItem(VIEWPORT_KEY(journeySlug), JSON.stringify(vp));
   } catch {}
 }
-
-// ─── Node state styles ────────────────────────────────────────────────────────
 
 const NODE_STYLES: Record<
   StageProgressState,
@@ -80,7 +82,7 @@ const NODE_STYLES: Record<
   },
   available: {
     border: '#b7bece',
-    bg: '#fff',
+    bg: '#ffffff',
     text: '#262b3d',
     icon: Circle,
     iconColor: '#6366f1',
@@ -120,8 +122,6 @@ const DARK_NODE_STYLES: Record<
   needs_review: { border: '#c27c0e', bg: '#291c00', text: '#feecc7' },
 };
 
-// ─── Custom journey node ──────────────────────────────────────────────────────
-
 interface JourneyNodeData {
   stage: Stage;
   state: StageProgressState;
@@ -133,16 +133,16 @@ interface JourneyNodeData {
 function JourneyNode({ data }: NodeProps) {
   const d = data as unknown as JourneyNodeData;
   const { stage, state, isMilestone, isDark, onClick } = d;
-  const style = NODE_STYLES[state];
-  const darkStyle = DARK_NODE_STYLES[state];
+  const style = NODE_STYLES[state] || NODE_STYLES.locked;
+  const darkStyle = DARK_NODE_STYLES[state] || DARK_NODE_STYLES.locked;
   const Icon = style.icon;
 
-  const prefersReduced =
-    typeof window !== 'undefined' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95, y: 10 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      whileHover={{ y: -3, transition: { duration: 0.15 } }}
       role="button"
       tabIndex={0}
       aria-label={`${stage.title} — ${state.replace('_', ' ')}`}
@@ -151,31 +151,25 @@ function JourneyNode({ data }: NodeProps) {
         if (e.key === 'Enter' || e.key === ' ') onClick();
       }}
       className="nodrag cursor-pointer group outline-none"
-      style={{ width: 200 }}
+      style={{ width: 220 }}
     >
       <div
-        className={`relative rounded-2xl border-2 p-3.5 shadow-sm transition-shadow focus-within:ring-2 focus-within:ring-primary-500 ${
-          !prefersReduced
-            ? 'group-hover:shadow-[0_4px_16px_rgba(15,23,42,0.12)] group-hover:-translate-y-0.5 transition-transform duration-200'
-            : ''
-        }`}
+        className="relative rounded-2xl border-2 p-4 shadow-sm transition-shadow focus-within:ring-2 focus-within:ring-primary-500"
         style={{
           borderColor: isDark ? darkStyle.border : style.border,
           background: isDark ? darkStyle.bg : style.bg,
-          opacity: state === 'locked' ? 0.6 : 1,
+          opacity: state === 'locked' ? 0.65 : 1,
         }}
       >
-        {/* Milestone badge */}
         {isMilestone && (
-          <div className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-warning-400 shadow">
-            <Star size={10} fill="white" className="text-white" />
+          <div className="absolute -top-2.5 -right-2.5 flex h-6 w-6 items-center justify-center rounded-full bg-warning-400 shadow">
+            <Star size={12} fill="white" className="text-white" />
           </div>
         )}
 
-        {/* Icon + title row */}
         <div className="flex items-start gap-2.5">
           <Icon
-            size={16}
+            size={18}
             style={{ color: style.iconColor }}
             className="shrink-0 mt-0.5"
           />
@@ -187,23 +181,21 @@ function JourneyNode({ data }: NodeProps) {
           </p>
         </div>
 
-        {/* State label */}
         <p
-          className="mt-1.5 text-[10px] font-semibold tracking-wide uppercase"
-          style={{ color: style.iconColor, opacity: 0.8 }}
+          className="mt-2 text-[10px] font-semibold tracking-wider uppercase"
+          style={{ color: style.iconColor }}
         >
           {state.replace('_', ' ')}
         </p>
 
-        {/* Tags */}
         {stage.topicTags.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-1">
+          <div className="mt-2.5 flex flex-wrap gap-1">
             {stage.topicTags.slice(0, 2).map((t) => (
               <span
                 key={t}
-                className="rounded-full px-1.5 py-0.5 text-[9px] font-semibold"
+                className="rounded-full px-2 py-0.5 text-[9px] font-medium"
                 style={{
-                  background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+                  background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
                   color: isDark ? darkStyle.text : style.text,
                 }}
               >
@@ -213,33 +205,20 @@ function JourneyNode({ data }: NodeProps) {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
 const nodeTypes = { journeyStage: JourneyNode };
 
-// ─── Layout: simple top-to-bottom DAG with branch columns ────────────────────
+function layoutStages(stages: Stage[]): { id: string; x: number; y: number }[] {
+  const NODE_W = 240;
+  const NODE_H = 120;
+  const COL_GAP = 50;
+  const ROW_GAP = 70;
 
-function layoutStages(
-  stages: Stage[],
-): { id: string; x: number; y: number }[] {
-  const NODE_W = 220;
-  const NODE_H = 110;
-  const COL_GAP = 48;
-  const ROW_GAP = 60;
-
-  // BFS topological sort
   const visited = new Set<string>();
   const order: string[] = [];
-  const adj: Record<string, string[]> = {};
-  for (const s of stages) adj[s.id] = [];
-  for (const s of stages) {
-    for (const pid of s.prerequisiteStageIds) {
-      if (adj[pid]) adj[pid].push(s.id);
-    }
-  }
-
   function visit(id: string) {
     if (visited.has(id)) return;
     visited.add(id);
@@ -250,7 +229,6 @@ function layoutStages(
   }
   for (const s of stages) visit(s.id);
 
-  // Assign levels (longest path from root)
   const levels: Record<string, number> = {};
   for (const id of order) {
     const stage = stages.find((s) => s.id === id)!;
@@ -261,7 +239,6 @@ function layoutStages(
     levels[id] = maxPrereqLevel + 1;
   }
 
-  // Group by level
   const byLevel: Record<number, string[]> = {};
   for (const [id, level] of Object.entries(levels)) {
     if (!byLevel[level]) byLevel[level] = [];
@@ -287,8 +264,6 @@ function layoutStages(
   return positions;
 }
 
-// ─── Canvas inner component (uses ReactFlow hooks) ───────────────────────────
-
 function CanvasInner({
   stages,
   progress,
@@ -300,15 +275,15 @@ function CanvasInner({
   journeySlug: string;
   onStageSelect: (s: Stage) => void;
 }) {
-  const { fitView, setViewport, getViewport } = useReactFlow();
+  const { fitView, setViewport, getViewport, zoomIn, zoomOut } = useReactFlow();
   const isDark = document.documentElement.classList.contains('dark');
   const positions = layoutStages(stages);
+  const [zoomLevel, setZoomLevel] = useState<number>(90);
 
-  // Build nodes
   const initialNodes: Node[] = positions.map((pos) => {
     const stage = stages.find((s) => s.id === pos.id)!;
     const state: StageProgressState = (progress.stageStates[pos.id] ?? 'locked') as StageProgressState;
-    const isMilestone = false; // will use journey.milestoneStageIds if passed in
+    const isMilestone = stage.type === 'milestone';
 
     return {
       id: pos.id,
@@ -321,12 +296,11 @@ function CanvasInner({
         isDark,
         onClick: () => onStageSelect(stage),
       } as unknown as Record<string, unknown>,
-      draggable: false, // read-only: curriculum nodes cannot be moved
+      draggable: false,
       selectable: false,
     };
   });
 
-  // Build edges
   const initialEdges: Edge[] = [];
   for (const stage of stages) {
     for (const pid of stage.prerequisiteStageIds) {
@@ -350,12 +324,12 @@ function CanvasInner({
   const [nodes, , onNodesChange] = useNodesState(initialNodes);
   const [edges, , onEdgesChange] = useEdgesState(initialEdges);
 
-  // Restore viewport on mount
   const mounted = useRef(false);
   useEffect(() => {
     if (mounted.current) return;
     mounted.current = true;
     const stored = loadViewport(journeySlug);
+    if (stored.zoom) setZoomLevel(Math.round(stored.zoom * 100));
     if (
       stored.x !== DEFAULT_VIEWPORT.x ||
       stored.y !== DEFAULT_VIEWPORT.y ||
@@ -363,65 +337,139 @@ function CanvasInner({
     ) {
       setViewport(stored, { duration: 0 });
     } else {
-      // Focus current stage
       fitView({ padding: 0.25, duration: 400, maxZoom: 1.0 });
     }
   }, [fitView, setViewport, journeySlug]);
 
-  // Save viewport on change (debounced)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onMoveEnd = useCallback(() => {
+    const vp = getViewport();
+    setZoomLevel(Math.round(vp.zoom * 100));
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
-      saveViewport(journeySlug, getViewport());
+      saveViewport(journeySlug, vp);
     }, 400);
   }, [getViewport, journeySlug]);
 
+  const handleResetView = () => {
+    setViewport(DEFAULT_VIEWPORT, { duration: 300 });
+    setZoomLevel(Math.round(DEFAULT_VIEWPORT.zoom * 100));
+  };
+
+  const handleFitView = () => {
+    fitView({ padding: 0.2, duration: 300, maxZoom: 1.0 });
+  };
+
+  const handleJumpToCurrent = () => {
+    const currentStage = stages.find((s) => {
+      const state = progress.stageStates[s.id];
+      return state === 'available' || state === 'in_progress' || state === 'needs_review';
+    }) || stages[0];
+
+    const pos = positions.find((p) => p.id === currentStage?.id);
+    if (pos) {
+      setViewport({ x: -pos.x + 300, y: -pos.y + 200, zoom: 1.0 }, { duration: 350 });
+    }
+  };
+
   return (
-    <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      nodeTypes={nodeTypes}
-      minZoom={MIN_ZOOM}
-      maxZoom={MAX_ZOOM}
-      onMoveEnd={onMoveEnd}
-      // Prevent scroll hijacking — only zoom with ctrl/pinch
-      zoomOnScroll={false}
-      zoomOnPinch={true}
-      panOnScroll={false}
-      panOnDrag={true}
-      nodesDraggable={false}
-      nodesConnectable={false}
-      elementsSelectable={false}
-      proOptions={{ hideAttribution: true }}
-      className="!bg-slate-50 dark:!bg-[#0B1220]"
-    >
-      <Background
-        variant={BackgroundVariant.Dots}
-        gap={20}
-        size={1}
-        color={isDark ? '#1e293b' : '#e2e8f0'}
-      />
-      <Controls
-        showInteractive={false}
-        className="!border !border-ink-200 !rounded-xl !shadow-soft dark:!border-ink-700 dark:!bg-ink-900 [&>button]:!border-b [&>button]:!border-ink-200 dark:[&>button]:!border-ink-700 dark:[&>button]:!bg-ink-900 dark:[&>button]:!text-ink-300"
-      />
-      <MiniMap
-        nodeColor={(n) => {
-          const d = n.data as unknown as JourneyNodeData;
-          return NODE_STYLES[d.state]?.border ?? '#b7bece';
-        }}
-        className="!border !border-ink-200 !rounded-xl dark:!border-ink-700 dark:!bg-ink-900 hidden lg:block"
-        pannable
-        zoomable
-      />
-    </ReactFlow>
+    <div className="relative w-full h-full">
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        nodeTypes={nodeTypes}
+        minZoom={MIN_ZOOM}
+        maxZoom={MAX_ZOOM}
+        onMoveEnd={onMoveEnd}
+        zoomOnScroll={false}
+        zoomOnPinch={true}
+        panOnScroll={false}
+        panOnDrag={true}
+        nodesDraggable={false}
+        nodesConnectable={false}
+        elementsSelectable={false}
+        proOptions={{ hideAttribution: true }}
+        className="!bg-slate-50 dark:!bg-[#0B1220]"
+      >
+        <Background
+          variant={BackgroundVariant.Dots}
+          gap={24}
+          size={1.2}
+          color={isDark ? '#1e293b' : '#cbd5e1'}
+        />
+
+        {/* Custom Visible Toolbar Controls */}
+        <div className="absolute bottom-5 left-5 z-20 flex items-center gap-1 bg-white/95 dark:bg-ink-900/95 backdrop-blur-md border border-ink-200 dark:border-ink-800 rounded-2xl p-1.5 shadow-lift">
+          <button
+            onClick={() => zoomIn({ duration: 200 })}
+            aria-label="Zoom in"
+            title="Zoom in"
+            className="h-8 w-8 rounded-xl flex items-center justify-center text-ink-600 dark:text-ink-300 hover:bg-ink-100 dark:hover:bg-ink-800 transition"
+          >
+            <ZoomIn size={16} />
+          </button>
+
+          <span className="px-2 text-xs font-bold text-ink-700 dark:text-ink-200 min-w-[46px] text-center select-none">
+            {zoomLevel}%
+          </span>
+
+          <button
+            onClick={() => zoomOut({ duration: 200 })}
+            aria-label="Zoom out"
+            title="Zoom out"
+            className="h-8 w-8 rounded-xl flex items-center justify-center text-ink-600 dark:text-ink-300 hover:bg-ink-100 dark:hover:bg-ink-800 transition"
+          >
+            <ZoomOut size={16} />
+          </button>
+
+          <div className="h-4 w-px bg-ink-200 dark:bg-ink-800 mx-1" />
+
+          <button
+            onClick={handleFitView}
+            aria-label="Fit roadmap"
+            title="Fit roadmap to screen"
+            className="h-8 px-2.5 rounded-xl flex items-center gap-1.5 text-xs font-semibold text-ink-700 dark:text-ink-300 hover:bg-ink-100 dark:hover:bg-ink-800 transition"
+          >
+            <Maximize2 size={13} />
+            <span className="hidden sm:inline">Fit</span>
+          </button>
+
+          <button
+            onClick={handleResetView}
+            aria-label="Reset view"
+            title="Reset default zoom"
+            className="h-8 px-2.5 rounded-xl flex items-center gap-1.5 text-xs font-semibold text-ink-700 dark:text-ink-300 hover:bg-ink-100 dark:hover:bg-ink-800 transition"
+          >
+            <RotateCcw size={13} />
+            <span className="hidden sm:inline">Reset</span>
+          </button>
+
+          <button
+            onClick={handleJumpToCurrent}
+            aria-label="Jump to current stage"
+            title="Focus current actionable stage"
+            className="h-8 px-2.5 rounded-xl flex items-center gap-1.5 text-xs font-semibold bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-300 hover:bg-primary-100 transition"
+          >
+            <Navigation size={13} />
+            <span className="hidden sm:inline">Current</span>
+          </button>
+        </div>
+
+        <MiniMap
+          nodeColor={(n) => {
+            const d = n.data as unknown as JourneyNodeData;
+            return NODE_STYLES[d.state]?.border ?? '#b7bece';
+          }}
+          className="!border !border-ink-200 !rounded-2xl dark:!border-ink-800 dark:!bg-ink-900/90 shadow-soft hidden lg:block !bottom-5 !right-5"
+          pannable
+          zoomable
+        />
+      </ReactFlow>
+    </div>
   );
 }
-
-// ─── Public export (wrapped in provider) ─────────────────────────────────────
 
 export function JourneyCanvas({
   stages,
@@ -447,4 +495,3 @@ export function JourneyCanvas({
     </div>
   );
 }
-

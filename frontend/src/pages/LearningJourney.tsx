@@ -11,7 +11,7 @@
  * - Stage detail drawer: opens on node/row click
  */
 import { lazy, Suspense, useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Map,
@@ -392,7 +392,7 @@ export function LearningJourney() {
   const [progress, setProgress] = useState<StudentJourneyProgress | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [view, setView] = useState<'map' | 'list'>('list');
+  const [view, setView] = useState<'map' | 'list'>('map');
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
   const navigate = useNavigate();
 
@@ -404,21 +404,31 @@ export function LearningJourney() {
     setLoading(true);
     setError(null);
     try {
-      const [j, s, p] = await Promise.all([
-        journeyService.getJourney(JOURNEY_SLUG),
-        journeyService.listStages(JOURNEY_SLUG),
-        journeyService.getProgress(JOURNEY_SLUG),
+      // 1. Fetch available journeys first rather than assuming slug exists
+      const journeys = await journeyService.listJourneys();
+      if (!journeys || journeys.length === 0) {
+        setError('no-journey');
+        return;
+      }
+      const activeJourney = journeys.find((j) => j.slug === JOURNEY_SLUG) || journeys[0];
+
+      const [s, p] = await Promise.all([
+        journeyService.listStages(activeJourney.slug),
+        journeyService.getProgress(activeJourney.slug),
       ]);
-      setJourney(j);
+      setJourney(activeJourney);
       // Sort stages according to journey.stageIds order
-      const ordered = j.stageIds
+      const ordered = activeJourney.stageIds
         .map((id) => s.find((st) => st.id === id))
         .filter(Boolean) as Stage[];
       setStages(ordered);
       setProgress(p);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Could not load the learning journey.';
-      if (msg.includes('not found') || msg.includes('404')) {
+      // Distinguish server offline / network error from not found
+      if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('API Error')) {
+        setError('connection-error');
+      } else if (msg.includes('not found') || msg.includes('404')) {
         setError('no-journey');
       } else {
         setError(msg);
@@ -446,6 +456,29 @@ export function LearningJourney() {
     return (
       <AppLayout>
         <JourneyLoadingSkeleton />
+      </AppLayout>
+    );
+  }
+
+  if (error === 'connection-error') {
+    return (
+      <AppLayout>
+        <div className="p-4 sm:p-6 lg:p-8">
+          <div className="max-w-lg mx-auto text-center py-16 space-y-4">
+            <div className="w-16 h-16 rounded-2xl bg-warning-50 dark:bg-warning-900/30 flex items-center justify-center mx-auto">
+              <AlertCircle size={28} className="text-warning-600 dark:text-warning-400" />
+            </div>
+            <h2 className="font-display text-xl font-bold text-ink-900 dark:text-ink-50">
+              Cannot connect to Cadence learning service
+            </h2>
+            <p className="text-sm text-ink-500 dark:text-ink-400">
+              The server is not responding. Please make sure the Cadence backend service is running on port 3001.
+            </p>
+            <Button onClick={load} variant="outline" size="sm">
+              <RefreshCw size={14} /> Retry Connection
+            </Button>
+          </div>
+        </div>
       </AppLayout>
     );
   }
@@ -524,32 +557,41 @@ export function LearningJourney() {
             </Button>
           )}
 
-          {/* View toggle */}
-          <div className="flex rounded-xl border border-ink-200 dark:border-ink-700 overflow-hidden">
-            <button
-              onClick={() => setView('list')}
-              aria-label="List view"
-              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold transition-colors ${
-                view === 'list'
-                  ? 'bg-primary-600 text-white'
-                  : 'text-ink-600 dark:text-ink-300 hover:bg-ink-50 dark:hover:bg-ink-800'
-              }`}
-            >
-              <List size={14} />
-              <span className="hidden sm:inline">List</span>
-            </button>
-            <button
-              onClick={() => setView('map')}
-              aria-label="Map view"
-              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold transition-colors border-l border-ink-200 dark:border-ink-700 ${
-                view === 'map'
-                  ? 'bg-primary-600 text-white'
-                  : 'text-ink-600 dark:text-ink-300 hover:bg-ink-50 dark:hover:bg-ink-800'
-              }`}
-            >
-              <Map size={14} />
-              <span className="hidden sm:inline">Map</span>
-            </button>
+          {/* View toggle & Code Comprehension link */}
+          <div className="flex items-center gap-2">
+            <Link to="/app/comprehension">
+              <Button size="sm" variant="outline" className="hidden sm:inline-flex">
+                <Brain size={15} />
+                Comprehension Hub
+              </Button>
+            </Link>
+
+            <div className="flex rounded-xl border border-ink-200 dark:border-ink-700 overflow-hidden">
+              <button
+                onClick={() => setView('map')}
+                aria-label="Map view"
+                className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold transition-colors ${
+                  view === 'map'
+                    ? 'bg-primary-600 text-white'
+                    : 'text-ink-600 dark:text-ink-300 hover:bg-ink-50 dark:hover:bg-ink-800'
+                }`}
+              >
+                <Map size={14} />
+                <span className="hidden sm:inline">Map</span>
+              </button>
+              <button
+                onClick={() => setView('list')}
+                aria-label="List view"
+                className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold transition-colors border-l border-ink-200 dark:border-ink-700 ${
+                  view === 'list'
+                    ? 'bg-primary-600 text-white'
+                    : 'text-ink-600 dark:text-ink-300 hover:bg-ink-50 dark:hover:bg-ink-800'
+                }`}
+              >
+                <List size={14} />
+                <span className="hidden sm:inline">List</span>
+              </button>
+            </div>
           </div>
         </header>
 
