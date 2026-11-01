@@ -157,8 +157,8 @@ export const studentJourneyController = {
   },
 
   async getJourney(req: AuthedRequest, res: Response): Promise<void> {
-    const { slug } = req.params;
-    const journey = await journeyStore.findBySlug(slug);
+    const { journeySlug } = req.params;
+    const journey = await journeyStore.findBySlug(journeySlug);
     if (!journey || journey.status !== 'published') {
       res.status(404).json({ error: { message: 'Journey not found.' } });
       return;
