@@ -11,6 +11,7 @@ studentCodingRouter.use(requireAuth);
 studentCodingRouter.get('/problems/filters', studentCodingController.getFilters);
 studentCodingRouter.get('/problems', studentCodingController.listProblems);
 studentCodingRouter.get('/problems/:slug', studentCodingController.getProblemBySlug);
+studentCodingRouter.post('/problems/:slug/submit', studentCodingController.submitProblem);
 studentCodingRouter.post('/run', studentCodingController.runCode);
 
 // Execution capabilities discovery endpoint

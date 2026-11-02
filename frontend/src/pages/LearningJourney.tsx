@@ -521,7 +521,7 @@ export function LearningJourney() {
 
   return (
     <AppLayout>
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-[calc(100vh-8rem)] min-h-[580px] -m-4 sm:-m-6 lg:-m-8">
         {/* ── Compact header ── */}
         <header className="shrink-0 px-4 sm:px-6 pt-4 pb-3 flex flex-wrap items-center gap-3 border-b border-ink-100 dark:border-ink-800">
           <div className="flex-1 min-w-0">

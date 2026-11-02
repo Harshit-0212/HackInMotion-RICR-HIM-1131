@@ -5,6 +5,7 @@ import type {
   StoredCodingProblemPrivate,
   ProblemStatus,
   ProblemDifficulty,
+  SupportedCodingLanguage,
 } from '../types/coding.js';
 
 export async function codingProblemsCollection() {
@@ -44,6 +45,34 @@ export function newTestCaseId(): string {
 
 export function newPrivateId(): string {
   return `cpriv_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+export async function codingSubmissionsCollection() {
+  const db = await getDb();
+  const col = db.collection<StoredCodingSubmission>('coding_submissions');
+  await col.createIndex({ _id: 1 }, { unique: true }).catch(() => {});
+  await col.createIndex({ userId: 1, problemId: 1, createdAt: -1 }).catch(() => {});
+  await col.createIndex({ problemId: 1, verdict: 1 }).catch(() => {});
+  return col;
+}
+
+export interface StoredCodingSubmission {
+  _id: string; // "sub_..."
+  userId: string;
+  problemId: string;
+  problemSlug: string;
+  language: SupportedCodingLanguage;
+  code: string;
+  verdict: 'accepted' | 'wrong_answer' | 'compile_error' | 'runtime_error' | 'timeout' | 'error';
+  passedTests: number;
+  totalTests: number;
+  compileError?: string;
+  executionTimeMs?: number;
+  createdAt: string;
+}
+
+export function newSubmissionId(): string {
+  return `sub_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
 export const codingProblemStore = {
@@ -258,6 +287,24 @@ export const codingProblemStore = {
       await col.insertOne(record);
       return record;
     }
+  },
+
+  // --- Submissions Store ---
+  async recordSubmission(sub: StoredCodingSubmission): Promise<StoredCodingSubmission> {
+    const col = await codingSubmissionsCollection();
+    await col.insertOne(sub);
+    return sub;
+  },
+
+  async getLatestSubmission(userId: string, problemId: string): Promise<StoredCodingSubmission | null> {
+    const col = await codingSubmissionsCollection();
+    return col.findOne({ userId, problemId }, { sort: { createdAt: -1 } });
+  },
+
+  async hasSolvedProblem(userId: string, problemId: string): Promise<boolean> {
+    const col = await codingSubmissionsCollection();
+    const count = await col.countDocuments({ userId, problemId, verdict: 'accepted' });
+    return count > 0;
   },
 };
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+﻿import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   ChevronLeft,
@@ -95,6 +95,23 @@ export function CodingProblemDetail() {
   const [copiedOutput, setCopiedOutput] = useState(false);
   const [copiedCaseIdx, setCopiedCaseIdx] = useState<number | null>(null);
   const [constraintsOpen, setConstraintsOpen] = useState(false);
+
+  // Submit states
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitResult, setSubmitResult] = useState<{
+    submissionId: string;
+    verdict: 'accepted' | 'wrong_answer' | 'compile_error' | 'runtime_error' | 'timeout' | 'error';
+    passedTests: number;
+    totalTests: number;
+    compileError?: string;
+    publicResults: {
+      caseKey: string;
+      passed: boolean;
+      status: string;
+      actualOutput?: string;
+      expectedOutput?: string;
+    }[];
+  } | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const rightPanelRef = useRef<HTMLDivElement>(null);
@@ -255,6 +272,46 @@ export function CodingProblemDetail() {
       setActiveConsoleTab('output');
     } finally {
       setIsRunning(false);
+    }
+  };
+
+  const handleSubmitSolution = async () => {
+    if (!problem || !selectedLang || !code.trim() || isSubmitting) return;
+    setIsSubmitting(true);
+    setSubmitResult(null);
+    setActiveConsoleTab('submit');
+    if (isConsoleCollapsed) setIsConsoleCollapsed(false);
+
+    try {
+      const res = await codingService.submitProblem(problem.slug, {
+        language: selectedLang,
+        code,
+      });
+      setSubmitResult(res);
+      if (res.verdict === 'accepted') {
+        showToast('Accepted! All test cases passed.', 'success');
+      } else if (res.verdict === 'wrong_answer') {
+        showToast(`Wrong Answer (${res.passedTests}/${res.totalTests} tests passed)`, 'error');
+      } else if (res.verdict === 'compile_error') {
+        showToast('Compilation Error', 'error');
+      } else if (res.verdict === 'timeout') {
+        showToast('Time Limit Exceeded', 'error');
+      } else {
+        showToast('Submission execution error', 'error');
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Submission failed';
+      setSubmitResult({
+        submissionId: `err_${Date.now()}`,
+        verdict: 'error',
+        passedTests: 0,
+        totalTests: 0,
+        compileError: msg,
+        publicResults: [],
+      });
+      showToast(msg, 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -507,18 +564,16 @@ export function CodingProblemDetail() {
               <span>{isRunning ? 'Running…' : 'Run Code'}</span>
             </button>
 
-            {/* Submit Button (Clear status: Server-side judging pending in next phase) */}
+            {/* Submit Button */}
             <button
               type="button"
-              onClick={() => {
-                setActiveConsoleTab('submit');
-                if (isConsoleCollapsed) setIsConsoleCollapsed(false);
-              }}
-              title="Official problem judging and test suite evaluation"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-600/40 dark:border-emerald-500/40 bg-emerald-50/70 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:hover:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 font-semibold text-xs transition-colors"
+              disabled={isSubmitting || isRunning || !selectedLang || availableLanguages.length === 0}
+              onClick={handleSubmitSolution}
+              title="Submit code for full server-side judging"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-semibold text-xs transition-colors shadow-xs"
             >
-              <Send className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Submit</span>
+              <Send className={`w-3.5 h-3.5 ${isSubmitting ? 'animate-spin' : ''}`} />
+              <span>{isSubmitting ? 'Judging\u2026' : 'Submit'}</span>
             </button>
           </div>
         </header>
@@ -1106,19 +1161,104 @@ export function CodingProblemDetail() {
 
                   {/* Tab 3: Official Judging / Submit Status */}
                   {activeConsoleTab === 'submit' && (
-                    <div className="p-3 space-y-3 font-sans">
-                      <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-800/80 border border-slate-700/80">
-                        <Info className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
-                        <div className="space-y-1 text-xs">
-                          <h4 className="font-semibold text-slate-200">Server-Side Judging Pipeline</h4>
-                          <p className="text-[11px] text-slate-400 leading-relaxed">
-                            Full test suite evaluation across all hidden test cases and automatic submission history tracking are scheduled for the next backend phase.
-                          </p>
-                          <p className="text-[11px] text-slate-400 leading-relaxed">
-                            You can currently test standard I/O against custom inputs and all sample test cases using <strong className="text-slate-300 font-mono">Run Code</strong> above.
-                          </p>
+                    <div className="p-4 space-y-4 font-sans text-xs">
+                      {isSubmitting ? (
+                        <div className="flex flex-col items-center justify-center py-10 space-y-3">
+                          <Loader2 className="w-7 h-7 text-emerald-500 animate-spin" />
+                          <div className="text-center">
+                            <h4 className="font-bold text-slate-200 text-sm">Evaluating Test Cases&hellip;</h4>
+                            <p className="text-[11px] text-slate-400 mt-1">
+                              Executing your solution against sample and hidden test suites on the server.
+                            </p>
+                          </div>
                         </div>
-                      </div>
+                      ) : submitResult ? (
+                        <div className="space-y-3">
+                          {/* Verdict Banner */}
+                          <div className={`p-4 rounded-xl border flex items-start gap-3 ${
+                            submitResult.verdict === 'accepted'
+                              ? 'bg-emerald-950/40 border-emerald-800/80 text-emerald-300'
+                              : submitResult.verdict === 'compile_error'
+                              ? 'bg-amber-950/40 border-amber-800/80 text-amber-300'
+                              : 'bg-rose-950/40 border-rose-800/80 text-rose-300'
+                          }`}>
+                            {submitResult.verdict === 'accepted' ? (
+                              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                            ) : submitResult.verdict === 'compile_error' ? (
+                              <AlertCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                            ) : (
+                              <XCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+                            )}
+                            <div className="space-y-1">
+                              <h4 className="font-bold text-sm uppercase tracking-wide">
+                                {submitResult.verdict === 'accepted'
+                                  ? 'Accepted'
+                                  : submitResult.verdict === 'compile_error'
+                                  ? 'Compilation Error'
+                                  : submitResult.verdict === 'timeout'
+                                  ? 'Time Limit Exceeded'
+                                  : 'Wrong Answer'}
+                              </h4>
+                              <p className="text-xs opacity-90">
+                                Passed {submitResult.passedTests} of {submitResult.totalTests} total test cases (including hidden tests).
+                              </p>
+                              <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                                Submission ID: {submitResult.submissionId}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Compile error box */}
+                          {submitResult.compileError && (
+                            <div className="p-3 rounded-lg bg-black/50 border border-red-900/50 font-mono text-[11px] text-red-300 whitespace-pre-wrap overflow-x-auto">
+                              {submitResult.compileError}
+                            </div>
+                          )}
+
+                          {/* Public Sample Results List */}
+                          {submitResult.publicResults.length > 0 && (
+                            <div className="space-y-2 pt-1">
+                              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+                                Sample Test Cases Evaluation
+                              </span>
+                              <div className="space-y-1.5">
+                                {submitResult.publicResults.map((pr, idx) => (
+                                  <div
+                                    key={pr.caseKey}
+                                    className="p-2.5 rounded-lg border border-slate-800 bg-slate-900/60 flex items-center justify-between"
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      {pr.passed ? (
+                                        <Check className="w-3.5 h-3.5 text-emerald-400" />
+                                      ) : (
+                                        <XCircle className="w-3.5 h-3.5 text-rose-400" />
+                                      )}
+                                      <span className="font-medium text-slate-300">
+                                        Sample Case #{idx + 1}
+                                      </span>
+                                    </div>
+                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${
+                                      pr.passed ? 'bg-emerald-950 text-emerald-400' : 'bg-rose-950 text-rose-400'
+                                    }`}>
+                                      {pr.status}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-800/80 border border-slate-700/80">
+                          <Info className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                          <div className="space-y-1 text-xs">
+                            <h4 className="font-semibold text-slate-200">Server-Side Judging Ready</h4>
+                            <p className="text-[11px] text-slate-400 leading-relaxed">
+                              Click <strong className="text-emerald-400 font-semibold">Submit</strong> in the toolbar to run your code through the server-side judging pipeline across all public and hidden test cases.
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                   </PanelErrorBoundary>

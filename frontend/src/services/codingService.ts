@@ -15,6 +15,7 @@ import type {
   GenerateDraftInput,
   ProblemStatus,
   ProblemDifficulty,
+  SupportedCodingLanguage,
 } from '@/types/coding';
 
 export const codingService = {
@@ -155,5 +156,30 @@ export const codingService = {
       method: 'POST',
     });
   },
+
+  // --- Student: Submit for server-side judging ---
+  async submitProblem(
+    slug: string,
+    payload: { language: SupportedCodingLanguage; code: string },
+  ): Promise<{
+    submissionId: string;
+    verdict: 'accepted' | 'wrong_answer' | 'compile_error' | 'runtime_error' | 'timeout' | 'error';
+    passedTests: number;
+    totalTests: number;
+    compileError?: string;
+    publicResults: {
+      caseKey: string;
+      passed: boolean;
+      status: string;
+      actualOutput?: string;
+      expectedOutput?: string;
+    }[];
+  }> {
+    return fetchApi(`/coding/problems/${encodeURIComponent(slug)}/submit`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
 };
 

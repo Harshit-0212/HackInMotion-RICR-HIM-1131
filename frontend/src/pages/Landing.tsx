@@ -36,7 +36,6 @@ import { useTheme } from '@/store/ThemeContext';
 import { viewportConfig } from '@/lib/animations';
 import { ScrollyTimeline } from '@/components/landing/ScrollyTimeline';
 import { AICore } from '@/components/landing/AICore';
-import { MouseBubble } from '@/components/landing/MouseBubble';
 
 const PROBLEM_CARDS = [
   {
@@ -144,7 +143,6 @@ export function Landing() {
     <div
       className={`${theme} relative min-h-screen overflow-x-clip ${isDark ? 'bg-ink-975 text-ink-100' : 'bg-slate-50 text-slate-800'} transition-colors duration-300`}
     >
-      <MouseBubble />
       <AnimatedBackground />
       <PublicNav />
       <ScrollyJourney />

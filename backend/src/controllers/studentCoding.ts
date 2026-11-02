@@ -1,7 +1,8 @@
 import { executeCodeSync } from '../lib/codeExecution.js';
 import type { Response } from 'express';
 import type { AuthedRequest } from '../middleware/auth.js';
-import { codingProblemStore } from '../lib/codingStore.js';
+import { codingProblemStore, newSubmissionId, type StoredCodingSubmission } from '../lib/codingStore.js';
+import { studentProgressStore, journeyStore } from '../lib/journeyStore.js';
 import type {
   ProblemDifficulty,
   PublicCodingProblemListItem,
@@ -149,6 +150,182 @@ export const studentCodingController = {
     };
 
     res.json({ data: detail });
+  },
+
+  /**
+   * POST /api/coding/problems/:slug/submit
+   * Evaluate user's code against ALL approved stored test cases (public + hidden).
+   * Returns safe result metrics:
+   * - submissionId
+   * - overall verdict: 'accepted' | 'wrong_answer' | 'compile_error' | 'runtime_error' | 'timeout'
+   * - passedTests, totalTests
+   * - per-sample-test execution outcome (sample only, NEVER hidden inputs/outputs)
+   * - compile error message if compilation failed
+   * - updates student solved state if verdict === 'accepted'
+   */
+  async submitProblem(req: AuthedRequest, res: Response): Promise<void> {
+    const userId = req.userId!;
+    const { slug } = req.params;
+    const { language, code } = req.body || {};
+
+    if (!language || !code) {
+      res.status(400).json({ error: { message: 'Language and code are required.' } });
+      return;
+    }
+
+    if (!slug || typeof slug !== 'string') {
+      res.status(400).json({ error: { message: 'Problem slug is required.' } });
+      return;
+    }
+
+    const problem = await codingProblemStore.findPublishedBySlug(slug);
+    if (!problem) {
+      res.status(404).json({ error: { message: 'Problem not found or is not published.' } });
+      return;
+    }
+
+    // Retrieve all test cases (both sample and hidden)
+    const allCases = await codingProblemStore.listTestCases(problem._id);
+    if (allCases.length === 0) {
+      res.status(409).json({ error: { message: 'No test cases are configured for this problem yet.' } });
+      return;
+    }
+
+    let overallVerdict: 'accepted' | 'wrong_answer' | 'compile_error' | 'runtime_error' | 'timeout' | 'error' = 'accepted';
+    let passedTests = 0;
+    let compileError: string | undefined;
+    const publicResults: {
+      caseKey: string;
+      passed: boolean;
+      status: string;
+      actualOutput?: string;
+      expectedOutput?: string;
+    }[] = [];
+
+    // Helper for matching output per checker policy
+    const normalize = (str: string) => {
+      let s = str;
+      if (problem.checkerPolicy.trimNewlines) s = s.trim();
+      else if (problem.checkerPolicy.ignoreTrailingWhitespace) s = s.trimEnd();
+      if (!problem.checkerPolicy.caseSensitive) s = s.toLowerCase();
+      return s;
+    };
+
+    for (const tc of allCases) {
+      try {
+        const execResult = await executeCodeSync({ language, code, input: tc.input });
+
+        if (execResult.status === 'compile_error') {
+          overallVerdict = 'compile_error';
+          compileError = execResult.error || 'Compilation failed.';
+          if (tc.visibility === 'sample') {
+            publicResults.push({
+              caseKey: tc.caseKey,
+              passed: false,
+              status: 'compile_error',
+            });
+          }
+          break; // Stop on compile error
+        }
+
+        if (execResult.status === 'timeout') {
+          if (overallVerdict === 'accepted') overallVerdict = 'timeout';
+          if (tc.visibility === 'sample') {
+            publicResults.push({
+              caseKey: tc.caseKey,
+              passed: false,
+              status: 'timeout',
+            });
+          }
+          continue;
+        }
+
+        if (execResult.status === 'error' || execResult.status === 'runtime_error') {
+          if (overallVerdict === 'accepted') overallVerdict = 'runtime_error';
+          if (tc.visibility === 'sample') {
+            publicResults.push({
+              caseKey: tc.caseKey,
+              passed: false,
+              status: 'runtime_error',
+            });
+          }
+          continue;
+        }
+
+        // Compare output
+        const actual = normalize(execResult.output ?? '');
+        const expected = normalize(tc.expectedOutput ?? '');
+        const passed = actual === expected;
+
+        if (passed) {
+          passedTests++;
+        } else {
+          if (overallVerdict === 'accepted') overallVerdict = 'wrong_answer';
+        }
+
+        // Only expose actual/expected for public sample test cases
+        if (tc.visibility === 'sample') {
+          publicResults.push({
+            caseKey: tc.caseKey,
+            passed,
+            status: passed ? 'passed' : 'wrong_answer',
+            actualOutput: execResult.output,
+            expectedOutput: tc.expectedOutput,
+          });
+        }
+      } catch (err: unknown) {
+        overallVerdict = 'error';
+        const msg = err instanceof Error ? err.message : 'Execution error';
+        if (tc.visibility === 'sample') {
+          publicResults.push({
+            caseKey: tc.caseKey,
+            passed: false,
+            status: 'error',
+          });
+        }
+      }
+    }
+
+    const submissionId = newSubmissionId();
+    const submissionRecord: StoredCodingSubmission = {
+      _id: submissionId,
+      userId,
+      problemId: problem._id,
+      problemSlug: problem.slug,
+      language,
+      code,
+      verdict: overallVerdict,
+      passedTests,
+      totalTests: allCases.length,
+      compileError,
+      createdAt: new Date().toISOString(),
+    };
+
+    // Record submission history
+    await codingProblemStore.recordSubmission(submissionRecord);
+
+    // If verdict is accepted, record in student journey progress if active journey exists
+    if (overallVerdict === 'accepted') {
+      try {
+        const journeys = await journeyStore.listPublished();
+        for (const j of journeys) {
+          await studentProgressStore.recordCodingSolve(userId, j._id, problem._id, 'accepted');
+        }
+      } catch (e) {
+        console.warn('Could not record journey progress solve:', e);
+      }
+    }
+
+    res.json({
+      data: {
+        submissionId,
+        verdict: overallVerdict,
+        passedTests,
+        totalTests: allCases.length,
+        compileError,
+        publicResults,
+      },
+    });
   },
 };
 

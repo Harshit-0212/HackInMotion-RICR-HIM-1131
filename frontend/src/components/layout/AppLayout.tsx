@@ -23,6 +23,8 @@ import {
   Code,
   ShieldAlert,
   Compass,
+  GraduationCap,
+  ChevronRight,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Logo } from '@/components/ui/Logo';
@@ -31,25 +33,21 @@ import { useAuth } from '@/store/AuthContext';
 import { useTheme } from '@/store/ThemeContext';
 import { useNotifications } from '@/store/NotificationContext';
 
-const NAV = [
-  { to: '/app', label: 'Overview', icon: LayoutDashboard, end: true },
-  { to: '/app/journey', label: 'Learning Journey', icon: Compass, end: false },
-  { to: '/app/plan', label: 'My Learning', icon: BookOpen, end: false },
-  { to: '/app/assessments', label: 'Practice', icon: Target, end: false },
-  { to: '/app/tutor', label: 'AI Tutor', icon: Sparkles, end: false },
-  { to: '/app/groups', label: 'Study Groups', icon: Users, end: false },
-  { to: '/app/progress', label: 'Progress', icon: LineChart, end: false },
-  { to: '/app/resume', label: 'Resume Maker', icon: FileText, end: false },
-  { to: '/app/debugger', label: 'Code Debugger', icon: Code2, end: false },
-  { to: '/app/coding', label: 'Coding Practice', icon: Code, end: false },
-];
+export interface NavGroupItem {
+  to: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  end?: boolean;
+  badge?: string;
+}
 
-const SECONDARY_NAV = [
-  { to: '/app/settings', label: 'Settings', icon: SettingsIcon },
-  { to: '/app/profile', label: 'Help & Profile', icon: HelpCircle },
-];
+export interface NavGroup {
+  id: string;
+  label: string;
+  items: NavGroupItem[];
+}
 
-const SEARCHABLE_PAGES = [...NAV, ...SECONDARY_NAV];
+const SIDEBAR_STORAGE_KEY = 'cadence_nav_collapsed_v2';
 
 export interface AppLayoutProps {
   children: ReactNode;
@@ -57,57 +55,150 @@ export interface AppLayoutProps {
   onOpenMobileMenu?: () => void;
 }
 
-export function AppLayout({ children, focusMode = false, onOpenMobileMenu }: AppLayoutProps) {
+export function AppLayout({ children, focusMode = false }: AppLayoutProps) {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { notifications, unreadCount, markAllRead } = useNotifications();
   const location = useLocation();
   const navigate = useNavigate();
-  const [collapsed, setCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
 
-  useEffect(() => {
-    const handleOpenNav = () => setMobileOpen(true);
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setMobileOpen(false);
-        setSearchOpen(false);
-        setNotifOpen(false);
+  // Persist sidebar collapsed preference
+  const [collapsed, setCollapsed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem(SIDEBAR_STORAGE_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleCollapsed = () => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(SIDEBAR_STORAGE_KEY, String(next));
+      } catch {
+        // ignore
       }
-    };
-    window.addEventListener('cadence:open-navigation', handleOpenNav);
-    window.addEventListener('keydown', handleEscape);
-    return () => {
-      window.removeEventListener('cadence:open-navigation', handleOpenNav);
-      window.removeEventListener('keydown', handleEscape);
-    };
-  }, []);
+      return next;
+    });
+  };
+
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [notifOpen, setNotifOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
+  // Grouped Navigation Hierarchy
+  const navGroups: NavGroup[] = [
+    {
+      id: 'core',
+      label: 'Core',
+      items: [{ to: '/app', label: 'Overview', icon: LayoutDashboard, end: true }],
+    },
+    {
+      id: 'learning',
+      label: 'Learning',
+      items: [
+        { to: '/app/journey', label: 'Learning Journey', icon: Compass, badge: 'Curriculum' },
+        { to: '/app/plan', label: 'My Learning', icon: BookOpen },
+        { to: '/app/assessments', label: 'Practice & Quizzes', icon: Target },
+      ],
+    },
+    {
+      id: 'coding',
+      label: 'Coding & Mastery',
+      items: [
+        { to: '/app/coding', label: 'Coding Practice', icon: Code },
+        { to: '/app/comprehension', label: 'Code Comprehension', icon: GraduationCap },
+        { to: '/app/debugger', label: 'Code Debugger', icon: Code2 },
+      ],
+    },
+    {
+      id: 'tools',
+      label: 'Support & Tools',
+      items: [
+        { to: '/app/tutor', label: 'AI Tutor', icon: Sparkles },
+        { to: '/app/groups', label: 'Study Groups', icon: Users },
+        { to: '/app/resume', label: 'Resume Maker', icon: FileText },
+        { to: '/app/progress', label: 'Progress & Stats', icon: LineChart },
+      ],
+    },
+    ...(user?.role === 'admin'
+      ? [
+          {
+            id: 'admin',
+            label: 'Administration',
+            items: [
+              {
+                to: '/app/admin/coding',
+                label: 'Question Studio',
+                icon: ShieldAlert,
+                badge: 'Admin',
+              },
+            ],
+          },
+        ]
+      : []),
+  ];
+
+  const secondaryNav: NavGroupItem[] = [
+    { to: '/app/settings', label: 'Settings', icon: SettingsIcon },
+    { to: '/app/profile', label: 'Profile & Support', icon: HelpCircle },
+  ];
+
+  const allSearchable = [
+    ...navGroups.flatMap((g) => g.items),
+    ...secondaryNav,
+  ];
+
+  const searchResults = searchQuery.trim()
+    ? allSearchable.filter((p) => p.label.toLowerCase().includes(searchQuery.trim().toLowerCase()))
+    : allSearchable;
+
+  useEffect(() => {
+    const handleOpenNav = () => setMobileOpen(true);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMobileOpen(false);
+        setSearchOpen(false);
+        setNotifOpen(false);
+        return;
+      }
+
+      // Check if user pressed '/' to open search
+      if (e.key === '/') {
+        const target = e.target as HTMLElement | null;
+        const tagName = target?.tagName?.toLowerCase();
+        const isEditable =
+          target?.isContentEditable ||
+          tagName === 'input' ||
+          tagName === 'textarea' ||
+          tagName === 'select' ||
+          target?.closest('.monaco-editor') ||
+          target?.closest('[contenteditable="true"]');
+
+        // Do not intercept '/' when user is typing inside an input/editor
+        if (!isEditable) {
+          e.preventDefault();
+          openSearch();
+        }
+      }
+    };
+    window.addEventListener('cadence:open-navigation', handleOpenNav);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('cadence:open-navigation', handleOpenNav);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   useEffect(() => {
     setSearchOpen(false);
     setNotifOpen(false);
     setSearchQuery('');
+    setMobileOpen(false);
   }, [location.pathname]);
-
-  const navItems = [
-    ...NAV,
-    ...(user?.role === 'admin' ? [{ to: '/app/admin/coding', label: 'Question Studio (Admin)', icon: ShieldAlert, end: false }] : []),
-  ];
-
-  const allSearchable = [...navItems, ...SECONDARY_NAV];
-
-  const searchResults = searchQuery.trim()
-    ? allSearchable.filter((p) => p.label.toLowerCase().includes(searchQuery.trim().toLowerCase()))
-    : allSearchable;
 
   const openSearch = () => {
     setSearchOpen(true);
@@ -132,6 +223,11 @@ export function AppLayout({ children, focusMode = false, onOpenMobileMenu }: App
     });
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
   function timeAgo(iso: string): string {
     const seconds = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
     if (seconds < 60) return 'just now';
@@ -142,154 +238,156 @@ export function AppLayout({ children, focusMode = false, onOpenMobileMenu }: App
     return `${Math.floor(hours / 24)}d ago`;
   }
 
+  // Derive dynamic breadcrumbs
+  const currentItem = allSearchable.find((item) => {
+    if (item.end) return location.pathname === item.to;
+    return location.pathname.startsWith(item.to);
+  });
+
   const SidebarContent = (
-    <div className="flex h-full flex-col min-h-0 py-4">
-      {/* Top Header Section */}
-      <div className={`shrink-0 flex items-center ${collapsed ? 'justify-center' : 'justify-between'} px-5 h-12 mb-2`}>
-        {collapsed ? (
-          <Logo size="sm" to="/app" className="animate-float" iconOnly />
-        ) : (
-          <div className="flex items-center gap-2">
-            <Logo to="/app" className="animate-float" />
-          </div>
-        )}
+    <div className="flex h-full flex-col min-h-0 bg-white dark:bg-[#111827]">
+      {/* Brand Header */}
+      <div
+        className={`shrink-0 flex items-center ${
+          collapsed ? 'justify-center px-2' : 'justify-between px-4'
+        } h-16 border-b border-slate-100 dark:border-slate-800/80`}
+      >
+        <Logo to="/app" iconOnly={collapsed} size="sm" />
         {!collapsed && (
           <button
-            onClick={() => setCollapsed(true)}
+            onClick={toggleCollapsed}
             aria-label="Collapse sidebar"
-            className="hidden rounded-xl p-2 text-[var(--nova-text-secondary)] transition-colors duration-200 hover:bg-slate-100 dark:hover:bg-white/5 lg:block"
+            className="hidden rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200 lg:block transition-colors"
           >
-            <PanelLeftClose size={18} />
+            <PanelLeftClose size={16} />
           </button>
         )}
       </div>
 
-      {/* Independently Scrollable Navigation */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-1 space-y-1">
-        <nav className="space-y-1">
-          <span
-            className={`block px-3 text-[9px] font-bold tracking-widest text-[var(--nova-text-muted)] uppercase mb-1.5 ${collapsed ? 'text-center' : ''}`}
-          >
-            {collapsed ? '—' : 'Main Menu'}
-          </span>
-          {navItems.map((item) => (
-            <SidebarLink key={item.to} {...item} collapsed={collapsed} onClick={() => setMobileOpen(false)} />
-          ))}
+      {/* Nav groups scrollable */}
+      <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-4">
+        {navGroups.map((group) => (
+          <div key={group.id} className="space-y-1">
+            {!collapsed && (
+              <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                {group.label}
+              </div>
+            )}
+            {group.items.map((item) => (
+              <SidebarLink
+                key={item.to}
+                {...item}
+                collapsed={collapsed}
+                onClick={() => setMobileOpen(false)}
+              />
+            ))}
+          </div>
+        ))}
 
-          <div className="my-3 border-t border-[var(--nova-border)] dark:border-[#1E293B] mx-2" />
-
-          <span
-            className={`block px-3 text-[9px] font-bold tracking-widest text-[var(--nova-text-muted)] uppercase mb-1.5 ${collapsed ? 'text-center' : ''}`}
-          >
-            {collapsed ? '—' : 'Account'}
-          </span>
-          {SECONDARY_NAV.map((item) => (
+        <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80">
+          {!collapsed && (
+            <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              Preferences
+            </div>
+          )}
+          {secondaryNav.map((item) => (
             <SidebarLink
               key={item.to}
               {...item}
               collapsed={collapsed}
-              end={false}
               onClick={() => setMobileOpen(false)}
             />
           ))}
-        </nav>
+        </div>
       </div>
 
-      {/* Bottom Section (Fixed / shrink-0) */}
-      <div className="shrink-0 space-y-3 px-4 pt-3 border-t border-[var(--nova-border)]/60 dark:border-[#1E293B]/60">
-        {/* Theme Toggle */}
+      {/* Footer Account Card */}
+      <div className="shrink-0 p-3 border-t border-slate-100 dark:border-slate-800/80 space-y-2 bg-slate-50/50 dark:bg-[#0E1524]">
+        {/* Theme button */}
         <button
           onClick={toggleTheme}
-          className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-xs font-bold text-[var(--nova-text-secondary)] transition hover:bg-slate-100 dark:hover:bg-white/5 ${collapsed ? 'justify-center' : ''}`}
+          aria-label={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+          className={`flex w-full items-center gap-2.5 rounded-xl px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${
+            collapsed ? 'justify-center' : ''
+          }`}
         >
-          {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
-          {!collapsed && <span>{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>}
+          {theme === 'light' ? <Moon size={15} /> : <Sun size={15} />}
+          {!collapsed && <span>{theme === 'light' ? 'Dark theme' : 'Light theme'}</span>}
         </button>
 
-        {/* User Card */}
+        {/* User preview */}
         <div
-          className={`rounded-2xl border border-[var(--nova-border)] bg-slate-50 dark:border-[#1E293B] dark:bg-[#172033]/50 p-2.5 shadow-sm ${collapsed ? 'flex justify-center' : ''}`}
+          className={`flex items-center gap-2.5 rounded-xl p-2 ${
+            collapsed ? 'justify-center' : 'justify-between'
+          }`}
         >
-          <div className="flex items-center gap-2.5">
-            {/* Avatar */}
-            <div className="relative shrink-0">
-              <div className="absolute -inset-[1.5px] rounded-full bg-[var(--nova-primary)] dark:bg-[#3B82F6] opacity-75 blur-[0.5px]" />
-              <Avatar
-                user={user}
-                size={30}
-                className="relative text-xs border border-white dark:border-[#111827]"
-              />
-              <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full bg-[var(--nova-primary)] border border-white dark:border-[#111827] animate-pulse" />
-            </div>
-
+          <div className="flex items-center gap-2 min-w-0">
+            <Avatar user={user} size={28} className="shrink-0 text-xs" />
             {!collapsed && (
               <div className="min-w-0 flex-1">
-                <p className="truncate text-xs font-bold text-[var(--nova-text)] dark:text-[#F8FAFC]">{user?.name}</p>
-                <p className="truncate text-[10px] text-[var(--nova-text-secondary)] dark:text-[#CBD5E1]">
-                  {user?.email}
+                <p className="truncate text-xs font-bold text-slate-900 dark:text-white">
+                  {user?.name || 'Student'}
+                </p>
+                <p className="truncate text-[10px] text-slate-400 dark:text-slate-500">
+                  {user?.role === 'admin' ? 'Administrator' : 'Learner'}
                 </p>
               </div>
             )}
-
-            {!collapsed && (
-              <button
-                onClick={handleLogout}
-                aria-label="Log out"
-                className="rounded-lg p-1.5 text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-[var(--nova-primary)] dark:hover:text-[#3B82F6]"
-              >
-                <LogOut size={14} />
-              </button>
-            )}
           </div>
+          {!collapsed && (
+            <button
+              onClick={handleLogout}
+              aria-label="Log out"
+              title="Log out"
+              className="rounded-lg p-1 text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+            >
+              <LogOut size={14} />
+            </button>
+          )}
         </div>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen relative overflow-x-hidden bg-[var(--nova-bg)] text-[var(--nova-text-secondary)] dark:bg-[#0B1220] dark:text-[#CBD5E1] transition-colors duration-300">
-      {/* Decorative background radial glows */}
-      <div className="absolute top-0 right-0 h-[450px] w-[450px] bg-gradient-radial from-[var(--nova-primary)]/4 to-transparent blur-3xl pointer-events-none -z-10" />
-      <div className="absolute bottom-0 left-[20%] h-[550px] w-[550px] bg-gradient-radial from-[var(--nova-primary)]/4 to-transparent blur-3xl pointer-events-none -z-10" />
-
-      {/* Desktop Sidebar */}
+    <div className="min-h-screen bg-slate-50 text-slate-800 dark:bg-[#0B1220] dark:text-slate-100 transition-colors duration-200 flex">
+      {/* Desktop Fixed Sidebar */}
       {!focusMode && (
-      <aside
-        className={`fixed inset-y-4 left-4 z-30 hidden rounded-3xl border border-[var(--nova-border)] bg-[var(--nova-surface)] shadow-sm dark:border-[#1E293B] dark:bg-[#111827] transition-all duration-300 lg:flex flex-col min-h-0 overflow-hidden ${
-          collapsed ? 'w-[80px]' : 'w-68'
-        }`}
-      >
-        {SidebarContent}
-        {collapsed && (
-          <button
-            onClick={() => setCollapsed(false)}
-            aria-label="Expand sidebar"
-            className="absolute -right-3 top-22 flex h-6 w-6 items-center justify-center rounded-full border border-[var(--nova-border)] bg-[var(--nova-surface)] text-slate-500 shadow-soft hover:bg-slate-50 dark:border-[#1E293B] dark:bg-[#111827]"
-          >
-            <PanelLeft size={12} />
-          </button>
-        )}
-      </aside>
+        <aside
+          className={`fixed inset-y-0 left-0 z-30 hidden lg:flex flex-col border-r border-slate-200/90 dark:border-slate-800/90 bg-white dark:bg-[#111827] transition-all duration-200 ${
+            collapsed ? 'w-18' : 'w-64'
+          }`}
+        >
+          {SidebarContent}
+          {collapsed && (
+            <button
+              onClick={toggleCollapsed}
+              aria-label="Expand sidebar"
+              className="absolute -right-3 top-20 flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#111827] text-slate-500 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+            >
+              <PanelLeft size={12} />
+            </button>
+          )}
+        </aside>
       )}
 
       {/* Mobile Drawer */}
       <AnimatePresence>
         {mobileOpen && (
-          <div className={`fixed inset-0 z-50 ${focusMode ? '' : 'lg:hidden'}`}>
-            {/* Accessible Close / Escape */}
+          <div className="fixed inset-0 z-50 lg:hidden">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
               onClick={() => setMobileOpen(false)}
             />
             <motion.aside
               initial={{ x: -280 }}
               animate={{ x: 0 }}
               exit={{ x: -280 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className="absolute inset-y-4 left-4 w-68 max-w-[calc(100vw-2rem)] rounded-3xl border border-[var(--nova-border)] bg-[var(--nova-surface)] shadow-card dark:border-[#1E293B] dark:bg-[#111827] backdrop-blur-2xl flex flex-col min-h-0 overflow-hidden"
+              transition={{ type: 'spring', damping: 25, stiffness: 250 }}
+              className="absolute inset-y-0 left-0 w-72 max-w-[85vw] bg-white dark:bg-[#111827] shadow-xl border-r border-slate-200 dark:border-slate-800 flex flex-col"
             >
               {SidebarContent}
             </motion.aside>
@@ -297,160 +395,167 @@ export function AppLayout({ children, focusMode = false, onOpenMobileMenu }: App
         )}
       </AnimatePresence>
 
-      {/* Content Area Wrapper */}
+      {/* Main Content Area */}
       <div
-        className={`min-w-0 flex-1 transition-all duration-300 ${focusMode ? 'lg:pl-0 pr-0 pt-0 pb-0' : (collapsed ? 'lg:pl-[112px] pr-0 lg:pr-6 pt-4 pb-6' : 'lg:pl-[312px] pr-0 lg:pr-6 pt-4 pb-6')} overflow-x-hidden`}
+        className={`flex-1 min-w-0 flex flex-col transition-all duration-200 ${
+          focusMode ? 'pl-0' : collapsed ? 'lg:pl-18' : 'lg:pl-64'
+        }`}
       >
-        {/* Desktop/Laptop Header Bar */}
+        {/* Contextual App Header (Non-focus mode) */}
         {!focusMode && (
-        <header className="relative z-30 hidden lg:flex h-16 items-center justify-between border border-[var(--nova-border)] bg-white/92 rounded-3xl px-6 mb-6 shadow-[0_1px_3px_rgba(15,23,42,0.06)] dark:border-[#1E293B] dark:bg-[#111827]/92 backdrop-blur-md">
-          <div className="flex flex-col">
-            <h1 className="font-space text-sm font-bold text-slate-900 dark:text-white leading-tight">
-              {(() => {
-                const hour = new Date().getHours();
-                const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-                const firstName = user?.name ? user.name.split(' ')[0] : 'Student';
-                return `${greeting}, ${firstName}`;
-              })()}
-            </h1>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-              Continue your learning journey
-            </p>
-          </div>
-
-          <div className="flex items-center gap-4">
-            {/* Search Action */}
-            <div className="relative">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={openSearch}
-                aria-label="Search"
-                className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 hover:bg-[#F1F5F9] text-[var(--nova-text-secondary)] border border-transparent dark:bg-white/5 dark:text-[#CBD5E1] dark:hover:text-white"
+          <header className="sticky top-0 z-20 h-16 border-b border-slate-200/90 dark:border-slate-800/90 bg-white/90 dark:bg-[#111827]/90 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between">
+            {/* Left: Mobile trigger & Breadcrumbs */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setMobileOpen(true)}
+                aria-label="Open navigation menu"
+                className="lg:hidden rounded-lg p-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
               >
-                <Search size={15} />
-              </motion.button>
+                <Menu size={20} />
+              </button>
 
-              <AnimatePresence>
-                {searchOpen && (
+              <div className="flex items-center gap-2 text-xs">
+                <Link
+                  to="/app"
+                  className="font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+                >
+                  Cadence
+                </Link>
+                {currentItem && currentItem.to !== '/app' && (
                   <>
-                    <div className="fixed inset-0 z-40" onClick={() => setSearchOpen(false)} />
-                    <motion.div
-                      initial={{ opacity: 0, y: -6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -6 }}
-                      className="absolute right-0 top-11 z-50 w-72 rounded-2xl border border-[var(--nova-border)] bg-[var(--nova-surface)] p-3 shadow-card dark:border-[#1E293B] dark:bg-[#111827]"
-                    >
-                      <input
-                        ref={searchInputRef}
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search pages…"
-                        className="w-full rounded-xl border border-[var(--nova-border)] bg-transparent px-3 py-2 text-sm text-[var(--nova-text)] outline-none focus:border-[var(--nova-primary)] dark:border-[#1E293B] dark:text-[#F8FAFC]"
-                      />
-                      <div className="mt-2 max-h-60 space-y-1 overflow-y-auto">
-                        {searchResults.length === 0 && (
-                          <p className="px-2 py-3 text-center text-xs text-[var(--nova-text-secondary)]">
-                            No pages match "{searchQuery}".
-                          </p>
-                        )}
-                        {searchResults.map((page) => (
-                          <button
-                            key={page.to}
-                            onClick={() => goToSearchResult(page.to)}
-                            className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-sm text-[var(--nova-text)] hover:bg-slate-100 dark:text-[#CBD5E1] dark:hover:bg-white/5"
-                          >
-                            <page.icon size={15} className="text-[var(--nova-text-secondary)]" />
-                            {page.label}
-                          </button>
-                        ))}
-                      </div>
-                    </motion.div>
+                    <ChevronRight size={13} className="text-slate-400" />
+                    <span className="font-semibold text-slate-900 dark:text-white">
+                      {currentItem.label}
+                    </span>
                   </>
                 )}
-              </AnimatePresence>
+              </div>
             </div>
 
-            {/* Notifications Action */}
-            <div className="relative">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={toggleNotifications}
-                aria-label="Notifications"
-                className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 hover:bg-[#F1F5F9] text-[var(--nova-text-secondary)] border border-transparent dark:bg-white/5 dark:text-[#CBD5E1] dark:hover:text-white"
-              >
-                <Bell size={15} />
-                {unreadCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-[var(--nova-primary)] border border-white dark:border-[#111827]" />
-                )}
-              </motion.button>
+            {/* Right: Quick actions */}
+            <div className="flex items-center gap-2">
+              {/* Search */}
+              <div className="relative">
+                <button
+                  onClick={openSearch}
+                  aria-label="Search pages"
+                  className="flex h-9 items-center gap-2 rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 px-3 text-xs text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
+                >
+                  <Search size={14} />
+                  <span className="hidden sm:inline">Search...</span>
+                  <kbd className="hidden sm:inline-block rounded bg-slate-200/60 dark:bg-slate-700/60 px-1.5 py-0.5 text-[10px] font-mono">
+                    /
+                  </kbd>
+                </button>
 
-              <AnimatePresence>
-                {notifOpen && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
-                    <motion.div
-                      initial={{ opacity: 0, y: -6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -6 }}
-                      className="absolute right-0 top-11 z-50 w-80 rounded-2xl border border-[var(--nova-border)] bg-[var(--nova-surface)] p-3 shadow-card dark:border-[#1E293B] dark:bg-[#111827]"
-                    >
-                      <p className="mb-2 px-1 text-[10px] font-bold tracking-widest text-[var(--nova-text-muted)] uppercase">
-                        Notifications
-                      </p>
-                      <div className="max-h-72 space-y-1 overflow-y-auto">
-                        {notifications.length === 0 && (
-                          <p className="px-2 py-3 text-center text-xs text-[var(--nova-text-secondary)]">
-                            You're all caught up.
-                          </p>
-                        )}
-                        {notifications.map((n) => (
-                          <div
-                            key={n.id}
-                            className="rounded-xl px-2.5 py-2 text-sm text-[var(--nova-text)] hover:bg-slate-100 dark:text-[#CBD5E1] dark:hover:bg-white/5"
-                          >
-                            <p>{n.message}</p>
-                            <p className="mt-0.5 text-[10px] text-[var(--nova-text-secondary)]">{timeAgo(n.createdAt)}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </motion.div>
-                  </>
-                )}
-              </AnimatePresence>
+                <AnimatePresence>
+                  {searchOpen && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setSearchOpen(false)} />
+                      <motion.div
+                        initial={{ opacity: 0, y: -6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -6 }}
+                        className="absolute right-0 top-11 z-50 w-72 sm:w-80 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111827] p-2.5 shadow-xl"
+                      >
+                        <input
+                          ref={searchInputRef}
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          placeholder="Jump to page..."
+                          className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 px-3 py-2 text-xs outline-none focus:border-blue-600 dark:focus:border-blue-400"
+                        />
+                        <div className="mt-2 max-h-60 space-y-1 overflow-y-auto">
+                          {searchResults.map((page) => (
+                            <button
+                              key={page.to}
+                              onClick={() => goToSearchResult(page.to)}
+                              className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            >
+                              <page.icon size={15} className="text-slate-400" />
+                              <span>{page.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    </>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Notifications */}
+              <div className="relative">
+                <button
+                  onClick={toggleNotifications}
+                  aria-label="Notifications"
+                  className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                >
+                  <Bell size={15} />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-blue-600" />
+                  )}
+                </button>
+
+                <AnimatePresence>
+                  {notifOpen && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
+                      <motion.div
+                        initial={{ opacity: 0, y: -6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -6 }}
+                        className="absolute right-0 top-11 z-50 w-80 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111827] p-3 shadow-xl"
+                      >
+                        <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                            Notifications
+                          </span>
+                          {unreadCount > 0 && (
+                            <span className="text-[10px] text-blue-600 font-semibold">
+                              {unreadCount} new
+                            </span>
+                          )}
+                        </div>
+                        <div className="mt-2 max-h-72 space-y-1.5 overflow-y-auto">
+                          {notifications.length === 0 ? (
+                            <p className="py-4 text-center text-xs text-slate-400">
+                              No new notifications
+                            </p>
+                          ) : (
+                            notifications.map((n) => (
+                              <div
+                                key={n.id}
+                                className="rounded-lg p-2 text-xs hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors"
+                              >
+                                <p className="text-slate-700 dark:text-slate-200">{n.message}</p>
+                                <p className="mt-0.5 text-[10px] text-slate-400">{timeAgo(n.createdAt)}</p>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </motion.div>
+                    </>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Profile link */}
+              <Link to="/app/profile" aria-label="Go to profile" className="ml-1">
+                <Avatar user={user} size={30} className="border border-slate-200 dark:border-slate-700" />
+              </Link>
             </div>
-
-            <div className="h-px w-4 bg-[var(--nova-border)] dark:bg-white/10" />
-
-            {/* Quick Profile avatar view */}
-            <Link to="/app/profile" aria-label="Go to profile">
-              <Avatar user={user} size={32} className="text-xs border border-[var(--nova-border)] shadow-soft" />
-            </Link>
-          </div>
-        </header>
+          </header>
         )}
 
-        {/* Mobile top bar */}
-        {!focusMode && (
-        <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-[var(--nova-border)] bg-[var(--nova-bg)] px-4 dark:border-white/5 dark:bg-[#0B1220] lg:hidden mb-4">
-          <button
-            onClick={() => setMobileOpen(true)}
-            aria-label="Open menu"
-            className="rounded-xl p-2 text-[var(--nova-text)] dark:text-[#CBD5E1] hover:bg-slate-100 dark:hover:bg-white/5"
-          >
-            <Menu size={20} />
-          </button>
-          <Logo size="sm" to="/app" />
-          <div className="w-9" />
-        </header>
-        )}
-
-        {/* Content Container */}
-        <main className={focusMode ? "h-screen min-h-0 overflow-hidden" : "min-h-[calc(100vh-8rem)]"}>
-          <div key={location.pathname} className="animate-fade-in">
-            {children}
-          </div>
+        {/* Page Container */}
+        <main
+          className={
+            focusMode
+              ? 'h-screen min-h-0 overflow-hidden'
+              : 'flex-1 min-h-[calc(100vh-4rem)] p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto'
+          }
+        >
+          {children}
         </main>
       </div>
     </div>
@@ -463,13 +568,15 @@ function SidebarLink({
   icon: Icon,
   end,
   collapsed,
+  badge,
   onClick,
 }: {
   to: string;
   label: string;
   icon: typeof LayoutDashboard;
-  end: boolean;
+  end?: boolean;
   collapsed: boolean;
+  badge?: string;
   onClick?: () => void;
 }) {
   return (
@@ -478,33 +585,38 @@ function SidebarLink({
       end={end}
       onClick={onClick}
       className={({ isActive }) =>
-        `group relative flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-semibold transition-all duration-200 border ${
+        `group relative flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-medium transition-all duration-150 ${
           collapsed ? 'justify-center' : ''
         } ${
           isActive
-            ? 'bg-[var(--nova-primary-soft)] text-[var(--nova-primary)] dark:bg-[rgba(59,130,246,0.12)] dark:text-[#3B82F6] border-transparent shadow-sm'
-            : 'text-[var(--nova-text-secondary)] dark:text-[#CBD5E1] border-transparent hover:bg-slate-50 dark:hover:bg-white/5 hover:text-[var(--nova-text)]'
+            ? 'bg-blue-50 text-blue-700 font-semibold dark:bg-blue-950/60 dark:text-blue-300'
+            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/70 dark:hover:text-slate-100'
         }`
       }
       title={collapsed ? label : undefined}
     >
       {({ isActive }) => (
         <>
-          {/* Active indicator bar on the left */}
-          {isActive && !collapsed && (
+          {isActive && (
             <motion.div
               layoutId="sidebar-active-indicator"
-              className="absolute left-0 top-1/3 h-1/3 w-[3.5px] rounded-r bg-[var(--nova-primary)] dark:bg-[#3B82F6]"
+              className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-blue-600 dark:bg-blue-400"
             />
           )}
-          {/* Hover translation and scale */}
           <Icon
             size={16}
-            className={`shrink-0 transition-transform duration-300 group-hover:scale-110 text-[#64748B] dark:text-[#64748B] group-hover:text-[var(--nova-text)] dark:group-hover:text-white ${
-              isActive ? '!text-[var(--nova-primary)] dark:!text-[#3B82F6]' : ''
-            } ${!collapsed && 'group-hover:translate-x-0.5'}`}
+            className={`shrink-0 transition-transform duration-150 ${
+              isActive
+                ? 'text-blue-600 dark:text-blue-400'
+                : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200'
+            }`}
           />
-          {!collapsed && <span>{label}</span>}
+          {!collapsed && <span className="truncate">{label}</span>}
+          {!collapsed && badge && (
+            <span className="ml-auto rounded-md bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              {badge}
+            </span>
+          )}
         </>
       )}
     </NavLink>
