@@ -5,8 +5,8 @@ export function generateResumePdfBuffer(resume: StoredResume): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     try {
       const doc = new PDFDocument({
-        size: 'LETTER',
-        margins: { top: 40, bottom: 40, left: 45, right: 45 },
+        size: 'A4',
+        margins: { top: 36, bottom: 36, left: 40, right: 40 },
         bufferPages: true,
       });
 
@@ -15,7 +15,7 @@ export function generateResumePdfBuffer(resume: StoredResume): Promise<Buffer> {
       doc.on('end', () => resolve(Buffer.concat(chunks)));
       doc.on('error', (err) => reject(err));
 
-      const primaryColor = '#1A365D'; // Navy / professional
+      const primaryColor = resume.accentColor || '#1A365D'; // Navy or custom accent
       const secondaryColor = '#2B6CB0'; // Slate blue
       const textColor = '#2D3748'; // Charcoal body
       const mutedColor = '#718096'; // Gray

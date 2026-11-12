@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FileText,
@@ -17,9 +17,14 @@ import {
   Wand2,
   AlertCircle,
   Upload,
+  Eye,
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Reveal } from '@/components/ui/Reveal';
+import { ResumePreview } from '@/components/resume/ResumePreview';
+import { ProfilePhotoUpload } from '@/components/resume/ProfilePhotoUpload';
+import { TemplateSelector } from '@/components/resume/TemplateSelector';
+import { AtsScoreCard } from '@/components/resume/AtsScoreCard';
 import {
   resumeService,
   type StoredResume,
@@ -53,7 +58,8 @@ export function ResumeMaker() {
   const [enhancing, setEnhancing] = useState(false);
 
   // Active section tab
-  const [activeTab, setActiveTab] = useState<'personal' | 'summary' | 'experience' | 'projects' | 'education' | 'skills' | 'certs'>('personal');
+  const [activeTab, setActiveTab] = useState<'personal' | 'summary' | 'experience' | 'projects' | 'education' | 'skills' | 'certs' | 'template'>('personal');
+  const [showLivePreview, setShowLivePreview] = useState(true);
 
   useEffect(() => {
     loadResumes();
@@ -82,7 +88,8 @@ export function ResumeMaker() {
       _id: '',
       userId: '',
       title: 'My Professional Resume',
-      template: 'modern',
+      template: 'classic-ats',
+      accentColor: '#6542C5',
       personalDetails: {
         fullName: '',
         email: '',
@@ -91,6 +98,7 @@ export function ResumeMaker() {
         linkedIn: '',
         gitHub: '',
         portfolio: '',
+        photoShape: 'circle',
       },
       summary: '',
       skills: [],
@@ -237,7 +245,7 @@ export function ResumeMaker() {
 
   // --- Handlers for dynamic sections ---
 
-  const updatePersonal = (field: string, val: string) => {
+  const updatePersonal = (field: string, val: any) => {
     setActiveResume((prev) =>
       prev ? { ...prev, personalDetails: { ...prev.personalDetails, [field]: val } } : null
     );
@@ -382,7 +390,7 @@ export function ResumeMaker() {
             <button
               onClick={handleExportPdf}
               disabled={exporting}
-              className="btn-render-sweep inline-flex items-center gap-2 px-4 py-2.5 rounded-none bg-[#6542C5] dark:bg-[#B59AF7] text-white dark:text-[#141217] text-sm font-semibold shadow-xs disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#6542C5] dark:bg-[#B59AF7] text-white dark:text-[#141217] text-sm font-semibold shadow-xs disabled:opacity-50"
             >
               <Download size={16} /> {exporting ? 'Generating PDF...' : 'Export PDF'}
             </button>
@@ -446,6 +454,7 @@ export function ResumeMaker() {
                 Sections
               </div>
               {[
+                { id: 'template', label: 'Template & Design', icon: Layers },
                 { id: 'personal', label: 'Personal Details', icon: Briefcase },
                 { id: 'summary', label: 'Professional Summary', icon: Sparkles },
                 { id: 'experience', label: 'Experience & Internships', icon: Layers },
@@ -487,13 +496,36 @@ export function ResumeMaker() {
             </div>
 
             {/* Active Section Content */}
-            <div className="lg:col-span-9 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+            <div className="lg:col-span-9 space-y-6">
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+              {/* Template & Styling Selector */}
+              {activeTab === 'template' && (
+                <div className="space-y-6">
+                  <TemplateSelector
+                    selectedTemplate={activeResume.template || 'classic-ats'}
+                    accentColor={activeResume.accentColor || '#6542C5'}
+                    onSelectTemplate={(templateId) => setActiveResume({ ...activeResume, template: templateId })}
+                    onSelectColor={(color) => setActiveResume({ ...activeResume, accentColor: color })}
+                  />
+                  <AtsScoreCard resumeId={activeResume._id} targetRole={targetRole} />
+                </div>
+              )}
+
               {/* Personal Details */}
               {activeTab === 'personal' && (
                 <div className="space-y-4">
                   <h3 className="font-space text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                     <Briefcase size={18} className="text-[#6542C5] dark:text-[#B59AF7]" /> Personal Details
                   </h3>
+
+                  <ProfilePhotoUpload
+                    photoUrl={activeResume.personalDetails.photoUrl}
+                    shape={activeResume.personalDetails.photoShape || 'circle'}
+                    onChange={(url) => updatePersonal('photoUrl', url)}
+                    onShapeChange={(shape) => updatePersonal('photoShape', shape)}
+                    onRemove={() => updatePersonal('photoUrl', undefined)}
+                  />
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
@@ -906,6 +938,29 @@ export function ResumeMaker() {
                       placeholder="AWS Certified Solutions Architect | Amazon&#10;Google Cloud Associate Engineer | Google"
                       className="w-full text-xs p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700"
                     />
+                  </div>
+                </div>
+              )}
+              </div>
+
+              {/* Live Preview Panel */}
+              {showLivePreview && (
+                <div className="bg-slate-100 dark:bg-slate-900/60 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Eye size={16} className="text-[#6542C5] dark:text-[#B59AF7]" />
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                        Live Template Preview
+                      </h4>
+                      <span className="text-[10px] bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded-full text-slate-600 dark:text-slate-400 font-medium capitalize">
+                        {activeResume.template || 'classic-ats'}
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-slate-500">Renders instantly as you type</span>
+                  </div>
+
+                  <div className="overflow-x-auto pb-4">
+                    <ResumePreview resume={activeResume} />
                   </div>
                 </div>
               )}

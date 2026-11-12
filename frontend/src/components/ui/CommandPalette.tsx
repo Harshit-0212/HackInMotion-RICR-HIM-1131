@@ -18,6 +18,12 @@ import {
   HelpCircle,
   Clock,
   ArrowRight,
+  BookX,
+  Layers,
+  Calendar,
+  FolderOpen,
+  Trophy,
+  BrainCircuit,
 } from 'lucide-react';
 
 interface CommandItem {
@@ -30,6 +36,12 @@ interface CommandItem {
 
 const COMMANDS: CommandItem[] = [
   { id: 'dash', title: 'Dashboard & Overview', category: 'Pages', to: '/app', icon: LayoutDashboard },
+  { id: 'mistakes', title: 'Mistake Notebook & Error Tracker', category: 'Learning', to: '/app/mistakes', icon: BookX },
+  { id: 'flashcards', title: 'Flashcards & Spaced Repetition (SM-2)', category: 'Learning', to: '/app/flashcards', icon: Layers },
+  { id: 'calendar', title: 'Study Calendar & Deadlines', category: 'Learning', to: '/app/calendar', icon: Calendar },
+  { id: 'library', title: 'Notes & Document Library', category: 'Tools', to: '/app/library', icon: FolderOpen },
+  { id: 'interview', title: 'AI Mock Interview & Evaluation', category: 'Career', to: '/app/interview', icon: BrainCircuit },
+  { id: 'leaderboard', title: 'Leaderboard & Global Ranks', category: 'Tools', to: '/app/leaderboard', icon: Trophy },
   { id: 'journey', title: 'Learning Journey', category: 'Curriculum', to: '/app/journey', icon: Compass },
   { id: 'plan', title: 'My Learning Plan', category: 'Curriculum', to: '/app/plan', icon: BookOpen },
   { id: 'assess', title: 'Practice & Quizzes', category: 'Practice', to: '/app/assessments', icon: Target },
@@ -38,7 +50,7 @@ const COMMANDS: CommandItem[] = [
   { id: 'debug', title: 'Code Debugger', category: 'Practice', to: '/app/debugger', icon: Code2 },
   { id: 'tutor', title: 'Ask AI Tutor...', category: 'AI Tools', to: '/app/tutor', icon: Sparkles },
   { id: 'groups', title: 'Study Groups', category: 'Tools', to: '/app/groups', icon: Users },
-  { id: 'resume', title: 'Resume Maker', category: 'Career', to: '/app/resume', icon: FileText },
+  { id: 'resume', title: 'Resume Maker & ATS Analyzer', category: 'Career', to: '/app/resume', icon: FileText },
   { id: 'progress', title: 'Progress & Stats', category: 'Analytics', to: '/app/progress', icon: LineChart },
   { id: 'settings', title: 'Settings & AI Keys', category: 'Preferences', to: '/app/settings', icon: Settings },
   { id: 'profile', title: 'Profile & Support', category: 'Preferences', to: '/app/profile', icon: HelpCircle },

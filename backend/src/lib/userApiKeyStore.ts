@@ -1,5 +1,5 @@
-﻿import crypto from 'node:crypto';
-import { requireGeminiEncryptionKey, config } from '../config.js';
+import crypto from 'node:crypto';
+import { loadGeminiEncryptionKeyBuffer, config } from '../config.js';
 import { getDb } from './db.js';
 
 const COLLECTION = 'user_api_keys';
@@ -7,19 +7,35 @@ const ALGO = 'aes-256-gcm';
 
 // ─── format helpers ──────────────────────────────────────────────────────────
 
+/**
+ * Validates Gemini API key format loosely:
+ * - Trims whitespace and surrounding single/double quotes.
+ * - Length between 20 and 256.
+ * - Characters limited to letters, digits, dot, dash, and underscore.
+ * Does NOT enforce any prefix (e.g. AIza or AQ.) or fixed 39 character length.
+ */
+export function sanitizeGeminiKey(key: unknown): string {
+  if (typeof key !== 'string') return '';
+  return key.trim().replace(/^["']|["']$/g, '').trim();
+}
+
 export function validateGeminiKeyFormat(key: string): boolean {
-  return /^AIza[0-9A-Za-z_-]{35}$/.test(key);
+  const sanitized = sanitizeGeminiKey(key);
+  if (sanitized.length < 20 || sanitized.length > 256) {
+    return false;
+  }
+  return /^[A-Za-z0-9._-]+$/.test(sanitized);
 }
 
 /**
  * Encrypts a plaintext key using AES-256-GCM.
- * Generates a fresh 16-byte random salt and 12-byte IV for every single record.
- * Output format: "v2:salt:iv:authTag:ciphertext" (all base64)
+ * Uses the validated 32-byte master key buffer directly as the AES-256 key with random 12-byte IV.
+ * Format: "v2:salt:iv:authTag:ciphertext" (all base64)
  */
 export function encryptKey(plaintext: string): string {
-  // Strict requirement: new encryption operations MUST use the dedicated master key
-  const masterSecret = requireGeminiEncryptionKey();
+  const masterSecret = loadGeminiEncryptionKeyBuffer();
   const salt = crypto.randomBytes(16);
+  // Derive a per-record 32-byte key using scrypt from master secret and salt
   const derivedKey = crypto.scryptSync(masterSecret, salt, 32) as Buffer;
   const iv = crypto.randomBytes(12); // 96-bit IV for GCM
 
@@ -38,15 +54,14 @@ export function encryptKey(plaintext: string): string {
 
 /**
  * Decrypts ciphertext with authentication tag verification.
- * Supports v2 (unique per-record salt) and backwards-compatible legacy v1 format.
+ * Supports v2 (per-record salt) and backwards-compatible legacy v1 format.
  */
 export function decryptKey(encrypted: string): string {
   const parts = encrypted.split(':');
 
   if (parts[0] === 'v2' && parts.length === 5) {
-    // Current v2 format: v2:salt:iv:authTag:ciphertext
     const [, saltB64, ivB64, authTagB64, ciphertextB64] = parts;
-    const masterSecret = requireGeminiEncryptionKey();
+    const masterSecret = loadGeminiEncryptionKeyBuffer();
     const salt = Buffer.from(saltB64, 'base64');
     const derivedKey = crypto.scryptSync(masterSecret, salt, 32) as Buffer;
     const iv = Buffer.from(ivB64, 'base64');
@@ -59,7 +74,7 @@ export function decryptKey(encrypted: string): string {
   }
 
   if (parts.length === 3) {
-    // Legacy v1 format: iv:authTag:ciphertext (with fixed salt from JWT_SECRET)
+    // Legacy v1 format
     const [ivB64, authTagB64, ciphertextB64] = parts;
     const secret = config.jwtSecret;
     if (!secret) throw new Error('JWT_SECRET is required to decrypt legacy key.');
@@ -76,12 +91,11 @@ export function decryptKey(encrypted: string): string {
   throw new Error('Unsupported or corrupted encrypted key format.');
 }
 
-function maskKey(key: string): string {
+export function maskKey(key: string): string {
   if (key.length < 8) return '••••••••';
   const first = key.slice(0, 4);
   const last = key.slice(-4);
-  const dots = '•'.repeat(Math.min(8, key.length - 8));
-  return `${first}${dots}${last}`;
+  return `${first}••••••••${last}`;
 }
 
 // ─── document shape ───────────────────────────────────────────────────────────
@@ -109,11 +123,20 @@ export const userApiKeyStore = {
     await col.updateOne(
       { _id: userId },
       {
-        $set: { encryptedKey, keyHint, provider: 'gemini', version: 'v2', updatedAt: now },
-        $setOnInsert: { _id: userId, createdAt: now },
-      } as Parameters<typeof col.updateOne>[1],
-      { upsert: true }
+        $set: {
+          encryptedKey,
+          keyHint,
+          provider: 'gemini',
+          version: 'v2',
+          updatedAt: now,
+        },
+        $setOnInsert: {
+          createdAt: now,
+        },
+      },
+      { upsert: true },
     );
+
     return { keyHint, updatedAt: now };
   },
 
@@ -125,31 +148,18 @@ export const userApiKeyStore = {
     return { keyHint: doc.keyHint, updatedAt: doc.updatedAt };
   },
 
-  /** NEVER send the decrypted return value to the client. */
   async getDecryptedGeminiKey(userId: string): Promise<string | null> {
     const db = await getDb();
     const col = db.collection<UserApiKeyDoc>(COLLECTION);
     const doc = await col.findOne({ _id: userId });
     if (!doc) return null;
-    try {
-      const decrypted = decryptKey(doc.encryptedKey);
-      // Auto-migrate legacy format to v2 on read if still in legacy format
-      if (!doc.version && doc.encryptedKey.split(':').length === 3) {
-        const reEncrypted = encryptKey(decrypted);
-        await col.updateOne(
-          { _id: userId },
-          { $set: { encryptedKey: reEncrypted, version: 'v2', updatedAt: new Date().toISOString() } }
-        ).catch(() => {});
-      }
-      return decrypted;
-    } catch {
-      return null;
-    }
+    return decryptKey(doc.encryptedKey);
   },
 
-  async deleteGeminiKey(userId: string): Promise<void> {
+  async deleteGeminiKey(userId: string): Promise<boolean> {
     const db = await getDb();
     const col = db.collection<UserApiKeyDoc>(COLLECTION);
-    await col.deleteOne({ _id: userId });
+    const res = await col.deleteOne({ _id: userId });
+    return res.deletedCount > 0;
   },
 };

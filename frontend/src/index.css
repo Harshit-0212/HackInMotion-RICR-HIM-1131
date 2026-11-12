@@ -265,3 +265,22 @@ h1, h2, h3, h4, h5, h6 {
     scroll-behavior: auto !important;
   }
 }
+
+/* Global border radius guarantee for buttons and file inputs */
+button, [type='button'], [type='reset'], [type='submit'] {
+  border-radius: 0.75rem;
+}
+input[type='file']::file-selector-button {
+  border-radius: 0.75rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  background-color: var(--surface-subtle);
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+input[type='file']::file-selector-button:hover {
+  background-color: var(--surface);
+  border-color: #6542C5;
+}

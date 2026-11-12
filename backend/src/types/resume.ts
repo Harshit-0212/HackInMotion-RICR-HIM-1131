@@ -6,6 +6,8 @@ export interface ResumePersonalDetails {
   linkedIn?: string;
   gitHub?: string;
   portfolio?: string;
+  photoUrl?: string;
+  photoShape?: 'circle' | 'rounded' | 'square';
 }
 
 export interface ResumeEducation {
@@ -65,6 +67,10 @@ export interface StoredResume {
   userId: string;
   title: string;
   template: string;
+  accentColor?: string;
+  fontFamily?: string;
+  sectionOrder?: string[];
+  hiddenSections?: string[];
   personalDetails: ResumePersonalDetails;
   summary: string;
   education: ResumeEducation[];

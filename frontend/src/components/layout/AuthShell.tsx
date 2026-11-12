@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
 import { Sparkles, TrendingUp, Brain, Trophy, Flame, Target, Zap, AlertCircle, CheckCircle2 } from 'lucide-react';

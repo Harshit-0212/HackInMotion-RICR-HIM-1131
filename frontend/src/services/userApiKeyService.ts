@@ -31,4 +31,10 @@ export const userApiKeyService = {
       body: JSON.stringify({ apiKey }),
     });
   },
+
+  async testSavedConnection(): Promise<{ valid: boolean; source: 'user' | 'server-fallback' }> {
+    return fetchApi('/user/api-keys/gemini/test-saved', {
+      method: 'POST',
+    });
+  },
 };

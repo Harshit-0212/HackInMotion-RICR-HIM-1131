@@ -146,6 +146,7 @@ None of these are committed to git — `.env` is gitignored in both `frontend/` 
 | `CLIENT_ORIGIN`      | Yes      | Frontend origin, used for CORS and to build links (e.g. password reset links)                            |
 | `JWT_SECRET`         | Yes      | Long random string used to sign session tokens                                                            |
 | `GEMINI_API_KEY`     | Yes      | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) — powers all AI features                 |
+| `GEMINI_ENCRYPTION_KEY` | Optional | 64-char hex or 32-byte base64 secret to encrypt user-provided Gemini keys at rest via AES-256-GCM. Run `npm run gen:key` to generate. |
 | `GEMINI_MODEL`       | No       | Defaults to `gemini-flash-lite-latest`                                                                    |
 | `YOUTUBE_API_KEY`    | Optional | [console.cloud.google.com](https://console.cloud.google.com/apis/credentials) — video suggestions in AI tutor |
 | `MONGODB_URI`        | Yes      | e.g. `mongodb://localhost:27017/`                                                                         |

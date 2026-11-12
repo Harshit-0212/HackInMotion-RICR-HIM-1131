@@ -31,6 +31,11 @@ import {
   Clock,
   Play,
   Flame,
+  Calendar,
+  Layers,
+  BookX,
+  Trophy,
+  BrainCircuit,
 } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
 import { Logo } from '@/components/ui/Logo';
@@ -165,6 +170,9 @@ export function AppLayout({ children, focusMode = false }: AppLayoutProps) {
         { to: '/app/journey', label: 'Learning Journey', icon: Compass, badge: 'Curriculum', shortcut: 'G J' },
         { to: '/app/plan', label: 'My Learning', icon: BookOpen, shortcut: 'G P' },
         { to: '/app/assessments', label: 'Practice & Quizzes', icon: Target, shortcut: 'G Q' },
+        { to: '/app/mistakes', label: 'Mistake Notebook', icon: BookX, shortcut: 'G N' },
+        { to: '/app/flashcards', label: 'Flashcards', icon: Layers, shortcut: 'G F' },
+        { to: '/app/calendar', label: 'Study Calendar', icon: Calendar, shortcut: 'G L' },
       ],
     },
     {
@@ -174,6 +182,7 @@ export function AppLayout({ children, focusMode = false }: AppLayoutProps) {
         { to: '/app/coding', label: 'Coding Practice', icon: Code, shortcut: 'G C' },
         { to: '/app/comprehension', label: 'Code Comprehension', icon: GraduationCap, shortcut: 'G M' },
         { to: '/app/debugger', label: 'Code Debugger', icon: Code2, shortcut: 'G X' },
+        { to: '/app/interview', label: 'Interview Prep', icon: BrainCircuit, shortcut: 'G I' },
       ],
     },
     {
@@ -182,7 +191,9 @@ export function AppLayout({ children, focusMode = false }: AppLayoutProps) {
       items: [
         { to: '/app/tutor', label: 'AI Tutor', icon: Sparkles, shortcut: 'G T' },
         { to: '/app/groups', label: 'Study Groups', icon: Users, shortcut: 'G G' },
+        { to: '/app/library', label: 'Document Library', icon: FileText, shortcut: 'G B' },
         { to: '/app/resume', label: 'Resume Maker', icon: FileText, shortcut: 'G R' },
+        { to: '/app/leaderboard', label: 'Leaderboard', icon: Trophy, shortcut: 'G K' },
         { to: '/app/progress', label: 'Progress & Stats', icon: LineChart, shortcut: 'G S' },
       ],
     },

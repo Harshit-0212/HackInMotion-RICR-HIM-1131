@@ -45,6 +45,8 @@ export function sanitizePersonalDetails(val: unknown): ResumePersonalDetails {
     linkedIn: safeOptionalString(obj.linkedIn),
     gitHub: safeOptionalString(obj.gitHub),
     portfolio: safeOptionalString(obj.portfolio),
+    photoUrl: safeOptionalString(obj.photoUrl),
+    photoShape: (['circle', 'rounded', 'square'].includes(String(obj.photoShape)) ? obj.photoShape : 'circle') as 'circle' | 'rounded' | 'square',
   };
 }
 
@@ -158,6 +160,10 @@ export function validateResumeInput(body: unknown, isUpdate = false): {
       userId: '', // populated by caller
       title,
       template,
+      accentColor: safeOptionalString(body.accentColor),
+      fontFamily: safeOptionalString(body.fontFamily),
+      sectionOrder: safeStringArray(body.sectionOrder),
+      hiddenSections: safeStringArray(body.hiddenSections),
       personalDetails,
       summary: safeString(body.summary),
       education: sanitizeEducation(body.education),
@@ -180,6 +186,10 @@ export function validateResumeInput(body: unknown, isUpdate = false): {
       updateData.title = title;
     }
     if ('template' in body) updateData.template = safeString(body.template, 'modern');
+    if ('accentColor' in body) updateData.accentColor = safeOptionalString(body.accentColor);
+    if ('fontFamily' in body) updateData.fontFamily = safeOptionalString(body.fontFamily);
+    if ('sectionOrder' in body) updateData.sectionOrder = safeStringArray(body.sectionOrder);
+    if ('hiddenSections' in body) updateData.hiddenSections = safeStringArray(body.hiddenSections);
     if ('personalDetails' in body) updateData.personalDetails = sanitizePersonalDetails(body.personalDetails);
     if ('summary' in body) updateData.summary = safeString(body.summary);
     if ('education' in body) updateData.education = sanitizeEducation(body.education);

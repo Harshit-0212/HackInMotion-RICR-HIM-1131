@@ -2,7 +2,7 @@ import type { Response } from 'express';
 import type { AuthedRequest } from '../middleware/auth.js';
 import { resumeStore } from '../lib/resumeStore.js';
 import { validateResumeInput, validateEnhanceInput } from '../lib/resumeValidation.js';
-import { enhanceResumeContent } from '../lib/resumeAi.js';
+import { enhanceResumeContent, scoreResumeAts } from '../lib/resumeAi.js';
 import { generateResumePdfBuffer } from '../lib/resumePdf.js';
 import { GeminiError } from '../lib/gemini.js';
 import type { CreateResumeInput, UpdateResumeInput } from '../types/resume.js';
@@ -172,7 +172,7 @@ export const resumeController = {
     }
 
     try {
-      const enhanced = await enhanceResumeContent(validation.data);
+      const enhanced = await enhanceResumeContent(validation.data, req.userId);
       res.json({ data: enhanced });
     } catch (err) {
       if (err instanceof GeminiError) {
@@ -213,6 +213,27 @@ export const resumeController = {
     } catch (err) {
       console.error('Resume export PDF error:', err);
       res.status(500).json({ error: { message: 'Failed to generate PDF. Please try again.' } });
+    }
+  },
+
+  /**
+   * POST /api/resume/:id/ats-score
+   * Evaluate ATS score and suggestions using Gemini
+   */
+  async getAtsScore(req: AuthedRequest, res: Response): Promise<void> {
+    const { id } = req.params;
+    const { targetRole } = req.body || {};
+    try {
+      const resume = await resumeStore.findById(id, req.userId!);
+      if (!resume) {
+        res.status(404).json({ error: { message: 'Resume not found.' } });
+        return;
+      }
+      const atsResult = await scoreResumeAts(resume, targetRole, req.userId);
+      res.json({ data: atsResult });
+    } catch (err) {
+      console.error('ATS score evaluation error:', err);
+      res.status(500).json({ error: { message: 'Failed to evaluate ATS score.' } });
     }
   },
 };

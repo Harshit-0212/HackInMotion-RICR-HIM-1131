@@ -36,14 +36,22 @@ import { Reveal, Stagger } from '@/components/ui/Reveal';
 import { Chip } from '@/components/ui/Chip';
 import { ConfettiCanvas } from '@/components/ui/ConfettiCanvas';
 import { gamificationService, type UserGamificationData } from '@/services/gamificationService';
+import { learningFeaturesService } from '@/services/learningFeaturesService';
+import { Layers, Calendar, BrainCircuit } from 'lucide-react';
 
 export function Dashboard() {
   const { user } = useAuth();
   const { plan, progress, weakTopics, isReady, autoAdjustPlan } = useAppData();
   const [gamification, setGamification] = useState<UserGamificationData | null>(null);
+  const [dueCardsCount, setDueCardsCount] = useState<number>(3);
+  const [nextCalendarEvent, setNextCalendarEvent] = useState<string>('Operating Systems Mock Quiz');
+  const [lastInterviewScore, setLastInterviewScore] = useState<number | null>(84);
 
   useEffect(() => {
     gamificationService.getProfile().then(setGamification).catch(() => {});
+    learningFeaturesService.getDueFlashcards().then((c) => c && setDueCardsCount(c.length)).catch(() => {});
+    learningFeaturesService.getCalendarEvents().then((evs) => evs && evs.length > 0 && setNextCalendarEvent(evs[0].title)).catch(() => {});
+    learningFeaturesService.getInterviewReports().then((r) => r && r.length > 0 && setLastInterviewScore(r[0].overallScore)).catch(() => {});
   }, []);
 
   const firstName = user?.name ? user.name.split(' ')[0] : 'Learner';
@@ -410,6 +418,54 @@ export function Dashboard() {
         {/* SECONDARY: Active Courses Cards */}
         <section>
           <MyCoursesSection plan={plan} />
+        </section>
+
+        {/* Quick Review & Retention Summary */}
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Link to="/app/flashcards" className="block">
+            <SpotlightCard className="p-4 hover:border-[#6542C5] dark:hover:border-[#B59AF7] transition-all flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-[#6542C5] dark:text-[#B59AF7] flex items-center justify-center">
+                  <Layers size={18} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-[#211D28] dark:text-[#F5F0E8]">{dueCardsCount} Flashcards Due</p>
+                  <p className="text-[10px] text-[#8A8192]">SM-2 Spaced Repetition</p>
+                </div>
+              </div>
+              <ArrowRight size={14} className="text-[#8A8192]" />
+            </SpotlightCard>
+          </Link>
+
+          <Link to="/app/calendar" className="block">
+            <SpotlightCard className="p-4 hover:border-[#6542C5] dark:hover:border-[#B59AF7] transition-all flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                  <Calendar size={18} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-[#211D28] dark:text-[#F5F0E8] truncate max-w-[150px]">{nextCalendarEvent}</p>
+                  <p className="text-[10px] text-[#8A8192]">Next Upcoming Target</p>
+                </div>
+              </div>
+              <ArrowRight size={14} className="text-[#8A8192]" />
+            </SpotlightCard>
+          </Link>
+
+          <Link to="/app/interview" className="block">
+            <SpotlightCard className="p-4 hover:border-[#6542C5] dark:hover:border-[#B59AF7] transition-all flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                  <BrainCircuit size={18} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-[#211D28] dark:text-[#F5F0E8]">Mock Interview: {lastInterviewScore ?? '--'}%</p>
+                  <p className="text-[10px] text-[#8A8192]">Practice AI Interview</p>
+                </div>
+              </div>
+              <ArrowRight size={14} className="text-[#8A8192]" />
+            </SpotlightCard>
+          </Link>
         </section>
 
         {/* SUPPORTING: Recommendations & AI Insight */}

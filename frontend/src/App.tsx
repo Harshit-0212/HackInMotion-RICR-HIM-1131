@@ -34,6 +34,12 @@ const LearningJourney = lazy(() => import('@/pages/LearningJourney').then((m) =>
 const StageDetail = lazy(() => import('@/pages/StageDetail').then((m) => ({ default: m.StageDetail })));
 const StageCheckpoint = lazy(() => import('@/pages/StageCheckpoint').then((m) => ({ default: m.StageCheckpoint })));
 const CodeComprehensionList = lazy(() => import('@/pages/CodeComprehensionList').then((m) => ({ default: m.CodeComprehensionList })));
+const Mistakes = lazy(() => import('@/pages/Mistakes').then((m) => ({ default: m.Mistakes })));
+const Flashcards = lazy(() => import('@/pages/Flashcards').then((m) => ({ default: m.Flashcards })));
+const Leaderboard = lazy(() => import('@/pages/Leaderboard').then((m) => ({ default: m.Leaderboard })));
+const CalendarPage = lazy(() => import('@/pages/CalendarPage').then((m) => ({ default: m.CalendarPage })));
+const DocumentLibrary = lazy(() => import('@/pages/DocumentLibrary').then((m) => ({ default: m.DocumentLibrary })));
+const InterviewPrep = lazy(() => import('@/pages/InterviewPrep').then((m) => ({ default: m.InterviewPrep })));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isInitializing } = useAuth();
@@ -240,6 +246,54 @@ function AppRoutes() {
             element={
               <ProtectedRoute>
                 <CodeComprehensionList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/app/mistakes"
+            element={
+              <ProtectedRoute>
+                <Mistakes />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/app/flashcards"
+            element={
+              <ProtectedRoute>
+                <Flashcards />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/app/leaderboard"
+            element={
+              <ProtectedRoute>
+                <Leaderboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/app/calendar"
+            element={
+              <ProtectedRoute>
+                <CalendarPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/app/library"
+            element={
+              <ProtectedRoute>
+                <DocumentLibrary />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/app/interview"
+            element={
+              <ProtectedRoute>
+                <InterviewPrep />
               </ProtectedRoute>
             }
           />

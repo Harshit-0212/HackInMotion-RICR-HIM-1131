@@ -23,3 +23,4 @@ resumeRouter.put('/:id', resumeController.update);
 resumeRouter.delete('/:id', resumeController.delete);
 resumeRouter.post('/:id/set-current', resumeController.setCurrent);
 resumeRouter.post('/:id/export', resumeController.exportPdf);
+resumeRouter.post('/:id/ats-score', resumeController.getAtsScore);

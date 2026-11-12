@@ -1,8 +1,63 @@
 import type { Response } from 'express';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { AuthedRequest } from '../middleware/auth.js';
-import { userApiKeyStore, validateGeminiKeyFormat } from '../lib/userApiKeyStore.js';
-import { config } from '../config.js';
+import { userApiKeyStore, validateGeminiKeyFormat, sanitizeGeminiKey } from '../lib/userApiKeyStore.js';
+import { config, loadGeminiEncryptionKeyBuffer } from '../config.js';
+
+/**
+ * Verifies a Gemini key via live HTTP request against Google's native endpoint:
+ * GET https://generativelanguage.googleapis.com/v1beta/models?pageSize=1
+ * Never logs or echoes the raw key.
+ */
+async function verifyGeminiKeyWithGoogle(apiKey: string): Promise<{ valid: boolean; error?: string }> {
+  const url = 'https://generativelanguage.googleapis.com/v1beta/models?pageSize=1';
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'x-goog-api-key': apiKey,
+      },
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+
+    if (response.ok) {
+      return { valid: true };
+    }
+
+    if (response.status === 400 || response.status === 401 || response.status === 403) {
+      return {
+        valid: false,
+        error: 'Google rejected this API key. Verify that the key is active and has the Generative Language API enabled in Google AI Studio.',
+      };
+    }
+
+    if (response.status === 429) {
+      return {
+        valid: false,
+        error: 'Google Gemini service rate limit or quota exceeded. Please try again shortly.',
+      };
+    }
+
+    return {
+      valid: false,
+      error: `Verification request failed with status ${response.status}. Please check your key.`,
+    };
+  } catch (err: unknown) {
+    if (err instanceof Error && err.name === 'AbortError') {
+      return {
+        valid: false,
+        error: 'Network timeout while contacting Google Gemini servers. Please try again.',
+      };
+    }
+    return {
+      valid: false,
+      error: 'Network error connecting to Google Gemini verification endpoint. Please check server connectivity.',
+    };
+  }
+}
 
 export const userApiKeyController = {
   /**
@@ -51,18 +106,31 @@ export const userApiKeyController = {
       return;
     }
 
-    const trimmed = apiKey.trim();
-    if (!validateGeminiKeyFormat(trimmed)) {
+    const sanitized = sanitizeGeminiKey(apiKey);
+    if (!validateGeminiKeyFormat(sanitized)) {
       res.status(400).json({
         error: {
-          message: 'Invalid Gemini API key format. Standard Google API keys start with "AIza" followed by 35 characters.',
+          message: 'Invalid Gemini API key format. API keys should be 20-256 characters long (letters, digits, dots, dashes, or underscores).',
+        },
+      });
+      return;
+    }
+
+    // Step 3: Verify with live request to native Google endpoint before saving
+    const verification = await verifyGeminiKeyWithGoogle(sanitized);
+    if (!verification.valid) {
+      res.status(400).json({
+        error: {
+          message: verification.error || 'Google rejected this API key. Verify that the key is valid.',
         },
       });
       return;
     }
 
     try {
-      const result = await userApiKeyStore.saveGeminiKey(userId, trimmed);
+      // Validate master encryption key buffer first to return clear actionable error
+      loadGeminiEncryptionKeyBuffer();
+      const result = await userApiKeyStore.saveGeminiKey(userId, sanitized);
       res.json({
         data: {
           success: true,
@@ -103,34 +171,50 @@ export const userApiKeyController = {
       return;
     }
 
-    const trimmed = apiKey.trim();
-    if (!validateGeminiKeyFormat(trimmed)) {
+    const sanitized = sanitizeGeminiKey(apiKey);
+    if (!validateGeminiKeyFormat(sanitized)) {
       res.status(400).json({
         error: {
-          message: 'Invalid Gemini API key format. Expected "AIza..." format.',
+          message: 'Invalid Gemini API key format. API keys should be 20-256 characters long (letters, digits, dots, dashes, or underscores).',
         },
       });
       return;
     }
 
+    const verification = await verifyGeminiKeyWithGoogle(sanitized);
+    if (!verification.valid) {
+      res.status(400).json({
+        error: {
+          message: verification.error || 'Google rejected this API key.',
+        },
+      });
+      return;
+    }
+
+    res.json({ data: { valid: true } });
+  },
+
+  /**
+   * POST /api/user/api-keys/gemini/test-saved
+   * Tests the currently saved key (or fallbacks to server key).
+   */
+  async testSavedKey(req: AuthedRequest, res: Response): Promise<void> {
+    const userId = req.userId!;
     try {
-      const ai = new GoogleGenerativeAI(trimmed);
+      const userKey = await userApiKeyStore.getDecryptedGeminiKey(userId);
+      const activeKey = userKey || config.geminiApiKey;
+      if (!activeKey) {
+        res.status(400).json({ error: { message: 'No Gemini API key saved, and no server fallback key is configured.' } });
+        return;
+      }
+
+      const ai = new GoogleGenerativeAI(activeKey);
       const model = ai.getGenerativeModel({ model: config.geminiModel });
-      // Minimal dry run
-      await model.countTokens({ contents: [{ role: 'user', parts: [{ text: 'ping' }] }] });
-      res.json({ data: { valid: true } });
+      await model.countTokens({ contents: [{ role: 'user', parts: [{ text: 'connection test' }] }] });
+      res.json({ data: { valid: true, source: userKey ? 'user' : 'server-fallback' } });
     } catch (err: unknown) {
       const rawMsg = err instanceof Error ? err.message : String(err);
-      if (/401|403|API_KEY_INVALID|permission|API key not valid/i.test(rawMsg)) {
-        res.status(400).json({ error: { message: 'Google rejected this API key. Verify that the key is valid and has Generative Language API enabled.' } });
-        return;
-      }
-      if (/quota|rate limit|429/i.test(rawMsg)) {
-        res.json({ data: { valid: true, warning: 'Key is valid, but your Google Gemini account has exceeded its current rate limit or quota.' } });
-        return;
-      }
-      res.status(400).json({ error: { message: 'Could not verify the key with Google Gemini. Check your network or key status.' } });
+      res.status(400).json({ error: { message: `Gemini connection failed: ${rawMsg}` } });
     }
   },
 };
-

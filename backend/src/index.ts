@@ -1,4 +1,4 @@
-﻿import http from 'node:http';
+import http from 'node:http';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -21,6 +21,7 @@ import { studentJourneyRouter } from './routes/studentJourney.js';
 import { adminJourneyRouter } from './routes/adminJourney.js';
 import { userApiKeyRouter } from './routes/userApiKey.js';
 import { gamificationRouter } from './routes/gamification.js';
+import { featuresRouter } from './routes/features.js';
 import { getDb } from './lib/db.js';
 import { initSocket } from './lib/socket.js';
 import { sendDueStudyReminders } from './lib/reminders.js';
@@ -90,6 +91,7 @@ app.use('/api/learn', studentJourneyRouter);
 app.use('/api/admin/journey', adminJourneyRouter);
 app.use('/api/user/api-keys', userApiKeyRouter);
 app.use('/api/gamification', gamificationRouter);
+app.use('/api', featuresRouter);
 
 app.use((req, res) => {
   res.status(404).json({ error: { message: `No route for ${req.method} ${req.path}` } });

@@ -8,6 +8,7 @@ userApiKeyRouter.use(requireAuth);
 
 userApiKeyRouter.get('/gemini/status', userApiKeyController.getStatus);
 userApiKeyRouter.post('/gemini', userApiKeyController.saveKey);
+userApiKeyRouter.put('/gemini', userApiKeyController.saveKey); // Allow replace via PUT
 userApiKeyRouter.delete('/gemini', userApiKeyController.deleteKey);
 userApiKeyRouter.post('/gemini/test', userApiKeyController.testKey);
-
+userApiKeyRouter.post('/gemini/test-saved', userApiKeyController.testSavedKey);
