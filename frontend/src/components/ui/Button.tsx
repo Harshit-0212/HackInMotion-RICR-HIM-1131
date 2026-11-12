@@ -1,52 +1,44 @@
-﻿import { forwardRef, useRef, type ButtonHTMLAttributes } from 'react';
-import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { forwardRef, type ButtonHTMLAttributes } from 'react';
 import { Loader2 } from 'lucide-react';
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'outline' | 'danger' | 'success' | 'gradient';
-type Size = 'sm' | 'md' | 'lg';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'outline' | 'danger' | 'success' | 'gradient' | 'accent';
+export type ButtonSize = 'sm' | 'md' | 'lg';
 
-interface ButtonProps extends Omit<
-  ButtonHTMLAttributes<HTMLButtonElement>,
-  'onDrag' | 'onDragStart' | 'onDragEnd' | 'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration'
-> {
-  variant?: Variant;
-  size?: Size;
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
   loading?: boolean;
   fullWidth?: boolean;
   magnetic?: boolean;
 }
 
-const VARIANTS: Record<Variant, string> = {
+// Render-inspired sharp geometry & palette
+// Primary: Deep Iris (#6542C5) in light, Soft Iris (#B59AF7) in dark, 0px radius with sweep
+const VARIANTS: Record<ButtonVariant, string> = {
   primary:
-    'bg-[#0F5132] dark:bg-[#2DD4A7] text-white dark:text-[#0B0D10] font-semibold hover:bg-[#0B3F26] dark:hover:bg-[#34D399] active:scale-[0.98] shadow-sm border border-[#0B3F26]/30 dark:border-white/10 transition-all disabled:opacity-50',
+    'btn-render-sweep bg-[#6542C5] text-white hover:text-white dark:bg-[#B59AF7] dark:text-[#141217] dark:hover:text-[#141217] font-semibold border border-[#51329F] dark:border-[#B59AF7]/40 shadow-sm disabled:opacity-50',
+  accent:
+    'btn-render-sweep-accent bg-[#F2B38C] text-[#211D28] hover:text-[#211D28] dark:bg-[#F2B38C] dark:text-[#141217] font-semibold border border-[#D7713A]/30 shadow-sm disabled:opacity-50',
   gradient:
-    'bg-gradient-to-r from-[#0F5132] via-[#6D4AFF] to-[#C2703A] dark:from-[#2DD4A7] dark:via-[#8B5CF6] dark:to-[#F5B04C] text-white font-semibold shadow-sm hover:opacity-95 active:scale-[0.98] transition-all disabled:opacity-50',
+    'btn-render-sweep bg-[#6542C5] text-white font-semibold border border-[#51329F] shadow-sm disabled:opacity-50',
   secondary:
-    'bg-ink-100 text-ink-900 hover:bg-ink-200 active:bg-ink-300 dark:bg-[#1B2027] dark:text-[#F4F1EA] dark:hover:bg-[#262C36] border border-ink-200/60 dark:border-white/[0.08]',
-  ghost:
-    'text-ink-600 hover:bg-ink-100 hover:text-ink-900 dark:text-ink-400 dark:hover:bg-[#1B2027] dark:hover:text-[#F4F1EA]',
+    'btn-render-sweep-dark bg-[#E8E1D7] text-[#211D28] hover:text-[#211D28] dark:bg-[#28222F] dark:text-[#F5F0E8] dark:hover:text-white font-medium border border-[#D8D0C5] dark:border-white/10 shadow-sm disabled:opacity-50',
   outline:
-    'border border-ink-200 text-ink-700 hover:bg-ink-50 hover:border-ink-300 dark:border-white/[0.1] dark:text-[#F4F1EA] dark:hover:bg-[#14171C]',
-  danger: 'bg-[#DC2626] text-white hover:bg-[#B91C1C] active:bg-[#991B1B] shadow-sm',
-  success: 'bg-[#10B981] text-white hover:bg-[#059669] active:bg-[#047857] shadow-sm',
+    'bg-transparent text-[#211D28] dark:text-[#F5F0E8] border border-[#D8D0C5] dark:border-white/20 hover:bg-[#E8E1D7]/60 dark:hover:bg-[#28222F] font-medium transition-colors disabled:opacity-50',
+  ghost:
+    'bg-transparent text-[#5F5668] hover:text-[#211D28] hover:bg-[#E8E1D7]/50 dark:text-[#B8AFBE] dark:hover:text-white dark:hover:bg-[#28222F]/60 font-medium transition-colors disabled:opacity-50',
+  danger:
+    'bg-[#E53E3E] text-white hover:bg-[#C53030] font-semibold border border-[#C53030] shadow-sm disabled:opacity-50',
+  success:
+    'bg-[#2F855A] text-white hover:bg-[#276749] font-semibold border border-[#276749] shadow-sm disabled:opacity-50',
 };
 
-const SIZES: Record<Size, string> = {
-  sm: 'h-9 px-3 text-sm gap-1.5',
-  md: 'h-11 px-5 text-sm gap-2',
-  lg: 'h-12 px-6 text-base gap-2',
+// Sharp, crisp rectangular heights and paddings (0px border-radius)
+const SIZES: Record<ButtonSize, string> = {
+  sm: 'h-8 px-3 text-xs tracking-wide gap-1.5',
+  md: 'h-10 px-4 text-sm tracking-tight gap-2',
+  lg: 'h-12 px-6 text-sm font-semibold tracking-normal gap-2.5',
 };
-
-const MotionButton = motion.create(
-  forwardRef<HTMLButtonElement, ButtonProps>(function ButtonInner(props, ref) {
-    const { className = '', children, ...rest } = props;
-    return (
-      <button ref={ref} className={className} {...rest}>
-        {children}
-      </button>
-    );
-  }),
-);
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   {
@@ -54,71 +46,29 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     size = 'md',
     loading = false,
     fullWidth = false,
-    magnetic = false,
     className = '',
     children,
     disabled,
+    type = 'button',
     ...props
   },
   ref,
 ) {
-  const localRef = useRef<HTMLButtonElement>(null);
-
-  // Set up motion values for magnetic translation
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  // Smooth springs for translation
-  const springConfig = { stiffness: 120, damping: 12, mass: 0.1 };
-  const springX = useSpring(x, springConfig);
-  const springY = useSpring(y, springConfig);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (!magnetic || disabled || loading || !localRef.current) return;
-    const { clientX, clientY } = e;
-    const { left, top, width, height } = localRef.current.getBoundingClientRect();
-    const centerX = left + width / 2;
-    const centerY = top + height / 2;
-    const distanceX = clientX - centerX;
-    const distanceY = clientY - centerY;
-
-    // Pull button up to 16px towards the cursor
-    x.set(distanceX * 0.35);
-    y.set(distanceY * 0.35);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
-  const setRefs = (node: HTMLButtonElement) => {
-    // @ts-ignore
-    localRef.current = node;
-    if (typeof ref === 'function') {
-      ref(node);
-    } else if (ref) {
-      ref.current = node;
-    }
-  };
-
-  // transition-colors prevents transform lag from conflicting CSS transition rules
-  const classes = `inline-flex items-center justify-center rounded-xl font-semibold transition-colors duration-200 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 ${VARIANTS[variant]} ${SIZES[size]} ${fullWidth ? 'w-full' : ''} ${magnetic || variant === 'gradient' ? 'magnetic-btn' : ''} ${className}`;
+  const isSharp = !className.includes('rounded-');
+  const baseClasses = `relative inline-flex items-center justify-center font-medium select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6542C5] dark:focus-visible:ring-[#B59AF7] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#141217] active:translate-y-[1px] disabled:cursor-not-allowed disabled:pointer-events-none transition-all duration-150 ${
+    isSharp ? 'rounded-none' : ''
+  } ${VARIANTS[variant]} ${SIZES[size]} ${fullWidth ? 'w-full' : ''} ${className}`;
 
   return (
-    <MotionButton
-      ref={setRefs}
+    <button
+      ref={ref}
+      type={type}
       disabled={disabled || loading}
-      whileHover={disabled || loading ? undefined : { scale: 1.025 }}
-      whileTap={disabled || loading ? undefined : { scale: 0.97 }}
-      style={magnetic && !disabled && !loading ? { x: springX, y: springY } : undefined}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className={classes}
+      className={baseClasses}
       {...props}
     >
-      {loading && <Loader2 size={16} className="animate-spin" />}
-      {children}
-    </MotionButton>
+      {loading && <Loader2 size={15} className="animate-spin shrink-0 relative z-10" />}
+      <span className="relative z-10 inline-flex items-center gap-1.5">{children}</span>
+    </button>
   );
 });

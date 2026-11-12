@@ -135,7 +135,7 @@ export function AISettingsCard() {
                 href="https://aistudio.google.com/app/apikey"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary-600 hover:underline inline-flex items-center gap-0.5"
+                className="text-[#6542C5] hover:underline inline-flex items-center gap-0.5"
               >
                 Google AI Studio &nearr;
               </a>

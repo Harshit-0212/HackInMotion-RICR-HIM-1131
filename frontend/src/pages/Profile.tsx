@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+﻿import { useRef, useState } from 'react';
 import { Mail, Calendar, Target, Zap, Flame, BookOpen, Edit3, Check, Camera } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -70,7 +70,7 @@ export function Profile() {
                   onClick={handleAvatarPick}
                   disabled={uploading}
                   aria-label="Change profile photo"
-                  className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full bg-primary-600 text-white shadow-soft transition hover:bg-primary-700 disabled:opacity-60"
+                  className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full bg-[#6542C5] text-white shadow-soft transition hover:bg-primary-700 disabled:opacity-60"
                 >
                   <Camera size={13} />
                 </button>
@@ -162,7 +162,7 @@ export function Profile() {
                     key={i}
                     className="flex items-center gap-3 rounded-xl border border-ink-200 px-4 py-3 dark:border-ink-800"
                   >
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-50 text-primary-600 dark:bg-primary-900/40">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-50 text-[#6542C5] dark:bg-primary-900/40">
                       <a.icon size={16} />
                     </div>
                     <div className="flex-1">
@@ -206,7 +206,7 @@ function StatBox({
   color: 'primary' | 'warning' | 'accent' | 'success';
 }) {
   const colors = {
-    primary: 'bg-primary-50 text-primary-600 dark:bg-primary-900/40 dark:text-primary-300',
+    primary: 'bg-primary-50 text-[#6542C5] dark:bg-primary-900/40 dark:text-[#B59AF7]',
     warning: 'bg-warning-50 text-warning-600 dark:bg-warning-700/20 dark:text-warning-400',
     accent: 'bg-accent-50 text-accent-600 dark:bg-accent-900/40 dark:text-accent-300',
     success: 'bg-success-50 text-success-600 dark:bg-success-700/20 dark:text-success-400',

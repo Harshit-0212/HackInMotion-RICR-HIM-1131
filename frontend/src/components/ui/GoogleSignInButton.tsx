@@ -87,7 +87,7 @@ export function GoogleSignInButton({
       />
       {isVerifying && (
         <div className="flex items-center gap-2 text-xs text-slate-400 py-1">
-          <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-500" />
+          <Loader2 className="w-3.5 h-3.5 animate-spin text-[#6542C5] dark:text-[#B59AF7]" />
           <span>Signing you in with Google…</span>
         </div>
       )}

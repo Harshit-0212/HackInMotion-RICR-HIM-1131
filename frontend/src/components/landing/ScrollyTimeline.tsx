@@ -20,7 +20,7 @@ export function ScrollyTimeline({ scrollYProgress, stages, onStageClick }: Scrol
   const height = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
 
   const baseBorderColor = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(15,23,42,0.15)';
-  const activeBorderColor = isDark ? 'rgba(99,102,241,1)' : 'rgba(37,99,235,1)';
+  const activeBorderColor = isDark ? 'rgba(181,154,247,1)' : 'rgba(101,66,197,1)';
 
   return (
     <div className="absolute left-6 top-1/2 z-40 hidden -translate-y-1/2 flex-col items-center lg:flex pl-4 pointer-events-auto">
@@ -28,7 +28,7 @@ export function ScrollyTimeline({ scrollYProgress, stages, onStageClick }: Scrol
       <div className={`relative h-[320px] w-[3px] rounded-full ${isDark ? 'bg-white/10' : 'bg-slate-200/80'}`}>
         {/* Progress Fill Line */}
         <motion.div
-          className="absolute top-0 w-full rounded-full bg-gradient-to-b from-primary-500 via-violet-500 to-accent-400"
+          className="absolute top-0 w-full rounded-none bg-gradient-to-b from-[#6542C5] via-[#9B72F5] to-[#F2B38C]"
           style={{ height }}
         />
 
@@ -72,15 +72,15 @@ export function ScrollyTimeline({ scrollYProgress, stages, onStageClick }: Scrol
                 {/* Node circle */}
                 <motion.div
                   style={{ scale, borderColor: borderStyle }}
-                  className={`h-4.5 w-4.5 rounded-full border-2 transition-shadow duration-300 ${
+                  className={`h-4.5 w-4.5 rounded-sm border-2 transition-shadow duration-300 ${
                     isDark
-                      ? 'bg-ink-950 group-hover:border-primary-400 group-hover:shadow-[0_0_12px_rgba(99,102,241,0.6)]'
-                      : 'bg-white group-hover:border-blue-500 group-hover:shadow-[0_0_12px_rgba(37,99,235,0.3)]'
+                      ? 'bg-[#141217] group-hover:border-[#B59AF7] group-hover:shadow-[0_0_12px_rgba(181,154,247,0.6)]'
+                      : 'bg-white group-hover:border-[#6542C5] group-hover:shadow-[0_0_12px_rgba(101,66,197,0.3)]'
                   }`}
                 >
                   {/* Innermost filled glow */}
                   <motion.div
-                    className="h-full w-full rounded-full bg-gradient-to-br from-primary-400 via-violet-500 to-accent-400"
+                    className={`rounded-none bg-gradient-to-br from-[#6542C5] via-[#9B72F5] to-[#F2B38C]`}
                     style={{ opacity: fillOpacity }}
                   />
                 </motion.div>
@@ -88,13 +88,13 @@ export function ScrollyTimeline({ scrollYProgress, stages, onStageClick }: Scrol
                 {/* Stage tooltip revealed on hover */}
                 <div className="absolute left-8 flex origin-left translate-x-2 items-center opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100 pointer-events-none">
                   <div
-                    className={`rounded-xl border px-3 py-1.5 backdrop-blur-md shadow-lift whitespace-nowrap ${
+                    className={`rounded-none border px-3 py-1.5 backdrop-blur-md shadow-lift whitespace-nowrap ${
                       isDark
-                        ? 'border-white/10 bg-ink-900/90 text-white'
-                        : 'border-slate-200 bg-white/95 text-slate-800'
+                        ? 'border-white/10 bg-[#1D1922]/90 text-white'
+                        : 'border-[#D8D0C5] bg-[#FBF8F2]/95 text-[#211D28]'
                     }`}
                   >
-                    <span className={`text-xs font-bold mr-2 ${isDark ? 'text-primary-400' : 'text-blue-600'}`}>
+                    <span className={`text-xs font-bold mr-2 ${isDark ? 'text-[#B59AF7]' : 'text-[#6542C5]'}`}>
                       {stage.num}
                     </span>
                     <span className="text-xs font-semibold">{stage.label}</span>

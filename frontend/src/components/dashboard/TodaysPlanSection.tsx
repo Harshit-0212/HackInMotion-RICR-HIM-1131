@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+﻿import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CheckCircle2, Circle, Clock, ArrowUpRight, CalendarDays } from 'lucide-react';
 import type { StudyPlan, StudySession } from '@/types';
@@ -73,7 +73,7 @@ export function TodaysPlanSection({ plan }: TodaysPlanSectionProps) {
                   isCompleted
                     ? 'border-emerald-200/60 bg-emerald-50/40 dark:border-emerald-900/30 dark:bg-emerald-950/20'
                     : isInProgress
-                    ? 'border-blue-300 bg-blue-50/30 dark:border-blue-800/60 dark:bg-blue-950/20'
+                    ? 'border-[#6542C5]/30 bg-[#F5F3FD]/60 dark:border-[#B59AF7]/30 dark:bg-[#B59AF7]/10'
                     : 'border-slate-100 bg-slate-50/50 dark:border-slate-800/60 dark:bg-slate-800/20'
                 }`}
               >
@@ -82,7 +82,7 @@ export function TodaysPlanSection({ plan }: TodaysPlanSectionProps) {
                     {isCompleted ? (
                       <CheckCircle2 className="size-5 text-emerald-600 dark:text-emerald-400" />
                     ) : isInProgress ? (
-                      <Circle className="size-5 text-blue-600 dark:text-blue-400 animate-pulse fill-blue-100 dark:fill-blue-900/40" />
+                      <Circle className="size-5 text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7] animate-pulse fill-blue-100 dark:fill-blue-900/40" />
                     ) : (
                       <Circle className="size-5 text-slate-300 dark:text-slate-600" />
                     )}
@@ -110,7 +110,7 @@ export function TodaysPlanSection({ plan }: TodaysPlanSectionProps) {
                     <Clock size={11} /> {task.time}
                   </span>
                   {isInProgress && (
-                    <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase bg-blue-100 dark:bg-blue-900/40 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-mono font-bold text-[#6542C5] dark:text-[#B59AF7] uppercase bg-[#F5F3FD] dark:bg-[#B59AF7]/20 px-2 py-0.5 rounded-none border border-[#6542C5]/20 dark:border-[#B59AF7]/30">
                       In Progress
                     </span>
                   )}
@@ -127,7 +127,7 @@ export function TodaysPlanSection({ plan }: TodaysPlanSectionProps) {
         </span>
         <Link
           to="/app/plan"
-          className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline"
+          className="inline-flex items-center gap-1 text-xs font-bold text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7] hover:underline"
         >
           View Full Plan <ArrowUpRight size={13} />
         </Link>

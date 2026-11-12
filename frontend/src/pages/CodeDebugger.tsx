@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import {
   Code2,
   Bug,
@@ -216,7 +216,7 @@ export function CodeDebugger() {
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <label className="text-xs font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                <Code2 className="w-4 h-4 text-blue-500" />
+                <Code2 className="w-4 h-4 text-[#6542C5] dark:text-[#B59AF7]" />
                 Language
               </label>
               <select
@@ -240,7 +240,7 @@ export function CodeDebugger() {
                   onClick={() => setExplanationLanguage('english')}
                   className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
                     explanationLanguage === 'english'
-                      ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 font-semibold shadow-xs'
+                      ? 'bg-white dark:bg-slate-900 text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7] font-semibold shadow-xs'
                       : 'text-gray-600 dark:text-slate-400'
                   }`}
                 >
@@ -264,7 +264,7 @@ export function CodeDebugger() {
                 onClick={handleLoadExample}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700/60 transition-colors shadow-2xs"
               >
-                <BookOpen className="w-3.5 h-3.5 text-blue-500" /> Load Buggy Example
+                <BookOpen className="w-3.5 h-3.5 text-[#6542C5] dark:text-[#B59AF7]" /> Load Buggy Example
               </button>
 
               <button
@@ -281,7 +281,7 @@ export function CodeDebugger() {
           <div className="relative rounded-xl border border-gray-200 dark:border-slate-800 bg-slate-950 overflow-hidden font-mono text-xs">
             <div className="px-3 py-1.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
               <span className="flex items-center gap-1.5">
-                <FileCode className="w-3.5 h-3.5 text-blue-400" />
+                <FileCode className="w-3.5 h-3.5 text-[#B59AF7]" />
                 Editor ({language})
               </span>
               <span>{code.split('\n').length} lines • {code.length} chars</span>
@@ -291,7 +291,7 @@ export function CodeDebugger() {
               onChange={(e) => setCode(e.target.value)}
               placeholder="Paste or type code here..."
               rows={12}
-              className="w-full p-3.5 bg-slate-950 text-slate-100 font-mono text-xs leading-relaxed focus:outline-none resize-y selection:bg-blue-600/40"
+              className="w-full p-3.5 bg-slate-950 text-slate-100 font-mono text-xs leading-relaxed focus:outline-none resize-y selection:bg-[#6542C5]/40"
               spellCheck={false}
             />
           </div>
@@ -299,7 +299,7 @@ export function CodeDebugger() {
           {/* Optional User Question Field */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-gray-600 dark:text-slate-400 flex items-center gap-1">
-              <HelpCircle className="w-3.5 h-3.5 text-blue-500" /> Optional Question or Specific Concern
+              <HelpCircle className="w-3.5 h-3.5 text-[#6542C5] dark:text-[#B59AF7]" /> Optional Question or Specific Concern
             </label>
             <input
               type="text"
@@ -334,7 +334,7 @@ export function CodeDebugger() {
                 type="button"
                 onClick={handleAnalyze}
                 disabled={isAnalyzing}
-                className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-xs disabled:opacity-50 transition-colors flex items-center gap-2"
+                className="px-5 py-2 rounded-xl bg-[#6542C5] hover:bg-blue-700 text-white text-xs font-semibold shadow-xs disabled:opacity-50 transition-colors flex items-center gap-2"
               >
                 {isAnalyzing ? (
                   <>
@@ -361,7 +361,7 @@ export function CodeDebugger() {
                   onClick={() => setActiveTab('player')}
                   className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-colors ${
                     activeTab === 'player'
-                      ? 'bg-blue-600 text-white shadow-xs'
+                      ? 'bg-[#6542C5] text-white shadow-xs'
                       : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800'
                   }`}
                 >
@@ -376,7 +376,7 @@ export function CodeDebugger() {
                   onClick={() => setActiveTab('analysis')}
                   className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-colors ${
                     activeTab === 'analysis'
-                      ? 'bg-blue-600 text-white shadow-xs'
+                      ? 'bg-[#6542C5] text-white shadow-xs'
                       : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800'
                   }`}
                 >

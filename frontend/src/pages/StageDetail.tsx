@@ -1,4 +1,4 @@
-/**
+﻿/**
  * StageDetail.tsx — The per-stage learning workspace.
  *
  * Shows the list of activities in a stage, allows the student to:
@@ -43,7 +43,7 @@ const ACTIVITY_META: Record<
   ActivityType,
   { label: string; icon: React.ElementType; color: string }
 > = {
-  lesson: { label: 'Lesson', icon: BookOpen, color: 'text-primary-600 dark:text-primary-400' },
+  lesson: { label: 'Lesson', icon: BookOpen, color: 'text-[#6542C5] dark:text-[#B59AF7]' },
   comprehension_predict: { label: 'Predict Output', icon: Brain, color: 'text-violet-600 dark:text-violet-400' },
   comprehension_trace: { label: 'Trace Execution', icon: Brain, color: 'text-violet-600 dark:text-violet-400' },
   comprehension_explain: { label: 'Explain Code', icon: Brain, color: 'text-violet-600 dark:text-violet-400' },
@@ -247,7 +247,7 @@ function ComprehensionViewer({
             onChange={(e) => setAnswer(e.target.value)}
             placeholder="Type your answer here…"
             rows={3}
-            className="w-full rounded-xl border border-ink-200 bg-white px-4 py-3 text-sm text-ink-900 placeholder-ink-400 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-100 dark:placeholder-ink-500 resize-none"
+            className="w-full rounded-xl border border-ink-200 bg-white px-4 py-3 text-sm text-ink-900 placeholder-ink-400 outline-none focus:border-[#6542C5] focus:ring-2 focus:ring-primary-500/20 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-100 dark:placeholder-ink-500 resize-none"
           />
           <Button onClick={handleSubmit} loading={submitting} disabled={!answer.trim()}>
             Submit Answer
@@ -295,7 +295,7 @@ function ComprehensionViewer({
 
             {result.relevance && (
               <div className="rounded-xl border border-primary-100 bg-primary-50/50 p-4 dark:border-primary-900 dark:bg-primary-900/10">
-                <p className="text-xs font-bold text-primary-700 dark:text-primary-300 mb-1">
+                <p className="text-xs font-bold text-primary-700 dark:text-[#B59AF7] mb-1">
                   Why this matters
                 </p>
                 <p className="text-sm text-primary-800 dark:text-primary-200">{result.relevance}</p>
@@ -412,7 +412,7 @@ export function StageDetail() {
         <nav className="flex items-center gap-2 text-xs text-ink-500 dark:text-ink-400 mb-5">
           <Link
             to={`/app/journey`}
-            className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+            className="hover:text-[#6542C5] dark:hover:text-[#B59AF7] transition-colors"
           >
             Learning Journey
           </Link>
@@ -449,7 +449,7 @@ export function StageDetail() {
           <div className="mt-4 flex items-center gap-3">
             <div className="flex-1 h-1.5 rounded-full bg-ink-100 dark:bg-ink-800 overflow-hidden">
               <div
-                className="h-full rounded-full bg-primary-500 transition-all duration-500"
+                className="h-full rounded-full bg-[#6542C5] transition-all duration-500"
                 style={{
                   width: `${activities.length > 0 ? (completedCount / activities.length) * 100 : 0}%`,
                 }}
@@ -468,12 +468,12 @@ export function StageDetail() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-5 rounded-xl border border-primary-300 bg-primary-50 p-4 dark:border-primary-700 dark:bg-primary-900/20 flex items-start gap-3"
           >
-            <Target size={18} className="text-primary-600 dark:text-primary-400 shrink-0 mt-0.5" />
+            <Target size={18} className="text-[#6542C5] dark:text-[#B59AF7] shrink-0 mt-0.5" />
             <div className="min-w-0">
               <p className="text-sm font-bold text-primary-800 dark:text-primary-200">
                 Ready for the checkpoint!
               </p>
-              <p className="text-xs text-primary-700 dark:text-primary-300 mt-0.5">
+              <p className="text-xs text-primary-700 dark:text-[#B59AF7] mt-0.5">
                 You've completed all required activities. Take the checkpoint to unlock the next stage.
               </p>
             </div>

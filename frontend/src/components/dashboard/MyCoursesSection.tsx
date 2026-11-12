@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+﻿import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { BookOpen, Layers, ArrowRight, Code, Database, HardDrive, Network } from 'lucide-react';
 import type { StudyPlan } from '@/types';
@@ -62,7 +62,7 @@ export function MyCoursesSection({ plan }: MyCoursesSectionProps) {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="font-space text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <BookOpen size={20} className="text-blue-600 dark:text-blue-400" />
+            <BookOpen size={20} className="text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7]" />
             My Active Courses
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -72,7 +72,7 @@ export function MyCoursesSection({ plan }: MyCoursesSectionProps) {
 
         <Link
           to="/app/plan"
-          className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+          className="text-xs font-bold text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7] hover:underline flex items-center gap-1"
         >
           All Courses <ArrowRight size={13} />
         </Link>
@@ -91,7 +91,7 @@ export function MyCoursesSection({ plan }: MyCoursesSectionProps) {
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-none bg-[#F5F3FD] dark:bg-[#B59AF7]/10 text-[#6542C5] dark:text-[#B59AF7]">
                     <Icon size={20} />
                   </div>
                   <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
@@ -117,14 +117,14 @@ export function MyCoursesSection({ plan }: MyCoursesSectionProps) {
                   </div>
                   <div className="h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-blue-600 dark:bg-blue-500 transition-all duration-500"
+                      className="h-full rounded-none bg-[#6542C5] dark:bg-[#B59AF7] transition-all duration-500"
                       style={{ width: `${course.progress}%` }}
                     />
                   </div>
                 </div>
 
                 <Link to="/app/session" className="block">
-                  <button className="w-full py-2 px-3 rounded-xl bg-slate-50 hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-blue-950/40 text-slate-700 hover:text-blue-600 dark:text-slate-300 dark:hover:text-blue-400 text-xs font-bold transition-colors flex items-center justify-center gap-1">
+                  <button className="w-full py-2 px-3 rounded-none bg-[#E8E1D7]/50 hover:bg-[#E8E1D7] dark:bg-[#28222F]/60 dark:hover:bg-[#28222F] text-[#211D28] hover:text-[#6542C5] dark:text-[#F5F0E8] dark:hover:text-[#B59AF7] text-xs font-bold transition-colors flex items-center justify-center gap-1">
                     <span>Continue Track</span>
                     <ArrowRight size={12} />
                   </button>

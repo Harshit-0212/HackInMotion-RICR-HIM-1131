@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+﻿import { motion } from 'framer-motion';
 import {
   AreaChart,
   Area,
@@ -51,7 +51,7 @@ export function LearningProgressSection({ progress }: LearningProgressSectionPro
       <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
         <div>
           <h3 className="font-space text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <TrendingUp size={18} className="text-blue-600 dark:text-blue-400" />
+            <TrendingUp size={18} className="text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7]" />
             Learning Activity & Progress
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -70,7 +70,7 @@ export function LearningProgressSection({ progress }: LearningProgressSectionPro
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mb-1">
-            <Clock size={13} className="text-blue-600 dark:text-blue-400" />
+            <Clock size={13} className="text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7]" />
             <span>Study Time</span>
           </div>
           <p className="font-space text-xl font-bold text-slate-900 dark:text-white">
@@ -127,7 +127,7 @@ export function LearningProgressSection({ progress }: LearningProgressSectionPro
                   return (
                     <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 p-2.5 shadow-md text-xs font-sans">
                       <p className="font-bold text-slate-900 dark:text-white">{data.day}</p>
-                      <p className="text-blue-600 dark:text-blue-400 font-semibold">
+                      <p className="text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7] font-semibold">
                         {data.minutes} min ({data.hours} hrs)
                       </p>
                     </div>

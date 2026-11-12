@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FileText,
@@ -333,7 +333,7 @@ export function ResumeMaker() {
     return (
       <AppLayout>
         <div className="flex h-96 items-center justify-center">
-          <RefreshCw className="animate-spin text-blue-600" size={32} />
+          <RefreshCw className="animate-spin text-[#6542C5] dark:text-[#B59AF7]" size={32} />
         </div>
       </AppLayout>
     );
@@ -346,7 +346,7 @@ export function ResumeMaker() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400">
+              <span className="flex h-9 w-9 items-center justify-center rounded-none bg-[#F5F3FD] dark:bg-[#B59AF7]/10 text-[#6542C5] dark:text-[#B59AF7]">
                 <FileText size={20} />
               </span>
               <h1 className="font-space text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
@@ -363,7 +363,7 @@ export function ResumeMaker() {
               onClick={() => setUploadModalOpen(true)}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 text-sm font-semibold shadow-sm transition-all"
             >
-              <Upload size={16} className="text-blue-600" /> Upload / Analyze PDF
+              <Upload size={16} className="text-[#6542C5] dark:text-[#B59AF7]" /> Upload / Analyze PDF
             </button>
             <button
               onClick={() => setEnhanceModalOpen(true)}
@@ -381,7 +381,7 @@ export function ResumeMaker() {
             <button
               onClick={handleExportPdf}
               disabled={exporting}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-sm transition-all disabled:opacity-50"
+              className="btn-render-sweep inline-flex items-center gap-2 px-4 py-2.5 rounded-none bg-[#6542C5] dark:bg-[#B59AF7] text-white dark:text-[#141217] text-sm font-semibold shadow-xs disabled:opacity-50"
             >
               <Download size={16} /> {exporting ? 'Generating PDF...' : 'Export PDF'}
             </button>
@@ -400,7 +400,7 @@ export function ResumeMaker() {
                 onClick={() => setActiveResume(r)}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
                   activeResume?._id === r._id
-                    ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm border border-slate-200 dark:border-slate-700'
+                    ? 'bg-white dark:bg-slate-800 text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7] shadow-sm border border-slate-200 dark:border-slate-700'
                     : 'text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/60'
                 }`}
               >
@@ -413,7 +413,7 @@ export function ResumeMaker() {
             {activeResume?._id && !activeResume.isCurrent && (
               <button
                 onClick={() => handleSetCurrent(activeResume._id)}
-                className="text-xs text-slate-600 dark:text-slate-400 hover:text-blue-600 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-blue-400"
+                className="text-xs text-slate-600 dark:text-slate-400 hover:text-[#6542C5] dark:text-[#B59AF7] px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-blue-400"
               >
                 Make Current
               </button>
@@ -429,7 +429,7 @@ export function ResumeMaker() {
             )}
             <button
               onClick={createNewEmptyResume}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 text-xs font-bold hover:bg-blue-100"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F5F3FD] dark:bg-[#B59AF7]/10 dark:bg-blue-950/40 text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7] text-xs font-bold hover:bg-blue-100"
             >
               <Plus size={14} /> New Resume
             </button>
@@ -461,7 +461,7 @@ export function ResumeMaker() {
                     onClick={() => setActiveTab(tab.id as never)}
                     className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
                       isActive
-                        ? 'bg-blue-600 text-white shadow-sm'
+                        ? 'bg-[#6542C5] text-white dark:bg-[#B59AF7] dark:text-[#141217] shadow-xs'
                         : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                     }`}
                   >
@@ -491,7 +491,7 @@ export function ResumeMaker() {
               {activeTab === 'personal' && (
                 <div className="space-y-4">
                   <h3 className="font-space text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <Briefcase size={18} className="text-blue-600" /> Personal Details
+                    <Briefcase size={18} className="text-[#6542C5] dark:text-[#B59AF7]" /> Personal Details
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -606,7 +606,7 @@ export function ResumeMaker() {
                     </h3>
                     <button
                       onClick={addExperience}
-                      className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-3 py-1.5 rounded-lg hover:bg-blue-100"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7] bg-[#F5F3FD] dark:bg-[#B59AF7]/10 dark:bg-blue-950/40 px-3 py-1.5 rounded-lg hover:bg-blue-100"
                     >
                       <Plus size={14} /> Add Experience
                     </button>
@@ -617,7 +617,7 @@ export function ResumeMaker() {
                       <p className="text-sm text-slate-500">No experience items added yet.</p>
                       <button
                         onClick={addExperience}
-                        className="mt-3 text-xs font-bold text-blue-600 hover:underline"
+                        className="mt-3 text-xs font-bold text-[#6542C5] dark:text-[#B59AF7] hover:underline"
                       >
                         + Add your first role or internship
                       </button>
@@ -698,11 +698,11 @@ export function ResumeMaker() {
                 <div className="space-y-5">
                   <div className="flex items-center justify-between">
                     <h3 className="font-space text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                      <Wand2 size={18} className="text-blue-600" /> Academic & Personal Projects
+                      <Wand2 size={18} className="text-[#6542C5] dark:text-[#B59AF7]" /> Academic & Personal Projects
                     </h3>
                     <button
                       onClick={addProject}
-                      className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-3 py-1.5 rounded-lg hover:bg-blue-100"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7] bg-[#F5F3FD] dark:bg-[#B59AF7]/10 dark:bg-blue-950/40 px-3 py-1.5 rounded-lg hover:bg-blue-100"
                     >
                       <Plus size={14} /> Add Project
                     </button>
@@ -713,7 +713,7 @@ export function ResumeMaker() {
                       <p className="text-sm text-slate-500">No projects added yet.</p>
                       <button
                         onClick={addProject}
-                        className="mt-3 text-xs font-bold text-blue-600 hover:underline"
+                        className="mt-3 text-xs font-bold text-[#6542C5] dark:text-[#B59AF7] hover:underline"
                       >
                         + Add your first project
                       </button>
@@ -790,7 +790,7 @@ export function ResumeMaker() {
                     </h3>
                     <button
                       onClick={addEducation}
-                      className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-3 py-1.5 rounded-lg hover:bg-blue-100"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7] bg-[#F5F3FD] dark:bg-[#B59AF7]/10 dark:bg-blue-950/40 px-3 py-1.5 rounded-lg hover:bg-blue-100"
                     >
                       <Plus size={14} /> Add Education
                     </button>
@@ -872,7 +872,7 @@ export function ResumeMaker() {
                     {activeResume.skills.map((skill, i) => (
                       <span
                         key={i}
-                        className="px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 text-xs font-semibold border border-blue-200/50 dark:border-blue-900/40"
+                        className="px-2.5 py-1 rounded-lg bg-[#F5F3FD] dark:bg-[#B59AF7]/10 dark:bg-blue-950/40 text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7] text-xs font-semibold border border-[#C8B8F5] dark:border-[#B59AF7]/20/50 dark:border-blue-900/40"
                       >
                         {skill}
                       </span>
@@ -1025,7 +1025,7 @@ export function ResumeMaker() {
                 className="bg-white dark:bg-slate-900 max-w-xl w-full max-h-[90vh] overflow-y-auto rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-xl space-y-4"
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-bold">
+                  <div className="flex items-center gap-2 text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7] font-bold">
                     <Upload size={20} />
                     <h3 className="font-space text-lg text-slate-900 dark:text-white">
                       Upload Resume for Deep ATS Audit
@@ -1089,7 +1089,7 @@ export function ResumeMaker() {
                         }}
                       />
                       <label htmlFor="resumeFileInput" className="cursor-pointer space-y-2 block">
-                        <Upload size={32} className="mx-auto text-blue-600 dark:text-blue-400" />
+                        <Upload size={32} className="mx-auto text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7]" />
                         <span className="block text-sm font-bold text-slate-900 dark:text-white">
                           Click to browse PDF or Word DOCX
                         </span>
@@ -1123,7 +1123,7 @@ export function ResumeMaker() {
                       <button
                         type="submit"
                         disabled={analyzingFile}
-                        className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all disabled:opacity-50"
+                        className="btn-render-sweep inline-flex items-center gap-2 px-5 py-2 rounded-none bg-[#6542C5] dark:bg-[#B59AF7] text-white dark:text-[#141217] text-xs font-bold disabled:opacity-50"
                       >
                         {analyzingFile ? (
                           <>
@@ -1142,7 +1142,7 @@ export function ResumeMaker() {
                     {/* Score Bar */}
                     <div className="grid grid-cols-3 gap-3 p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl text-center">
                       <div>
-                        <span className="text-2xl font-bold text-blue-600">{analysisResult.scores?.overall}/100</span>
+                        <span className="text-2xl font-bold text-[#6542C5] dark:text-[#B59AF7]">{analysisResult.scores?.overall}/100</span>
                         <p className="text-slate-500 font-semibold">Overall Quality</p>
                       </div>
                       <div>
@@ -1156,7 +1156,7 @@ export function ResumeMaker() {
                     </div>
 
                     {/* Feedback summary */}
-                    <div className="p-3 bg-blue-50 dark:bg-blue-950/40 rounded-xl text-blue-900 dark:text-blue-200">
+                    <div className="p-3 bg-[#F5F3FD] dark:bg-[#B59AF7]/10 dark:bg-blue-950/40 rounded-xl text-blue-900 dark:text-blue-200">
                       <p className="font-bold mb-1">Executive Summary:</p>
                       <p>{analysisResult.explanations?.overallFeedback}</p>
                     </div>
@@ -1192,7 +1192,7 @@ export function ResumeMaker() {
                           setUploadModalOpen(false);
                           showToast('Audit improvements loaded into editor!', 'success');
                         }}
-                        className="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-700"
+                        className="btn-render-sweep px-4 py-2 rounded-none bg-[#6542C5] dark:bg-[#B59AF7] text-white dark:text-[#141217] font-bold text-xs"
                       >
                         Apply Fixes to Editor
                       </button>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import {
   AlertCircle,
   AlertTriangle,
@@ -108,8 +108,8 @@ export function AnalysisResults({
       case 'low':
       default:
         return (
-          <span className="px-2 py-0.5 rounded text-[11px] font-semibold uppercase bg-blue-100 text-blue-800 dark:bg-blue-950/70 dark:text-blue-300 border border-blue-200 dark:border-blue-800 flex items-center gap-1">
-            <Info className="w-3 h-3 text-blue-600" /> Low
+          <span className="px-2 py-0.5 rounded text-[11px] font-semibold uppercase bg-blue-100 text-blue-800 dark:bg-blue-950/70 dark:text-blue-300 border border-[#C8B8F5] dark:border-[#B59AF7]/20 dark:border-blue-800 flex items-center gap-1">
+            <Info className="w-3 h-3 text-[#6542C5] dark:text-[#B59AF7]" /> Low
           </span>
         );
     }
@@ -120,7 +120,7 @@ export function AnalysisResults({
       {/* Code Summary Card */}
       <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 shadow-xs">
         <div className="flex items-center gap-2 mb-2">
-          <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          <Sparkles className="w-4 h-4 text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7]" />
           <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider">
             Analysis Overview
           </h3>
@@ -231,7 +231,7 @@ export function AnalysisResults({
                           });
                         }}
                         disabled={isExplaining}
-                        className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium px-2 py-1 rounded bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-900"
+                        className="text-xs text-[#6542C5] dark:text-[#B59AF7] hover:text-blue-700 dark:text-[#B59AF7] dark:hover:text-blue-300 font-medium px-2 py-1 rounded bg-[#F5F3FD] dark:bg-[#B59AF7]/10 dark:bg-blue-950/60 border border-[#C8B8F5] dark:border-[#B59AF7]/20 dark:border-blue-900"
                       >
                         Explain Line
                       </button>
@@ -244,7 +244,7 @@ export function AnalysisResults({
                   </div>
 
                   {isExpanded && (
-                    <div className="mt-3 pl-2 sm:pl-4 border-l-2 border-blue-500 space-y-3 pt-2 text-xs">
+                    <div className="mt-3 pl-2 sm:pl-4 border-l-2 border-[#6542C5] dark:border-[#B59AF7] space-y-3 pt-2 text-xs">
                       <div>
                         <span className="font-semibold text-gray-700 dark:text-slate-300 block mb-1">
                           Why this happens:
@@ -335,7 +335,7 @@ export function AnalysisResults({
         {/* Line-by-Line Breakdown */}
         <div className="md:col-span-7 rounded-2xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-4 shadow-xs">
           <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-            <Info className="w-4 h-4 text-blue-500" /> Line-by-Line Guide
+            <Info className="w-4 h-4 text-[#6542C5] dark:text-[#B59AF7]" /> Line-by-Line Guide
           </h4>
           <div className="space-y-2 max-h-[280px] overflow-auto pr-1">
             {lineByLineExplanation.map((item, i) => (
@@ -344,7 +344,7 @@ export function AnalysisResults({
                 onClick={() => onLineClick?.(item.line)}
                 className="p-2 rounded-lg bg-gray-50 dark:bg-slate-800/50 hover:bg-gray-100 dark:hover:bg-slate-800 border border-gray-200/60 dark:border-slate-800 flex items-start gap-3 cursor-pointer text-xs"
               >
-                <span className="font-mono font-bold text-blue-600 dark:text-blue-400 shrink-0">
+                <span className="font-mono font-bold text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7] shrink-0">
                   L{item.line}
                 </span>
                 <p className="text-gray-700 dark:text-slate-300 leading-relaxed font-sans">

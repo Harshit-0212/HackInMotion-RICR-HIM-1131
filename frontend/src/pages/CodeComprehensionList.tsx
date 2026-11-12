@@ -154,7 +154,7 @@ export function CodeComprehensionList() {
             value={completedCount}
             subtitle={items.length ? `${Math.round((completedCount / items.length) * 100)}% verified` : '0%'}
             badge={completedCount > 0 ? 'Progress' : undefined}
-            icon={<CheckCircle2 size={18} className="text-blue-600 dark:text-blue-400" />}
+            icon={<CheckCircle2 size={18} className="text-[#6542C5] dark:text-[#B59AF7]" />}
           />
           <MetricCard
             label="Available Now"
@@ -171,7 +171,7 @@ export function CodeComprehensionList() {
               onClick={() => setFilter('all')}
               className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
                 filter === 'all'
-                  ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300'
+                  ? 'bg-[#6542C5]/10 text-[#6542C5] dark:bg-[#B59AF7]/20 dark:text-[#B59AF7]'
                   : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
               }`}
             >
@@ -181,7 +181,7 @@ export function CodeComprehensionList() {
               onClick={() => setFilter('unlocked')}
               className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
                 filter === 'unlocked'
-                  ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300'
+                  ? 'bg-[#6542C5]/10 text-[#6542C5] dark:bg-[#B59AF7]/20 dark:text-[#B59AF7]'
                   : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
               }`}
             >
@@ -191,7 +191,7 @@ export function CodeComprehensionList() {
               onClick={() => setFilter('completed')}
               className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
                 filter === 'completed'
-                  ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300'
+                  ? 'bg-[#6542C5]/10 text-[#6542C5] dark:bg-[#B59AF7]/20 dark:text-[#B59AF7]'
                   : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
               }`}
             >
@@ -245,7 +245,7 @@ export function CodeComprehensionList() {
                           ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300'
                           : item.isLocked
                           ? 'border-slate-200 bg-slate-100 text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500'
-                          : 'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/50 dark:bg-blue-950/40 dark:text-blue-300'
+                          : 'border-[#6542C5]/30 bg-[#F5F3FD] text-[#6542C5] dark:border-[#B59AF7]/30 dark:bg-[#B59AF7]/10 dark:text-[#B59AF7]'
                       }`}
                     >
                       {item.isCompleted ? (
@@ -262,7 +262,7 @@ export function CodeComprehensionList() {
                         <span className="inline-flex items-center rounded-md bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-[10px] font-mono font-bold text-slate-700 dark:text-slate-300">
                           {lang}
                         </span>
-                        <span className="inline-flex items-center rounded-md bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 text-[10px] font-semibold text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-900/60">
+                        <span className="inline-flex items-center rounded-none bg-[#F5F3FD] dark:bg-[#B59AF7]/10 px-2 py-0.5 text-[10px] font-mono font-semibold text-[#6542C5] dark:text-[#B59AF7] border border-[#6542C5]/20 dark:border-[#B59AF7]/30">
                           {formatExerciseType(item.activity.type)}
                         </span>
                         <span className="text-xs text-slate-400 dark:text-slate-500 truncate">
@@ -298,7 +298,7 @@ export function CodeComprehensionList() {
                         className={`inline-flex h-8 items-center gap-1.5 rounded-lg px-3.5 text-xs font-bold transition-colors ${
                           item.isCompleted
                             ? 'border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60'
-                            : 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
+                            : 'btn-render-sweep bg-[#6542C5] dark:bg-[#B59AF7] text-white dark:text-[#141217] shadow-xs rounded-none'
                         }`}
                       >
                         {item.isCompleted ? 'Review Drill' : 'Start Drill'}

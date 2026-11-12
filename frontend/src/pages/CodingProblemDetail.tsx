@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   ChevronLeft,
@@ -459,7 +459,7 @@ export function CodingProblemDetail() {
               <button
                 type="button"
                 onClick={loadProblem}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-colors"
+                className="btn-render-sweep inline-flex items-center gap-1.5 px-4 py-2 rounded-none bg-[#6542C5] dark:bg-[#B59AF7] text-white dark:text-[#141217] text-xs font-semibold shadow-xs"
               >
                 <RefreshCw className="w-3.5 h-3.5" /> Retry Loading
               </button>
@@ -551,7 +551,7 @@ export function CodingProblemDetail() {
                 onClick={() => setActiveMobileTab('problem')}
                 className={`px-2.5 py-1 rounded-md transition-colors ${
                   activeMobileTab === 'problem'
-                    ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
+                    ? 'bg-white dark:bg-slate-900 text-[#6542C5] dark:text-[#B59AF7] shadow-xs'
                     : 'text-gray-600 dark:text-slate-400'
                 }`}
               >
@@ -562,7 +562,7 @@ export function CodingProblemDetail() {
                 onClick={() => setActiveMobileTab('code')}
                 className={`px-2.5 py-1 rounded-md transition-colors ${
                   activeMobileTab === 'code'
-                    ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
+                    ? 'bg-white dark:bg-slate-900 text-[#6542C5] dark:text-[#B59AF7] shadow-xs'
                     : 'text-gray-600 dark:text-slate-400'
                 }`}
               >
@@ -587,7 +587,7 @@ export function CodingProblemDetail() {
               disabled={isRunDisabled}
               onClick={handleRunCode}
               title="Compile & execute code with custom input"
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold text-xs transition-colors shadow-xs"
+              className="btn-render-sweep flex items-center gap-1.5 px-3.5 py-1.5 rounded-none bg-[#6542C5] dark:bg-[#B59AF7] text-white dark:text-[#141217] disabled:opacity-50 font-semibold text-xs shadow-xs"
             >
               <Play className={`w-3.5 h-3.5 ${isRunning ? 'animate-spin' : 'fill-white'}`} />
               <span>{isRunning ? 'Running…' : 'Run Code'}</span>
@@ -634,7 +634,7 @@ export function CodingProblemDetail() {
                   onClick={() => setProblemTab('description')}
                   className={`px-3 py-1 rounded-md font-semibold text-xs transition-colors flex items-center gap-1.5 ${
                     problemTab === 'description'
-                      ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-xs'
+                      ? 'bg-white dark:bg-slate-900 text-[#6542C5] dark:text-[#B59AF7] shadow-xs'
                       : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
@@ -732,7 +732,7 @@ export function CodingProblemDetail() {
                             <button
                               type="button"
                               onClick={() => handleLoadSample(sc.input)}
-                              className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline"
+                              className="text-[11px] text-[#6542C5] dark:text-[#B59AF7] hover:underline"
                             >
                               Use as Input
                             </button>
@@ -836,11 +836,11 @@ export function CodingProblemDetail() {
               if (e.key === 'ArrowLeft') setHSplit((v) => Math.max(25, v - 2));
               if (e.key === 'ArrowRight') setHSplit((v) => Math.min(65, v + 2));
             }}
-            className={`hidden lg:flex w-2 shrink-0 cursor-col-resize items-center justify-center bg-gray-100 dark:bg-slate-900 hover:bg-blue-500/20 active:bg-blue-500/40 transition-colors z-10 group select-none ${
-              isDraggingH ? 'bg-blue-500/40 ring-1 ring-blue-500' : ''
+            className={`hidden lg:flex w-2 shrink-0 cursor-col-resize items-center justify-center bg-gray-100 dark:bg-slate-900 hover:bg-[#6542C5]/20 active:bg-[#6542C5]/40 transition-colors z-10 group select-none ${
+              isDraggingH ? 'bg-[#6542C5]/40 ring-1 ring-[#6542C5]' : ''
             }`}
           >
-            <div className="h-8 w-1 rounded-full bg-gray-300 dark:bg-slate-700 group-hover:bg-blue-500 transition-colors" />
+            <div className="h-8 w-1 rounded-full bg-gray-300 dark:bg-slate-700 group-hover:bg-[#6542C5] dark:group-hover:bg-[#B59AF7] transition-colors" />
           </div>
 
           {/* ===============================================================
@@ -860,7 +860,7 @@ export function CodingProblemDetail() {
 
                 {isLoadingCaps ? (
                   <div className="flex items-center gap-1.5 text-xs text-slate-400 bg-slate-800 border border-slate-700 px-2 py-0.5 rounded-md">
-                    <Loader2 className="w-3 h-3 animate-spin text-blue-400" />
+                    <Loader2 className="w-3 h-3 animate-spin text-[#B59AF7]" />
                     <span className="text-[11px]">Loading languages…</span>
                   </div>
                 ) : capsError && availableLanguages.length === 0 ? (
@@ -918,7 +918,7 @@ export function CodingProblemDetail() {
               {/* Switching language template indicator */}
               {isSwitchingLang && (
                 <div className="absolute inset-0 z-10 bg-slate-950/70 backdrop-blur-2xs flex items-center justify-center gap-2 text-xs text-slate-300">
-                  <Loader2 className="w-4 h-4 animate-spin text-blue-400" />
+                  <Loader2 className="w-4 h-4 animate-spin text-[#B59AF7]" />
                   <span>Loading starter template…</span>
                 </div>
               )}
@@ -946,7 +946,7 @@ export function CodingProblemDetail() {
                     ? 'Type or paste your code here...'
                     : 'Select a language above to start coding...'
                 }
-                className="w-full h-full p-3 bg-transparent text-slate-100 font-mono text-xs leading-relaxed focus:outline-none resize-none selection:bg-blue-600/40 overflow-auto whitespace-pre"
+                className="w-full h-full p-3 bg-transparent text-slate-100 font-mono text-xs leading-relaxed focus:outline-none resize-none selection:bg-[#6542C5]/40 overflow-auto whitespace-pre"
                 spellCheck={false}
               />
             </div>
@@ -962,11 +962,11 @@ export function CodingProblemDetail() {
                 if (e.key === 'ArrowUp') setVSplit((v) => Math.min(60, v + 2));
                 if (e.key === 'ArrowDown') setVSplit((v) => Math.max(15, v - 2));
               }}
-              className={`h-2 shrink-0 cursor-row-resize flex items-center justify-center bg-slate-900 border-y border-slate-800 hover:bg-blue-500/20 active:bg-blue-500/40 transition-colors z-10 group select-none ${
-                isDraggingV ? 'bg-blue-500/40' : ''
+              className={`h-2 shrink-0 cursor-row-resize flex items-center justify-center bg-slate-900 border-y border-slate-800 hover:bg-[#6542C5]/20 active:bg-[#6542C5]/40 transition-colors z-10 group select-none ${
+                isDraggingV ? 'bg-[#6542C5]/40' : ''
               }`}
             >
-              <div className="w-8 h-1 rounded-full bg-slate-700 group-hover:bg-blue-500 transition-colors" />
+              <div className="w-8 h-1 rounded-full bg-slate-700 group-hover:bg-[#B59AF7] transition-colors" />
             </div>
 
             {/* 4. Bottom Console (Custom Input, Output, Submission Status) */}
@@ -988,7 +988,7 @@ export function CodingProblemDetail() {
                     }}
                     className={`px-2.5 py-1 rounded font-semibold text-[11px] transition-colors ${
                       activeConsoleTab === 'input' && !isConsoleCollapsed
-                        ? 'bg-slate-800 text-blue-400'
+                        ? 'bg-slate-800 text-[#B59AF7]'
                         : 'text-slate-400 hover:text-slate-200'
                     }`}
                   >
@@ -1003,7 +1003,7 @@ export function CodingProblemDetail() {
                     }}
                     className={`px-2.5 py-1 rounded font-semibold text-[11px] transition-colors flex items-center gap-1.5 ${
                       activeConsoleTab === 'output' && !isConsoleCollapsed
-                        ? 'bg-slate-800 text-blue-400'
+                        ? 'bg-slate-800 text-[#B59AF7]'
                         : 'text-slate-400 hover:text-slate-200'
                     }`}
                   >
@@ -1102,7 +1102,7 @@ export function CodingProblemDetail() {
                   {activeConsoleTab === 'output' && (
                     <div className="space-y-3 font-mono">
                       {isRunning ? (
-                        <div className="flex items-center gap-2 text-xs text-blue-400 py-3">
+                        <div className="flex items-center gap-2 text-xs text-[#B59AF7] py-3">
                           <Loader2 className="w-4 h-4 animate-spin" />
                           <span>Running your code in execution sandbox...</span>
                         </div>
@@ -1280,7 +1280,7 @@ export function CodingProblemDetail() {
                         </div>
                       ) : (
                         <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-800/80 border border-slate-700/80">
-                          <Info className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                          <Info className="w-4 h-4 text-[#B59AF7] shrink-0 mt-0.5" />
                           <div className="space-y-1 text-xs">
                             <h4 className="font-semibold text-slate-200">Server-Side Judging Ready</h4>
                             <p className="text-[11px] text-slate-400 leading-relaxed">

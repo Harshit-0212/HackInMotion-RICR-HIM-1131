@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
+﻿import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Lock, Eye, EyeOff, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -97,9 +97,9 @@ export function ResetPassword() {
       {checkingToken ? (
         <div className="flex items-center justify-center py-8">
           <span className="flex gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-primary-400 animate-bounce" />
-            <span className="h-2 w-2 rounded-full bg-primary-400 animate-bounce" style={{ animationDelay: '0.15s' }} />
-            <span className="h-2 w-2 rounded-full bg-primary-400 animate-bounce" style={{ animationDelay: '0.3s' }} />
+            <span className="h-2 w-2 rounded-full bg-[#B59AF7] animate-bounce" />
+            <span className="h-2 w-2 rounded-full bg-[#B59AF7] animate-bounce" style={{ animationDelay: '0.15s' }} />
+            <span className="h-2 w-2 rounded-full bg-[#B59AF7] animate-bounce" style={{ animationDelay: '0.3s' }} />
           </span>
         </div>
       ) : !tokenValid ? (
@@ -129,9 +129,9 @@ export function ResetPassword() {
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.4 }}
-          className="rounded-2xl border border-primary-500/20 bg-primary-500/5 p-6 text-center backdrop-blur-md"
+          className="rounded-2xl border border-[#6542C5]/20 bg-[#6542C5]/5 p-6 text-center backdrop-blur-md"
         >
-          <CheckCircle2 size={36} className="mx-auto text-primary-400 animate-pulse" />
+          <CheckCircle2 size={36} className="mx-auto text-[#B59AF7] animate-pulse" />
           <h3 className="mt-3 font-display text-lg font-bold text-white">Password updated</h3>
           <p className="mt-2 text-xs text-ink-300 leading-relaxed">Redirecting you to sign in...</p>
         </motion.div>
@@ -208,7 +208,7 @@ export function ResetPassword() {
             whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={loading}
-            className="relative w-full h-11 rounded-xl bg-gradient-to-r from-primary-500 via-violet-500 to-accent-500 text-sm font-bold text-white overflow-hidden shadow-glow flex items-center justify-center gap-1.5 transition-all duration-300 disabled:opacity-50"
+            className="relative w-full h-11 rounded-xl bg-gradient-to-r from-[#6542C5] via-violet-500 to-accent-500 text-sm font-bold text-white overflow-hidden shadow-glow flex items-center justify-center gap-1.5 transition-all duration-300 disabled:opacity-50"
           >
             <motion.div
               className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full"

@@ -13,6 +13,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@radix-ui/colors": "^3.0.0",
     "@supabase/supabase-js": "^2.57.4",
     "@xyflow/react": "^12.12.0",
     "framer-motion": "^13.1.0",

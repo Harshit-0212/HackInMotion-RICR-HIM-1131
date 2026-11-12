@@ -4,9 +4,9 @@ type Tone = 'primary' | 'accent' | 'success' | 'warning' | 'error' | 'neutral';
 
 const TONES: Record<Tone, string> = {
   primary:
-    'bg-primary-50 text-primary-700 border-primary-200 dark:bg-primary-900/40 dark:text-primary-200 dark:border-primary-800',
+    'bg-[#F5F3FD] text-[#6542C5] border-[#C8B8F5] dark:bg-[#B59AF7]/15 dark:text-[#B59AF7] dark:border-[#B59AF7]/30',
   accent:
-    'bg-accent-50 text-accent-700 border-accent-200 dark:bg-accent-900/40 dark:text-accent-200 dark:border-accent-800',
+    'bg-[#FDF6F0] text-[#D7713A] border-[#F2B38C]/50 dark:bg-[#F2B38C]/15 dark:text-[#F2B38C] dark:border-[#F2B38C]/30',
   success:
     'bg-success-50 text-success-700 border-success-200 dark:bg-success-700/20 dark:text-success-200 dark:border-success-700',
   warning:

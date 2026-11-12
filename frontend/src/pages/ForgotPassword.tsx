@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+﻿import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, CheckCircle2, ArrowLeft, AlertCircle, Copy } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -63,12 +63,12 @@ export function ForgotPassword() {
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.4 }}
-          className="rounded-2xl border border-primary-500/20 bg-primary-500/5 p-6 text-center backdrop-blur-md"
+          className="rounded-2xl border border-[#6542C5]/20 bg-[#6542C5]/5 p-6 text-center backdrop-blur-md"
         >
-          <CheckCircle2 size={36} className="mx-auto text-primary-400 animate-pulse" />
+          <CheckCircle2 size={36} className="mx-auto text-[#B59AF7] animate-pulse" />
           <h3 className="mt-3 font-display text-lg font-bold text-white">Check your inbox</h3>
           <p className="mt-2 text-xs text-ink-300 leading-relaxed">
-            If an account exists for <span className="font-semibold text-primary-300">{email}</span>, a reset link is on
+            If an account exists for <span className="font-semibold text-[#B59AF7]">{email}</span>, a reset link is on
             its way.
           </p>
 
@@ -80,7 +80,7 @@ export function ForgotPassword() {
               <div className="mt-2 flex items-center gap-2">
                 <a
                   href={devResetUrl}
-                  className="flex-1 truncate text-xs font-medium text-primary-300 underline underline-offset-2 hover:text-primary-200"
+                  className="flex-1 truncate text-xs font-medium text-[#B59AF7] underline underline-offset-2 hover:text-primary-200"
                 >
                   {devResetUrl}
                 </a>
@@ -93,7 +93,7 @@ export function ForgotPassword() {
                   <Copy size={14} />
                 </button>
               </div>
-              {copied && <p className="mt-1 text-[10px] font-semibold text-primary-300">Copied!</p>}
+              {copied && <p className="mt-1 text-[10px] font-semibold text-[#B59AF7]">Copied!</p>}
             </div>
           )}
 
@@ -139,7 +139,7 @@ export function ForgotPassword() {
             whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={loading}
-            className="relative w-full h-11 rounded-xl bg-gradient-to-r from-primary-500 via-violet-500 to-accent-500 text-sm font-bold text-white overflow-hidden shadow-glow flex items-center justify-center gap-1.5 transition-all duration-300 disabled:opacity-50"
+            className="relative w-full h-11 rounded-xl bg-gradient-to-r from-[#6542C5] via-violet-500 to-accent-500 text-sm font-bold text-white overflow-hidden shadow-glow flex items-center justify-center gap-1.5 transition-all duration-300 disabled:opacity-50"
           >
             {/* Shine Sweep Overlay */}
             <motion.div

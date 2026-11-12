@@ -1,4 +1,4 @@
-/**
+﻿/**
  * StageCheckpoint.tsx — Graded Checkpoint Assessment page.
  *
  * Requirements:
@@ -103,7 +103,7 @@ export function StageCheckpoint() {
     return (
       <AppLayout focusMode>
         <div className="h-screen flex flex-col items-center justify-center gap-3">
-          <Loader2 size={32} className="animate-spin text-primary-600" />
+          <Loader2 size={32} className="animate-spin text-[#6542C5]" />
           <p className="text-sm text-ink-500">Preparing checkpoint assessment…</p>
         </div>
       </AppLayout>
@@ -317,7 +317,7 @@ export function StageCheckpoint() {
 
             <div className="h-1.5 w-full bg-ink-200 dark:bg-ink-800 rounded-full overflow-hidden">
               <div
-                className="h-full bg-primary-600 transition-all duration-300"
+                className="h-full bg-[#6542C5] transition-all duration-300"
                 style={{ width: `${((currentIdx + 1) / questions.length) * 100}%` }}
               />
             </div>
@@ -348,7 +348,7 @@ export function StageCheckpoint() {
                         onClick={() => handleSelectOption(currentQ.id, opt.id)}
                         className={`w-full text-left p-4 rounded-xl border text-sm font-medium transition-all duration-150 flex items-center justify-between ${
                           isSelected
-                            ? 'border-primary-500 bg-primary-50/50 text-primary-900 dark:bg-primary-900/20 dark:text-primary-100 ring-2 ring-primary-500/20'
+                            ? 'border-[#6542C5] bg-primary-50/50 text-primary-900 dark:bg-primary-900/20 dark:text-primary-100 ring-2 ring-primary-500/20'
                             : 'border-ink-200 hover:border-ink-300 dark:border-ink-800 dark:hover:border-ink-700 text-ink-800 dark:text-ink-200'
                         }`}
                       >
@@ -356,7 +356,7 @@ export function StageCheckpoint() {
                         <div
                           className={`h-4 w-4 rounded-full border flex items-center justify-center ${
                             isSelected
-                              ? 'border-primary-600 bg-primary-600 text-white'
+                              ? 'border-primary-600 bg-[#6542C5] text-white'
                               : 'border-ink-300 dark:border-ink-600'
                           }`}
                         >
@@ -373,7 +373,7 @@ export function StageCheckpoint() {
             {attempt.codingTasks.length > 0 && (
               <div className="rounded-xl border border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 p-4 flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
-                  <Code size={16} className="text-primary-600" />
+                  <Code size={16} className="text-[#6542C5]" />
                   <span className="font-semibold text-ink-800 dark:text-ink-200">
                     Coding Challenge required: {attempt.codingTasks.map((t) => t.title).join(', ')}
                   </span>

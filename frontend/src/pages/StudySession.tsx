@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -67,7 +67,7 @@ export function StudySession() {
         <div className="p-4 sm:p-6 lg:p-8">
           <p className="text-ink-500">
             No active session.{' '}
-            <Link to="/app/plan" className="text-primary-600">
+            <Link to="/app/plan" className="text-[#6542C5]">
               Back to plan
             </Link>
           </p>
@@ -136,7 +136,7 @@ export function StudySession() {
               animate={{ opacity: 1, scale: 1 }}
               className="mx-auto max-w-md pt-8 text-center"
             >
-              <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500 to-primary-600 text-white shadow-lift">
+              <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500 to-[#6542C5] text-white shadow-lift">
                 <PartyPopper size={32} />
               </div>
               <h2 className="font-display text-2xl font-bold text-ink-900 dark:text-ink-50">Session Complete!</h2>
@@ -199,7 +199,7 @@ export function StudySession() {
                     <ul className="space-y-1.5 text-sm text-ink-600 dark:text-ink-300">
                       {evaluation.reinforcementActivities.map((a) => (
                         <li key={a} className="flex gap-2">
-                          <span className="text-primary-500">•</span> {a}
+                          <span className="text-[#6542C5]">•</span> {a}
                         </li>
                       ))}
                     </ul>
@@ -237,7 +237,7 @@ export function StudySession() {
               <Card padding="lg">
                 {generatingAssessment || phase === 'evaluating' ? (
                   <div className="flex flex-col items-center justify-center gap-3 py-10 text-center">
-                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#6542C5] border-t-transparent" />
                     <p className="text-sm font-medium text-ink-700 dark:text-ink-200">
                       {phase === 'evaluating'
                         ? 'Evaluating your understanding…'
@@ -268,12 +268,12 @@ export function StudySession() {
                           onClick={() => setAnswers({ ...answers, [currentQ]: opt })}
                           className={`flex w-full items-center gap-3 rounded-xl border p-4 text-left transition ${
                             answers[currentQ] === opt
-                              ? 'border-primary-500 bg-primary-50 dark:border-primary-500 dark:bg-primary-900/30'
+                              ? 'border-[#6542C5] bg-primary-50 dark:border-[#6542C5] dark:bg-primary-900/30'
                               : 'border-ink-200 hover:border-ink-300 dark:border-ink-700'
                           }`}
                         >
                           <div
-                            className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${answers[currentQ] === opt ? 'border-primary-600 bg-primary-600' : 'border-ink-300 dark:border-ink-600'}`}
+                            className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${answers[currentQ] === opt ? 'border-primary-600 bg-[#6542C5]' : 'border-ink-300 dark:border-ink-600'}`}
                           >
                             {answers[currentQ] === opt && <Check size={12} className="text-white" />}
                           </div>
@@ -349,7 +349,7 @@ export function StudySession() {
                       onChange={(e) => setNotes(e.target.value)}
                       placeholder="Optional: paste your notes or a summary of what you covered…"
                       rows={10}
-                      className="w-full rounded-xl border border-ink-200 bg-white p-4 text-sm text-ink-900 placeholder:text-ink-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-50"
+                      className="w-full rounded-xl border border-ink-200 bg-white p-4 text-sm text-ink-900 placeholder:text-ink-400 focus:border-[#6542C5] focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-50"
                     />
                     <Button className="mt-5" fullWidth size="lg" onClick={handleTriggerAssessment}>
                       <Brain size={18} /> Take Knowledge Check Now
@@ -398,7 +398,7 @@ export function StudySession() {
                     className="bg-gradient-to-br from-primary-50 to-accent-50 dark:from-primary-900/30 dark:to-accent-900/30"
                   >
                     <div className="mb-3 flex items-center gap-2">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary-600 to-accent-500 text-white">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#6542C5] to-accent-500 text-white">
                         <Sparkles size={16} />
                       </div>
                       <h3 className="font-display text-sm font-semibold text-ink-900 dark:text-ink-50">AI Tutor</h3>

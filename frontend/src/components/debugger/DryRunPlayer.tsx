@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+﻿import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Play,
   Pause,
@@ -445,7 +445,7 @@ export function DryRunPlayer({
       case 'assignment':
       default:
         return (
-          <span className="px-2 py-0.5 rounded text-[11px] font-semibold uppercase tracking-wider bg-blue-100 text-blue-700 dark:bg-blue-950/70 dark:text-blue-400 border border-blue-200 dark:border-blue-900">
+          <span className="px-2 py-0.5 rounded text-[11px] font-semibold uppercase tracking-wider bg-blue-100 text-blue-700 dark:bg-blue-950/70 dark:text-[#B59AF7] border border-[#C8B8F5] dark:border-[#B59AF7]/20 dark:border-blue-900">
             Assignment
           </span>
         );
@@ -459,7 +459,7 @@ export function DryRunPlayer({
         {/* Step counter & event badge */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 font-mono text-xs font-semibold text-gray-700 dark:text-slate-300 shadow-xs">
-            <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+            <Sparkles className="w-3.5 h-3.5 text-[#6542C5] dark:text-[#B59AF7]" />
             <span>
               Step {currentStepIndex + 1} / {totalSteps}
             </span>
@@ -502,7 +502,7 @@ export function DryRunPlayer({
             className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors shadow-xs ${
               isPlaying
                 ? 'bg-amber-500 hover:bg-amber-600 text-white'
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                : 'bg-[#6542C5] hover:bg-blue-700 text-white'
             }`}
           >
             {isPlaying ? (
@@ -535,7 +535,7 @@ export function DryRunPlayer({
                 onClick={() => handleSpeedChange(s)}
                 className={`px-1.5 py-0.5 rounded text-[11px] font-medium transition-colors ${
                   speed === s
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-[#6542C5] text-white'
                     : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
@@ -554,7 +554,7 @@ export function DryRunPlayer({
               onClick={() => handleLanguageChange('english')}
               className={`flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium transition-colors ${
                 narrationLang === 'english'
-                  ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/80 dark:text-blue-300 font-semibold'
+                  ? 'bg-[#F5F3FD] dark:bg-[#B59AF7]/10 text-blue-700 dark:bg-blue-950/80 dark:text-blue-300 font-semibold'
                   : 'text-gray-600 dark:text-slate-400'
               }`}
             >
@@ -605,7 +605,7 @@ export function DryRunPlayer({
 
       {/* Narration Banner with Live Speaking Indicator */}
       <div className="px-4 py-2.5 bg-gradient-to-r from-blue-50/70 via-indigo-50/40 to-transparent dark:from-blue-950/20 dark:via-indigo-950/10 dark:to-transparent border-b border-gray-200 dark:border-slate-800 flex items-start gap-2.5">
-        <Sparkles className={`w-4 h-4 shrink-0 mt-0.5 ${speaking ? 'text-emerald-500 animate-spin' : 'text-blue-600 dark:text-blue-400'}`} />
+        <Sparkles className={`w-4 h-4 shrink-0 mt-0.5 ${speaking ? 'text-emerald-500 animate-spin' : 'text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7]'}`} />
         <div className="flex-1 text-sm text-gray-800 dark:text-slate-200 leading-relaxed font-sans">
           <span className="font-semibold text-xs text-blue-700 dark:text-blue-300 uppercase tracking-wide mr-2">
             {narrationLang === 'hinglish' ? 'Hinglish Narration:' : 'Narration:'}
@@ -652,7 +652,7 @@ export function DryRunPlayer({
                     isError
                       ? 'bg-rose-900/50 text-rose-100 border-l-4 border-rose-500 font-semibold'
                       : isCurrent
-                        ? 'bg-blue-600/30 text-white border-l-4 border-blue-500 font-semibold'
+                        ? 'bg-[#6542C5]/30 text-white border-l-4 border-[#6542C5] dark:border-[#B59AF7] font-semibold'
                         : 'hover:bg-slate-900/60 text-slate-300'
                   }`}
                 >
@@ -660,7 +660,7 @@ export function DryRunPlayer({
                   <span
                     className={`w-9 shrink-0 text-right pr-3 select-none text-[11px] ${
                       isCurrent
-                        ? 'text-blue-400 font-bold'
+                        ? 'text-[#B59AF7] font-bold'
                         : 'text-slate-600 group-hover:text-slate-400'
                     }`}
                   >
@@ -672,7 +672,7 @@ export function DryRunPlayer({
                     {isError ? (
                       <span className="text-rose-400">✖</span>
                     ) : isCurrent ? (
-                      <span className="text-blue-400 animate-pulse">▶</span>
+                      <span className="text-[#B59AF7] animate-pulse">▶</span>
                     ) : null}
                   </span>
 
@@ -692,7 +692,7 @@ export function DryRunPlayer({
           <div className="p-3 bg-white dark:bg-slate-900">
             <div className="text-[11px] font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-1 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
-                <Info className="w-3.5 h-3.5 text-blue-500" /> Current Action
+                <Info className="w-3.5 h-3.5 text-[#6542C5] dark:text-[#B59AF7]" /> Current Action
               </span>
               <span className="text-[10px] text-gray-400 font-mono">Line {activeLine}</span>
             </div>
@@ -734,7 +734,7 @@ export function DryRunPlayer({
                         key={`${v.name}-${i}`}
                         className="border-b border-gray-50 dark:border-slate-900/60 last:border-none hover:bg-gray-50/80 dark:hover:bg-slate-900/40"
                       >
-                        <td className="py-1 px-2 font-semibold text-blue-600 dark:text-blue-400">
+                        <td className="py-1 px-2 font-semibold text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7]">
                           {v.name}
                         </td>
                         <td className="py-1 px-2 text-emerald-600 dark:text-emerald-400 break-all font-mono">

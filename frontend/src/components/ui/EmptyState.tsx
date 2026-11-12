@@ -1,4 +1,4 @@
-import type { LucideIcon } from 'lucide-react';
+﻿import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 export function EmptyState({
@@ -14,7 +14,7 @@ export function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-ink-200 bg-ink-50/50 px-6 py-12 text-center dark:border-ink-700 dark:bg-ink-900/40">
-      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-50 text-primary-600 dark:bg-primary-900/40 dark:text-primary-300">
+      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-50 text-[#6542C5] dark:bg-primary-900/40 dark:text-[#B59AF7]">
         <Icon size={26} />
       </div>
       <h3 className="font-display text-base font-semibold text-ink-900 dark:text-ink-50">{title}</h3>

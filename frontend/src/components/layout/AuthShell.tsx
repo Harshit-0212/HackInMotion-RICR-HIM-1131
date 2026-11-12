@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+﻿import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
 import { Sparkles, TrendingUp, Brain, Trophy, Flame, Target, Zap, AlertCircle, CheckCircle2 } from 'lucide-react';
@@ -89,7 +89,7 @@ export function AuthShell({
       {/* Cursor tracking glow orb (Desktop only) */}
       <motion.div
         style={{ x: cursorSpringX, y: cursorSpringY }}
-        className="pointer-events-none absolute h-60 w-60 rounded-full bg-gradient-to-br from-primary-500/10 to-accent-500/10 blur-[80px] -z-10 hidden lg:block"
+        className="pointer-events-none absolute h-60 w-60 rounded-full bg-gradient-to-br from-[#6542C5]/10 to-accent-500/10 blur-[80px] -z-10 hidden lg:block"
       />
 
       {/* Main Composition */}
@@ -99,7 +99,7 @@ export function AuthShell({
           {/* Subtle branding title */}
           <div className="absolute top-0 left-0 hidden lg:block">
             <Logo to="/" size="lg" />
-            <span className="mt-3 block text-[9.5px] font-bold tracking-[0.25em] text-primary-400 uppercase">
+            <span className="mt-3 block text-[9.5px] font-bold tracking-[0.25em] text-[#B59AF7] uppercase">
               YOUR LEARNING, REIMAGINED.
             </span>
           </div>
@@ -139,9 +139,9 @@ export function AuthShell({
                   <span
                     className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
                       authState === 'submitting'
-                        ? 'bg-primary-400'
+                        ? 'bg-[#B59AF7]'
                         : authState === 'success'
-                          ? 'bg-aurora-400'
+                          ? 'bg-emerald-400'
                           : authState === 'error'
                             ? 'bg-error-400'
                             : 'bg-accent-400'
@@ -150,9 +150,9 @@ export function AuthShell({
                   <span
                     className={`relative inline-flex rounded-full h-2 w-2 ${
                       authState === 'submitting'
-                        ? 'bg-primary-500'
+                        ? 'bg-[#6542C5]'
                         : authState === 'success'
-                          ? 'bg-aurora-500'
+                          ? 'bg-emerald-500'
                           : authState === 'error'
                             ? 'bg-error-500'
                             : 'bg-accent-500'
@@ -161,7 +161,7 @@ export function AuthShell({
                 </div>
                 <span className="text-[10px] font-bold tracking-wider text-ink-300 uppercase">Nova AI session</span>
               </div>
-              <span className="text-[10.5px] font-semibold text-primary-300">
+              <span className="text-[10.5px] font-semibold text-[#B59AF7]">
                 {authState === 'idle' && 'Your learning environment is ready.'}
                 {authState === 'email-typing' && 'Syncing account profile...'}
                 {authState === 'password-focus' && 'Verifying keys...'}
@@ -199,7 +199,7 @@ export function AuthShell({
 
 export function AuthSwitchLink({ to, label }: { to: string; label: string }) {
   return (
-    <Link to={to} className="font-bold text-primary-400 hover:text-primary-300 transition-colors duration-200">
+    <Link to={to} className="font-bold text-[#B59AF7] hover:text-[#B59AF7] transition-colors duration-200">
       {label}
     </Link>
   );
@@ -217,7 +217,7 @@ function FloatingWidget({ label, icon: Icon, delay }: { label: string; icon: any
       whileHover={{ y: -3, scale: 1.03 }}
       className="flex items-center gap-2 rounded-xl border border-white/5 bg-ink-900/40 px-3 py-1.5 backdrop-blur-md shadow-card pointer-events-auto"
     >
-      <Icon size={12} className="text-primary-300" />
+      <Icon size={12} className="text-[#B59AF7]" />
       <span className="text-[10px] font-bold text-white/80 whitespace-nowrap">{label}</span>
     </motion.div>
   );
@@ -243,9 +243,9 @@ function VisualAICore({ authState }: { authState: AuthState }) {
 
   const topics = [
     { name: 'Dynamic Programming', x: -110, y: -70, color: 'border-coral-400/20 text-coral-300' },
-    { name: 'Graph Algorithms', x: 120, y: -60, color: 'border-primary-400/20 text-primary-300' },
+    { name: 'Graph Algorithms', x: 120, y: -60, color: 'border-[#B59AF7]/20 text-[#B59AF7]' },
     { name: 'Probability & Stats', x: -115, y: 70, color: 'border-accent-400/20 text-accent-300' },
-    { name: 'Arrays & Sorting', x: 110, y: 65, color: 'border-aurora-400/20 text-aurora-300' },
+    { name: 'Arrays & Sorting', x: 110, y: 65, color: 'border-emerald-400/20 text-emerald-300' },
   ];
 
   return (
@@ -258,7 +258,7 @@ function VisualAICore({ authState }: { authState: AuthState }) {
             authState === 'submitting' ? 0.35 : authState === 'success' ? 0.45 : authState === 'error' ? 0.4 : 0.25,
         }}
         className={`absolute h-48 w-48 rounded-full blur-3xl transition-all duration-500 -z-10 ${
-          authState === 'success' ? 'bg-aurora-500' : authState === 'error' ? 'bg-error-500' : 'bg-primary-500'
+          authState === 'success' ? 'bg-emerald-500' : authState === 'error' ? 'bg-error-500' : 'bg-[#6542C5]'
         }`}
       />
 
@@ -286,7 +286,7 @@ function VisualAICore({ authState }: { authState: AuthState }) {
         transition={{ duration: 1.5, repeat: authState === 'submitting' ? Infinity : 0 }}
         className={`relative z-20 flex h-20 w-20 items-center justify-center rounded-full border border-white/20 bg-ink-950/70 p-2 backdrop-blur-md transition-colors duration-500 ${
           authState === 'success'
-            ? 'border-aurora-400/40 text-aurora-300'
+            ? 'border-emerald-400/40 text-emerald-300'
             : authState === 'error'
               ? 'border-error-400/40 text-error-400'
               : 'border-white/20 text-white'
@@ -303,8 +303,8 @@ function VisualAICore({ authState }: { authState: AuthState }) {
               : authState === 'error'
                 ? 'from-error-500 to-pink-600'
                 : authState === 'password-focus'
-                  ? 'from-accent-500 via-violet-500 to-primary-500'
-                  : 'from-primary-500 via-violet-500 to-accent-400'
+                  ? 'from-accent-500 via-violet-500 to-[#6542C5]'
+                  : 'from-[#6542C5] via-violet-500 to-accent-400'
           }`}
         >
           {authState === 'success' ? (
@@ -337,7 +337,7 @@ function VisualAICore({ authState }: { authState: AuthState }) {
             }}
             style={{ x: topic.x, y: topic.y }}
             className={`absolute z-30 rounded-xl border bg-ink-950/85 px-3 py-1.5 text-[9.5px] font-bold backdrop-blur-md shadow-card leading-none transition-all duration-300 ${topic.color} ${
-              authState === 'email-typing' && 'scale-[1.04] border-primary-500/30'
+              authState === 'email-typing' && 'scale-[1.04] border-[#6542C5]/30'
             }`}
           >
             {topic.name}

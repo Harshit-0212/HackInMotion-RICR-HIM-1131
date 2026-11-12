@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Check,
@@ -39,7 +39,7 @@ const TIMES: { id: 'morning' | 'afternoon' | 'evening' | 'night'; label: string 
 const STATUS_CONFIG = {
   completed: { icon: Check, tone: 'success' as const, label: 'Completed', color: 'bg-success-500' },
   'in-progress': { icon: Play, tone: 'accent' as const, label: 'In Progress', color: 'bg-accent-500' },
-  upcoming: { icon: Clock, tone: 'primary' as const, label: 'Upcoming', color: 'bg-primary-500' },
+  upcoming: { icon: Clock, tone: 'primary' as const, label: 'Upcoming', color: 'bg-[#6542C5]' },
   locked: { icon: Lock, tone: 'neutral' as const, label: 'Locked', color: 'bg-ink-300' },
   missed: { icon: AlertTriangle, tone: 'error' as const, label: 'Missed', color: 'bg-error-500' },
 };
@@ -141,7 +141,7 @@ export function StudyPlan() {
             </div>
             <div className="h-2.5 overflow-hidden rounded-full bg-ink-100 dark:bg-ink-800">
               <motion.div
-                className="h-full rounded-full bg-gradient-to-r from-primary-600 to-accent-500"
+                className="h-full rounded-full bg-gradient-to-r from-[#6542C5] to-accent-500"
                 initial={{ width: 0 }}
                 animate={{ width: `${plan.completionPercent}%` }}
                 transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
@@ -245,7 +245,7 @@ function SummaryCard({ icon: Icon, label, value }: { icon: typeof Target; label:
   return (
     <Card padding="sm">
       <div className="flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-50 text-primary-600 dark:bg-primary-900/40 dark:text-primary-300">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-50 text-[#6542C5] dark:bg-primary-900/40 dark:text-[#B59AF7]">
           <Icon size={16} />
         </div>
         <div className="min-w-0">
@@ -330,7 +330,7 @@ function SessionRow({
           <div className="mt-3">
             <div className="h-1.5 overflow-hidden rounded-full bg-ink-100 dark:bg-ink-800">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-primary-600 to-accent-500 transition-all"
+                className="h-full rounded-full bg-gradient-to-r from-[#6542C5] to-accent-500 transition-all"
                 style={{ width: `${(session.conceptsDone / session.conceptsTotal) * 100}%` }}
               />
             </div>
@@ -447,19 +447,19 @@ function CreatePlanForm() {
     return (
       <Card padding="lg" className="max-w-2xl">
         <div className="mb-4 flex items-center gap-2">
-          <Brain size={18} className="text-primary-600" />
+          <Brain size={18} className="text-[#6542C5]" />
           <h3 className="font-display text-lg font-semibold text-ink-900 dark:text-ink-50">Quick diagnostic</h3>
         </div>
         {loadingDiagnostic || !q ? (
           <div className="flex flex-col items-center justify-center gap-3 py-10 text-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#6542C5] border-t-transparent" />
             <p className="text-sm font-medium text-ink-700 dark:text-ink-200">
               Building a diagnostic from your subjects…
             </p>
           </div>
         ) : step === 'diagnosing' ? (
           <div className="flex flex-col items-center justify-center gap-3 py-10 text-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#6542C5] border-t-transparent" />
             <p className="text-sm font-medium text-ink-700 dark:text-ink-200">Evaluating your starting knowledge…</p>
           </div>
         ) : (
@@ -481,7 +481,7 @@ function CreatePlanForm() {
                   onClick={() => setAnswers({ ...answers, [currentQ]: opt })}
                   className={`flex w-full items-center gap-3 rounded-xl border p-3.5 text-left text-sm transition ${
                     answers[currentQ] === opt
-                      ? 'border-primary-500 bg-primary-50 dark:border-primary-500 dark:bg-primary-900/30'
+                      ? 'border-[#6542C5] bg-primary-50 dark:border-[#6542C5] dark:bg-primary-900/30'
                       : 'border-ink-200 hover:border-ink-300 dark:border-ink-700'
                   }`}
                 >
@@ -521,11 +521,11 @@ function CreatePlanForm() {
     return (
       <Card padding="lg" className="max-w-2xl">
         <div className="mb-4 flex items-center gap-2">
-          <Sparkles size={18} className="text-primary-600" />
+          <Sparkles size={18} className="text-[#6542C5]" />
           <h3 className="font-display text-lg font-semibold text-ink-900 dark:text-ink-50">Diagnostic complete</h3>
         </div>
         <div className="rounded-xl border border-primary-200 bg-primary-50 p-4 dark:border-primary-800 dark:bg-primary-900/20">
-          <p className="text-xs font-medium uppercase tracking-wide text-primary-600 dark:text-primary-300">
+          <p className="text-xs font-medium uppercase tracking-wide text-[#6542C5] dark:text-[#B59AF7]">
             AI-assessed level
           </p>
           <p className="mt-1 font-display text-xl font-bold capitalize text-ink-900 dark:text-ink-50">
@@ -618,7 +618,7 @@ function CreatePlanForm() {
                 onClick={() => toggleDay(d)}
                 className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
                   studyDays.includes(d)
-                    ? 'border-primary-500 bg-primary-50 text-primary-700 dark:bg-primary-900/40 dark:text-primary-200'
+                    ? 'border-[#6542C5] bg-primary-50 text-primary-700 dark:bg-primary-900/40 dark:text-primary-200'
                     : 'border-ink-200 text-ink-500 hover:border-ink-300 dark:border-ink-700 dark:text-ink-400'
                 }`}
               >
@@ -638,7 +638,7 @@ function CreatePlanForm() {
                 onClick={() => setPreferredTime(t.id)}
                 className={`rounded-xl border p-2.5 text-sm font-medium transition ${
                   preferredTime === t.id
-                    ? 'border-primary-500 bg-primary-50 text-primary-700 dark:bg-primary-900/40 dark:text-primary-200'
+                    ? 'border-[#6542C5] bg-primary-50 text-primary-700 dark:bg-primary-900/40 dark:text-primary-200'
                     : 'border-ink-200 text-ink-500 hover:border-ink-300 dark:border-ink-700 dark:text-ink-400'
                 }`}
               >

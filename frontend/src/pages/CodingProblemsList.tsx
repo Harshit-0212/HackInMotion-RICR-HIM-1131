@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Code2,
@@ -149,7 +149,7 @@ export function CodingProblemsList() {
             </div>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
+              className="btn-render-sweep px-4 py-2 rounded-none bg-[#6542C5] dark:bg-[#B59AF7] text-white dark:text-[#141217] text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5"
             >
               <Search className="w-3.5 h-3.5" /> Search
             </button>
@@ -213,7 +213,7 @@ export function CodingProblemsList() {
                     setSearch('');
                     setPage(1);
                   }}
-                  className="px-2 py-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                  className="px-2 py-1 text-xs text-[#6542C5] dark:text-[#B59AF7] hover:underline"
                 >
                   Reset
                 </button>
@@ -230,7 +230,7 @@ export function CodingProblemsList() {
         {/* Loading State */}
         {isLoading && (
           <div className="py-16 text-center space-y-3">
-            <Sparkles className="w-8 h-8 text-blue-500 animate-spin mx-auto" />
+            <Sparkles className="w-8 h-8 text-[#6542C5] dark:text-[#B59AF7] animate-spin mx-auto" />
             <p className="text-xs text-gray-500 dark:text-slate-400">Loading published challenges...</p>
           </div>
         )}
@@ -282,7 +282,7 @@ export function CodingProblemsList() {
                     </span>
                   </div>
 
-                  <h3 className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-[#6542C5] dark:group-hover:text-[#B59AF7] transition-colors line-clamp-2">
                     {problem.title}
                   </h3>
 
@@ -315,7 +315,7 @@ export function CodingProblemsList() {
                     </span>
                   </div>
 
-                  <span className="text-blue-600 dark:text-blue-400 font-semibold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                  <span className="text-[#6542C5] dark:text-[#B59AF7] font-semibold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
                     Solve <ArrowRight className="w-3 h-3" />
                   </span>
                 </div>

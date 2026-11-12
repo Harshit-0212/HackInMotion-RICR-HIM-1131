@@ -401,7 +401,7 @@ export function AITutor() {
                     aria-label="Attach a file or photo"
                     className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition ${
                       attachMenuOpen
-                        ? 'border-primary-300 bg-primary-50 text-primary-600 dark:border-primary-700 dark:bg-primary-900/30'
+                        ? 'border-primary-300 bg-primary-50 text-[#6542C5] dark:border-primary-700 dark:bg-primary-900/30'
                         : 'border-ink-200 text-ink-500 hover:bg-ink-100 dark:border-ink-700 dark:hover:bg-ink-800'
                     }`}
                   >
@@ -454,7 +454,7 @@ export function AITutor() {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && send(input)}
                   placeholder={listening ? 'Listening…' : pendingFile ? 'Add a message (optional)…' : 'Ask a question…'}
-                  className="h-11 flex-1 rounded-xl border border-ink-200 bg-white px-4 text-sm text-ink-900 placeholder:text-ink-400 focus:border-primary-500 focus:outline-none dark:border-ink-700 dark:bg-ink-900 dark:text-ink-50"
+                  className="h-11 flex-1 rounded-xl border border-ink-200 bg-white px-4 text-sm text-ink-900 placeholder:text-ink-400 focus:border-[#6542C5] focus:outline-none dark:border-ink-700 dark:bg-ink-900 dark:text-ink-50"
                 />
                 <Button
                   onClick={() => send(input)}
@@ -794,7 +794,7 @@ function CameraCaptureModal({ onCapture, onClose }: { onCapture: (file: File) =>
             <button
               onClick={capture}
               aria-label="Capture photo"
-              className="h-14 w-14 rounded-full border-4 border-ink-200 bg-primary-600 transition hover:bg-primary-700 dark:border-ink-700"
+              className="h-14 w-14 rounded-full border-4 border-ink-200 bg-[#6542C5] transition hover:bg-primary-700 dark:border-ink-700"
             />
           )}
         </div>
@@ -816,7 +816,7 @@ function ChatBubble({ message, onSpeak, speaking }: { message: ChatMessage; onSp
     >
       <div
         className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white ${
-          isUser ? 'bg-primary-600' : 'bg-gradient-to-br from-primary-600 to-accent-500'
+          isUser ? 'bg-[#6542C5]' : 'bg-gradient-to-br from-[#6542C5] to-accent-500'
         }`}
       >
         {isUser ? 'U' : <Sparkles size={14} />}
@@ -824,7 +824,7 @@ function ChatBubble({ message, onSpeak, speaking }: { message: ChatMessage; onSp
       <div
         className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm ${
           isUser
-            ? 'rounded-br-md bg-primary-600 text-white'
+            ? 'rounded-br-md bg-[#6542C5] text-white'
             : 'rounded-tl-md bg-ink-100 text-ink-800 dark:bg-ink-800 dark:text-ink-100'
         }`}
       >
@@ -847,7 +847,7 @@ function ChatBubble({ message, onSpeak, speaking }: { message: ChatMessage; onSp
         {!isUser && message.content && (
           <button
             onClick={onSpeak}
-            className="mt-2 inline-flex items-center gap-1 text-xs text-ink-400 hover:text-primary-500"
+            className="mt-2 inline-flex items-center gap-1 text-xs text-ink-400 hover:text-[#6542C5]"
           >
             <Volume2 size={12} /> {speaking ? 'Speaking…' : 'Listen'}
           </button>
@@ -880,7 +880,7 @@ function VideoEmbed({ video }: { video: NonNullable<ChatMessage['video']> }) {
 function TypingBubble() {
   return (
     <div className="flex gap-3">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-600 to-accent-500 text-white">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#6542C5] to-accent-500 text-white">
         <Sparkles size={14} />
       </div>
       <div className="rounded-2xl rounded-tl-md bg-ink-100 px-4 py-3 dark:bg-ink-800">

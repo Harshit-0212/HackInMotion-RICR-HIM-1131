@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+﻿import { motion } from 'framer-motion';
 import { TrendingUp, Flame, Clock, BookOpen, Target, Calendar, Award } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -175,7 +175,7 @@ function StatCard({
   color: 'primary' | 'warning' | 'accent' | 'success';
 }) {
   const colors = {
-    primary: 'bg-primary-50 text-primary-600 dark:bg-primary-900/40 dark:text-primary-300',
+    primary: 'bg-primary-50 text-[#6542C5] dark:bg-primary-900/40 dark:text-[#B59AF7]',
     warning: 'bg-warning-50 text-warning-600 dark:bg-warning-700/20 dark:text-warning-400',
     accent: 'bg-accent-50 text-accent-600 dark:bg-accent-900/40 dark:text-accent-300',
     success: 'bg-success-50 text-success-600 dark:bg-success-700/20 dark:text-success-400',
@@ -203,7 +203,7 @@ function WeeklyChart({ data }: { data: { day: string; minutes: number }[] }) {
         <div key={d.day} className="flex flex-1 flex-col items-center gap-2">
           <div className="flex w-full flex-1 items-end">
             <motion.div
-              className="w-full rounded-t-lg bg-gradient-to-t from-primary-500 to-accent-400"
+              className="w-full rounded-t-lg bg-gradient-to-t from-[#6542C5] to-accent-400"
               initial={{ height: 0 }}
               animate={{ height: `${(d.minutes / max) * 140}px` }}
               transition={{ duration: 0.8, delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }}

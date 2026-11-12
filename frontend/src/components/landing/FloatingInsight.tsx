@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { motion, useMotionValue, useSpring, useTransform, type MotionValue } from 'framer-motion';
 import { TrendingUp, AlertTriangle, ArrowRight, Flame, Brain } from 'lucide-react';
 
@@ -9,8 +9,8 @@ const INSIGHTS = [
     className: 'left-[-4%] top-[12%] lg:left-[-8%]',
     delay: 0,
     duration: 5,
-    color: 'from-primary-500/25 to-violet-500/20',
-    iconColor: 'text-primary-300',
+    color: 'from-[#6542C5]/25 to-violet-500/20',
+    iconColor: 'text-[#B59AF7]',
   },
   {
     icon: TrendingUp,
@@ -18,7 +18,7 @@ const INSIGHTS = [
     className: 'right-[-4%] top-[6%] lg:right-[-6%]',
     delay: 0.5,
     duration: 6.5,
-    color: 'from-accent-500/25 to-primary-500/20',
+    color: 'from-accent-500/25 to-[#6542C5]/20',
     iconColor: 'text-accent-300',
   },
   {

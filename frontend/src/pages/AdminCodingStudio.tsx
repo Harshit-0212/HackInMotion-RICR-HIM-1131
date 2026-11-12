@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import {
   Code2,
   Plus,
@@ -403,7 +403,7 @@ export function AdminCodingStudio() {
         );
       case 'reviewed':
         return (
-          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold uppercase bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
+          <span className="px-2 py-0.5 rounded-none text-[10px] font-mono font-semibold uppercase bg-[#F5F3FD] text-[#6542C5] dark:bg-[#B59AF7]/10 dark:text-[#B59AF7] border border-[#6542C5]/30 dark:border-[#B59AF7]/30">
             Reviewed
           </span>
         );
@@ -436,7 +436,7 @@ export function AdminCodingStudio() {
             <button
               type="button"
               onClick={() => setIsCreateOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-xs transition-colors"
+              className="btn-render-sweep flex items-center gap-1.5 px-3.5 py-2 rounded-none bg-[#6542C5] dark:bg-[#B59AF7] text-white dark:text-[#141217] text-xs font-semibold shadow-xs"
             >
               <Plus className="w-4 h-4" /> Create Draft Problem
             </button>
@@ -499,7 +499,7 @@ export function AdminCodingStudio() {
 
             {isLoading && (
               <div className="py-12 text-center text-xs text-gray-400">
-                <Sparkles className="w-5 h-5 animate-spin mx-auto mb-2 text-blue-500" />
+                <Sparkles className="w-5 h-5 animate-spin mx-auto mb-2 text-[#6542C5] dark:text-[#B59AF7]" />
                 Loading problems from MongoDB...
               </div>
             )}
@@ -521,7 +521,7 @@ export function AdminCodingStudio() {
                       onClick={() => loadProblemDetail(p._id)}
                       className={`p-3.5 cursor-pointer transition-colors ${
                         isSelected
-                          ? 'bg-blue-50/80 dark:bg-blue-950/40 border-l-4 border-blue-600'
+                          ? 'bg-[#F5F3FD] dark:bg-[#B59AF7]/10 border-l-2 border-[#6542C5] dark:border-[#B59AF7]'
                           : 'hover:bg-gray-50 dark:hover:bg-slate-800/30'
                       }`}
                     >
@@ -533,7 +533,7 @@ export function AdminCodingStudio() {
                       </div>
 
                       <div className="flex items-center gap-2 text-[11px] text-gray-500 dark:text-slate-400">
-                        <span className="font-mono text-blue-600 dark:text-blue-400 uppercase font-semibold">
+                        <span className="font-mono text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7] uppercase font-semibold">
                           {p.difficulty}
                         </span>
                         <span>•</span>
@@ -560,7 +560,7 @@ export function AdminCodingStudio() {
 
             {detailLoading && (
               <div className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-12 text-center text-xs text-gray-400">
-                <Sparkles className="w-6 h-6 animate-spin mx-auto mb-2 text-blue-500" />
+                <Sparkles className="w-6 h-6 animate-spin mx-auto mb-2 text-[#6542C5] dark:text-[#B59AF7]" />
                 Loading problem details and test cases...
               </div>
             )}
@@ -581,7 +581,7 @@ export function AdminCodingStudio() {
                         {selectedDetail.problem.title}
                       </h2>
                       <div className="text-[11px] text-gray-500 dark:text-slate-400">
-                        Slug: <span className="font-mono text-blue-600 dark:text-blue-400">/coding/problems/{selectedDetail.problem.slug}</span>
+                        Slug: <span className="font-mono text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7]">/coding/problems/{selectedDetail.problem.slug}</span>
                       </div>
                     </div>
 
@@ -598,7 +598,7 @@ export function AdminCodingStudio() {
                       <button
                         type="button"
                         onClick={() => setIsReviewOpen(true)}
-                        className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 transition-colors"
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#F5F3FD] dark:bg-[#B59AF7]/10 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-[#C8B8F5] dark:border-[#B59AF7]/20 dark:border-blue-800 hover:bg-blue-100 transition-colors"
                       >
                         Review Problem
                       </button>
@@ -627,9 +627,9 @@ export function AdminCodingStudio() {
 
                   {/* Review Metadata Banner */}
                   {selectedDetail.problem.reviewedAt && (
-                    <div className="p-3 rounded-xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/60 text-xs text-blue-900 dark:text-blue-300 space-y-1">
+                    <div className="p-3 rounded-xl bg-[#F5F3FD] dark:bg-[#B59AF7]/10/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/60 text-xs text-blue-900 dark:text-blue-300 space-y-1">
                       <div className="flex items-center gap-1.5 font-semibold">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7]" />
                         Reviewed Version {selectedDetail.problem.reviewedVersion} by Admin
                       </div>
                       <div className="text-[11px] text-blue-800/80 dark:text-blue-300/80">
@@ -904,7 +904,7 @@ export function AdminCodingStudio() {
                   <button
                     type="submit"
                     disabled={isCreating}
-                    className="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-50"
+                    className="btn-render-sweep px-4 py-2 rounded-none bg-[#6542C5] dark:bg-[#B59AF7] text-white dark:text-[#141217] font-semibold disabled:opacity-50"
                   >
                     {isCreating ? 'Creating...' : 'Save Draft Problem'}
                   </button>
@@ -1056,7 +1056,7 @@ export function AdminCodingStudio() {
                   <button
                     type="submit"
                     disabled={isReviewing}
-                    className="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-50"
+                    className="btn-render-sweep px-4 py-2 rounded-none bg-[#6542C5] dark:bg-[#B59AF7] text-white dark:text-[#141217] font-semibold disabled:opacity-50"
                   >
                     {isReviewing ? 'Saving Review...' : 'Approve Review'}
                   </button>
@@ -1176,7 +1176,7 @@ export function AdminCodingStudio() {
                               }
                             }
                           }}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          className="rounded border-gray-300 text-[#6542C5] dark:text-[#B59AF7] focus:ring-blue-500"
                         />
                         <span className="uppercase font-semibold text-gray-800 dark:text-slate-200">{lang}</span>
                       </label>
@@ -1243,7 +1243,7 @@ export function AdminCodingStudio() {
                   <button
                     type="submit"
                     disabled={isUpdatingProblem}
-                    className="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-50"
+                    className="btn-render-sweep px-4 py-2 rounded-none bg-[#6542C5] dark:bg-[#B59AF7] text-white dark:text-[#141217] font-semibold disabled:opacity-50"
                   >
                     {isUpdatingProblem ? 'Saving...' : 'Save Changes'}
                   </button>

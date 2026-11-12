@@ -141,7 +141,7 @@ export function Landing() {
 
   return (
     <div
-      className={`${theme} relative min-h-screen overflow-x-clip ${isDark ? 'bg-ink-975 text-ink-100' : 'bg-slate-50 text-slate-800'} transition-colors duration-300`}
+      className={`${theme} relative min-h-screen overflow-x-clip ${isDark ? 'bg-[#141217] text-[#F5F0E8]' : 'bg-[#F1EDE6] text-[#211D28]'} transition-colors duration-300`}
     >
       <AnimatedBackground />
       <PublicNav />
@@ -190,12 +190,12 @@ function ScrollyJourney() {
     { num: '05', label: 'Your Path' },
   ];
 
-  const baseBg = isDark ? '#080910' : '#F8FAFC';
-  const glowColor1 = isDark ? 'rgba(99, 102, 241, 0.14)' : 'rgba(37, 99, 235, 0.05)';
-  const glowColor2 = isDark ? 'rgba(139, 92, 246, 0.14)' : 'rgba(37, 99, 235, 0.05)';
-  const glowColor3 = isDark ? 'rgba(34, 211, 238, 0.11)' : 'rgba(37, 99, 235, 0.05)';
-  const glowColor4 = isDark ? 'rgba(6, 182, 212, 0.14)' : 'rgba(37, 99, 235, 0.05)';
-  const glowColor5 = isDark ? 'rgba(99, 102, 241, 0.18)' : 'rgba(37, 99, 235, 0.05)';
+  const baseBg = isDark ? '#141217' : '#F1EDE6';
+  const glowColor1 = isDark ? 'rgba(101, 66, 197, 0.14)' : 'rgba(101, 66, 197, 0.06)';
+  const glowColor2 = isDark ? 'rgba(155, 114, 245, 0.14)' : 'rgba(101, 66, 197, 0.06)';
+  const glowColor3 = isDark ? 'rgba(242, 179, 140, 0.11)' : 'rgba(242, 179, 140, 0.07)';
+  const glowColor4 = isDark ? 'rgba(215, 113, 58, 0.14)' : 'rgba(242, 179, 140, 0.07)';
+  const glowColor5 = isDark ? 'rgba(101, 66, 197, 0.18)' : 'rgba(101, 66, 197, 0.08)';
 
   // Map progress to distinct ambient backgrounds
   const bgOpacity1 = useTransform(smoothProgress, [0, 0.16, 0.2], [1, 1, 0]);
@@ -295,7 +295,7 @@ function ScrollyJourney() {
           <div className="relative w-full lg:col-span-6 flex flex-col justify-center min-h-[180px] md:min-h-[220px] lg:min-h-[400px]">
             {/* Stage 1 */}
             <motion.div style={{ opacity: opacity1, y: y1 }} className="absolute inset-0 flex flex-col justify-center">
-              <span className="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-primary-400">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#6542C5] dark:text-[#B59AF7]">
                 01 — Understand You
               </span>
               <h1 className="font-display text-2xl font-extrabold text-slate-900 dark:text-white mt-2 sm:text-4xl lg:text-5xl leading-tight">
@@ -307,26 +307,26 @@ function ScrollyJourney() {
               </p>
 
               <div className="mt-5 flex flex-wrap gap-2 max-w-md">
-                <span className="rounded-full border border-slate-200 bg-slate-100 dark:border-white/10 dark:bg-white/5 px-2.5 py-0.5 text-xs text-slate-700 dark:text-ink-200">
+                <span className="rounded-none border border-[#D8D0C5] bg-[#E8E1D7] dark:border-white/10 dark:bg-white/5 px-2.5 py-0.5 text-xs text-[#211D28] dark:text-[#D8D0C5]">
                   Strong: Arrays
                 </span>
-                <span className="rounded-full border border-slate-200 bg-slate-100 dark:border-white/10 dark:bg-white/5 px-2.5 py-0.5 text-xs text-slate-700 dark:text-ink-200">
+                <span className="rounded-none border border-[#D8D0C5] bg-[#E8E1D7] dark:border-white/10 dark:bg-white/5 px-2.5 py-0.5 text-xs text-[#211D28] dark:text-[#D8D0C5]">
                   Weak: DP
                 </span>
-                <span className="rounded-full border border-slate-200 bg-slate-100 dark:border-white/10 dark:bg-white/5 px-2.5 py-0.5 text-xs text-slate-700 dark:text-ink-200">
+                <span className="rounded-none border border-[#D8D0C5] bg-[#E8E1D7] dark:border-white/10 dark:bg-white/5 px-2.5 py-0.5 text-xs text-[#211D28] dark:text-[#D8D0C5]">
                   Time: 2 hrs/day
                 </span>
-                <span className="rounded-full border border-slate-200 bg-slate-100 dark:border-white/10 dark:bg-white/5 px-2.5 py-0.5 text-xs text-slate-700 dark:text-ink-200">
+                <span className="rounded-none border border-[#D8D0C5] bg-[#E8E1D7] dark:border-white/10 dark:bg-white/5 px-2.5 py-0.5 text-xs text-[#211D28] dark:text-[#D8D0C5]">
                   Deadline: Oct 15
                 </span>
               </div>
 
               <div className="mt-6 flex items-center gap-2">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#6542C5] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#6542C5]"></span>
                 </span>
-                <motion.span className="text-xs font-semibold text-blue-600 dark:text-primary-300">
+                <motion.span className="text-xs font-semibold text-[#6542C5] dark:text-[#B59AF7]">
                   {stage1Status}
                 </motion.span>
               </div>
@@ -337,7 +337,7 @@ function ScrollyJourney() {
               style={{ opacity: opacity2, y: y2 }}
               className="absolute inset-0 flex flex-col justify-center pointer-events-none"
             >
-              <span className="text-xs font-bold uppercase tracking-widest text-violet-600 dark:text-violet-400">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#6542C5] dark:text-[#B59AF7]">
                 02 — Find Your Weak Spots
               </span>
               <h2 className="font-display text-2xl font-extrabold text-slate-900 dark:text-white mt-2 sm:text-4xl lg:text-5xl leading-tight">
@@ -350,10 +350,10 @@ function ScrollyJourney() {
 
               <div className="mt-6 flex items-center gap-2">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#6542C5] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#6542C5]"></span>
                 </span>
-                <motion.span className="text-xs font-semibold text-violet-600 dark:text-violet-300">
+                <motion.span className="text-xs font-semibold text-[#6542C5] dark:text-[#B59AF7]">
                   {stage2Status}
                 </motion.span>
               </div>
@@ -364,7 +364,7 @@ function ScrollyJourney() {
               style={{ opacity: opacity3, y: y3 }}
               className="absolute inset-0 flex flex-col justify-center pointer-events-none"
             >
-              <span className="text-xs font-bold uppercase tracking-widest text-sky-600 dark:text-accent-400">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#F2B38C] dark:text-[#F2B38C]">
                 03 — Build Your Plan
               </span>
               <h2 className="font-display text-2xl font-extrabold text-slate-900 dark:text-white mt-2 sm:text-4xl lg:text-5xl leading-tight">
@@ -377,10 +377,10 @@ function ScrollyJourney() {
 
               <div className="mt-6 flex items-center gap-2">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F2B38C] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#F2B38C]"></span>
                 </span>
-                <motion.span className="text-xs font-semibold text-sky-600 dark:text-accent-300">
+                <motion.span className="text-xs font-semibold text-[#D7713A] dark:text-[#F2B38C]">
                   {stage3Status}
                 </motion.span>
               </div>
@@ -391,7 +391,7 @@ function ScrollyJourney() {
               style={{ opacity: opacity4, y: y4 }}
               className="absolute inset-0 flex flex-col justify-center pointer-events-none"
             >
-              <span className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-aurora-400">
+              <span className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
                 04 — Learn & Practice
               </span>
               <h2 className="font-display text-2xl font-extrabold text-slate-900 dark:text-white mt-2 sm:text-4xl lg:text-5xl leading-tight">
@@ -404,10 +404,10 @@ function ScrollyJourney() {
 
               <div className="mt-6 flex items-center gap-2">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-aurora-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-aurora-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
-                <motion.span className="text-xs font-semibold text-emerald-600 dark:text-aurora-300">
+                <motion.span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                   {stage4Status}
                 </motion.span>
               </div>
@@ -415,7 +415,7 @@ function ScrollyJourney() {
 
             {/* Stage 5 */}
             <motion.div style={{ opacity: opacity5, y: y5 }} className="absolute inset-0 flex flex-col justify-center">
-              <span className="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-primary-400">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#6542C5] dark:text-[#B59AF7]">
                 05 — Your Path
               </span>
               <h2 className="font-display text-2xl font-extrabold text-slate-900 dark:text-white mt-2 sm:text-4xl lg:text-5xl leading-tight">
@@ -428,7 +428,7 @@ function ScrollyJourney() {
 
               <div className="mt-6 flex flex-wrap gap-3">
                 <Link to="/signup">
-                  <Button size="lg" variant="gradient" className="shadow-glow" magnetic>
+                  <Button size="lg" variant="primary" className="btn-render-sweep-lg">
                     Build My Study Plan <ArrowRight size={18} />
                   </Button>
                 </Link>
@@ -436,7 +436,7 @@ function ScrollyJourney() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="border-slate-200/80 bg-slate-100/50 text-slate-700 hover:bg-slate-200/50 dark:border-white/20 dark:bg-white/5 dark:text-white dark:hover:border-white/30 dark:hover:bg-white/10"
+                    className="border-[#6542C5]/40 bg-transparent text-[#6542C5] hover:border-[#6542C5] dark:border-[#B59AF7]/40 dark:text-[#B59AF7] dark:hover:border-[#B59AF7]"
                   >
                     Explore Demo
                   </Button>
@@ -466,7 +466,7 @@ function Features() {
               <motion.div
                 whileHover={{ rotate: [0, -8, 8, 0], scale: 1.08 }}
                 transition={{ duration: 0.4 }}
-                className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500/10 to-violet-500/10 text-blue-600 dark:from-primary-500/20 dark:to-violet-500/20 dark:text-primary-300"
+                className="mb-4 flex h-11 w-11 items-center justify-center rounded-none bg-[#F5F3FD] dark:bg-[#B59AF7]/10 text-[#6542C5] dark:text-[#B59AF7]"
               >
                 <f.icon size={20} />
               </motion.div>
@@ -492,11 +492,11 @@ function ProgressPreview() {
   ];
 
   const topics = [
-    { t: 'Dynamic Programming', v: 42, color: 'from-coral-500 to-pink-500' },
-    { t: 'Graph Algorithms', v: 58, color: 'from-warning-500 to-coral-500' },
-    { t: 'DBMS', v: 81, color: 'from-aurora-400 to-accent-400' },
-    { t: 'Operating Systems', v: 73, color: 'from-aurora-400 to-primary-400' },
-    { t: 'Computer Networks', v: 67, color: 'from-accent-400 to-violet-400' },
+    { t: 'Dynamic Programming', v: 42, color: 'from-[#D7713A] to-[#F2B38C]' },
+    { t: 'Graph Algorithms', v: 58, color: 'from-[#C05800] to-[#D7713A]' },
+    { t: 'DBMS', v: 81, color: 'from-[#6542C5] to-[#F2B38C]' },
+    { t: 'Operating Systems', v: 73, color: 'from-[#B59AF7] to-[#6542C5]' },
+    { t: 'Computer Networks', v: 67, color: 'from-[#F2B38C] to-[#B59AF7]' },
   ];
 
   return (
@@ -525,7 +525,7 @@ function ProgressPreview() {
               {weekData.map((bar, i) => (
                 <div key={bar.d} className="flex flex-1 flex-col items-center gap-2">
                   <motion.div
-                    className="w-full rounded-t-lg bg-gradient-to-t from-primary-500 via-violet-500 to-accent-400"
+                    className="w-full bg-gradient-to-t from-[#6542C5] via-[#9B72F5] to-[#F2B38C]"
                     initial={{ height: 0 }}
                     whileInView={{ height: `${(bar.h / 2.5) * 140}px` }}
                     viewport={{ once: true }}
@@ -577,7 +577,7 @@ function ProgressPreview() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5 px-4 py-3"
+                  className="flex items-center justify-between rounded-none border border-[#D8D0C5] bg-[#FBF8F2] dark:border-white/10 dark:bg-white/5 px-4 py-3"
                 >
                   <div>
                     <p className="text-xs text-slate-400 dark:text-ink-500">{s.day}</p>
@@ -604,7 +604,7 @@ function AIPreview() {
         <SectionHeading light tag="AI tutor" title="Ask anything. Get a real answer." />
         <RevealItem>
           <div className="relative mx-auto max-w-2xl">
-            <div className="absolute -inset-4 rounded-3xl bg-gradient-to-r from-primary-500/10 via-violet-500/10 to-accent-400/10 dark:from-primary-500/20 dark:to-accent-400/20 blur-2xl" />
+            <div className="absolute -inset-4 bg-gradient-to-r from-[#6542C5]/10 via-[#B59AF7]/10 to-[#F2B38C]/10 dark:from-[#6542C5]/20 dark:to-[#F2B38C]/20 blur-2xl" />
             <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white/90 dark:border-white/10 dark:bg-[#111827]/90 p-6 backdrop-blur-2xl sm:p-8 shadow-sm">
               <div className="space-y-4">
                 <motion.div
@@ -613,7 +613,7 @@ function AIPreview() {
                   viewport={viewportConfig}
                   className="flex justify-end"
                 >
-                  <div className="max-w-[80%] rounded-2xl rounded-br-md bg-gradient-to-r from-primary-600 to-violet-600 px-4 py-3 text-sm text-white">
+                  <div className="max-w-[80%] rounded-none bg-[#6542C5] dark:bg-[#B59AF7] px-4 py-3 text-sm text-white dark:text-[#141217]">
                     Can you explain dynamic programming in simple terms?
                   </div>
                 </motion.div>
@@ -624,10 +624,10 @@ function AIPreview() {
                   transition={{ delay: 0.15 }}
                   className="flex gap-3"
                 >
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 via-violet-500 to-accent-400 text-white">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-none bg-gradient-to-br from-[#6542C5] via-[#9B72F5] to-[#F2B38C] text-white">
                     <Sparkles size={14} />
                   </div>
-                  <div className="max-w-[85%] rounded-2xl rounded-tl-md border border-slate-200/60 bg-slate-50 px-4 py-3 text-sm text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-ink-200">
+                  <div className="max-w-[85%] rounded-none border border-[#D8D0C5] bg-[#FBF8F2] px-4 py-3 text-sm text-[#211D28] dark:border-white/10 dark:bg-white/5 dark:text-[#D8D0C5]">
                     Think of dynamic programming as solving a big problem by remembering solutions to smaller problems
                     you've already solved, instead of recomputing them.
                     <span className="ml-1 inline-flex gap-0.5">
@@ -652,7 +652,7 @@ function AIPreview() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.3 + i * 0.08 }}
-                    className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:border-primary-500/40 hover:bg-primary-50 dark:border-white/15 dark:bg-white/5 dark:text-ink-300 dark:hover:border-primary-400/40 dark:hover:bg-primary-500/10 dark:hover:text-primary-200"
+                    className="rounded-none border border-[#D8D0C5] bg-[#FBF8F2] px-3 py-1.5 text-xs font-medium text-[#211D28] transition hover:border-[#6542C5]/60 hover:bg-[#F5F3FD] dark:border-white/15 dark:bg-white/5 dark:text-[#D8D0C5] dark:hover:border-[#B59AF7]/40 dark:hover:bg-[#B59AF7]/10 dark:hover:text-[#B59AF7]"
                   >
                     {p}
                   </motion.button>
@@ -674,22 +674,22 @@ function Gamification() {
     {
       icon: Flame,
       title: '7 Day Streak',
-      color: isDark ? 'text-coral-400 bg-coral-500/15' : 'text-[#C05800] bg-[#C05800]/10',
+      color: isDark ? 'text-[#F2B38C] bg-[#F2B38C]/15' : 'text-[#C05800] bg-[#C05800]/10',
     },
     {
       icon: Target,
       title: 'First Goal',
-      color: isDark ? 'text-primary-300 bg-primary-500/15' : 'text-[var(--nova-primary)] bg-[var(--nova-primary-soft)]',
+      color: isDark ? 'text-[#B59AF7] bg-[#6542C5]/15' : 'text-[#6542C5] bg-[#F5F3FD]',
     },
     {
       icon: Brain,
       title: 'Quiz Master',
-      color: isDark ? 'text-accent-300 bg-accent-500/15' : 'text-sky-600 bg-sky-50',
+      color: isDark ? 'text-accent-300 bg-accent-500/15' : 'text-[#6542C5] bg-[#F5F3FD]',
     },
     {
       icon: BookOpen,
       title: '10 Topics',
-      color: isDark ? 'text-aurora-400 bg-aurora-500/15' : 'text-emerald-600 bg-emerald-50',
+      color: isDark ? 'text-emerald-400 bg-emerald-500/15' : 'text-emerald-600 bg-emerald-50',
     },
     {
       icon: Zap,
@@ -699,7 +699,7 @@ function Gamification() {
     {
       icon: Trophy,
       title: 'Comeback Kid',
-      color: isDark ? 'text-coral-400 bg-coral-500/15' : 'text-[#C05800] bg-[#C05800]/10',
+      color: isDark ? 'text-[#F2B38C] bg-[#F2B38C]/15' : 'text-[#C05800] bg-[#C05800]/10',
     },
   ];
 
@@ -714,7 +714,7 @@ function Gamification() {
               value: 7,
               suffix: ' days',
               label: 'Current streak — keep it alive!',
-              color: isDark ? 'text-coral-400 bg-coral-500/15' : 'text-[#C05800] bg-[#C05800]/10',
+              color: isDark ? 'text-[#F2B38C] bg-[#F2B38C]/15' : 'text-[#C05800] bg-[#C05800]/10',
             },
             {
               icon: Zap,
@@ -722,20 +722,20 @@ function Gamification() {
               suffix: ' XP',
               label: 'Level 6 · 550 XP to level 7',
               color: isDark
-                ? 'text-primary-300 bg-primary-500/15'
-                : 'text-[var(--nova-primary)] bg-[var(--nova-primary-soft)]',
+                ? 'text-[#B59AF7] bg-[#6542C5]/15'
+                : 'text-[#6542C5] bg-[#F5F3FD]',
             },
             {
               icon: Trophy,
               value: 2,
               suffix: '/6 unlocked',
               label: 'Achievements earned',
-              color: isDark ? 'text-accent-300 bg-accent-500/15' : 'text-sky-600 bg-sky-50',
+              color: isDark ? 'text-accent-300 bg-accent-500/15' : 'text-[#6542C5] bg-[#F5F3FD]',
               extra: true,
             },
           ].map((stat) => (
             <PremiumCard key={stat.label} glow className="flex items-center gap-4 p-5">
-              <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${stat.color}`}>
+              <div className={`flex h-14 w-14 items-center justify-center rounded-none ${stat.color}`}>
                 <stat.icon size={26} />
               </div>
               <div>
@@ -756,7 +756,7 @@ function Gamification() {
         <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {badges.map((b) => (
             <PremiumCard key={b.title} className="flex flex-col items-center gap-2 p-4 text-center">
-              <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${b.color}`}>
+              <div className={`flex h-12 w-12 items-center justify-center rounded-none ${b.color}`}>
                 <b.icon size={22} />
               </div>
               <p className="text-xs font-semibold text-slate-600 dark:text-ink-200">{b.title}</p>
@@ -778,10 +778,9 @@ function FinalCTA() {
           viewport={viewportConfig}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="relative overflow-hidden rounded-3xl border border-slate-200 dark:border-white/10 p-8 sm:p-12">
-            <div className="absolute inset-0 aurora opacity-90" />
+          <div className="relative overflow-hidden rounded-none border border-[#6542C5]/30 dark:border-[#B59AF7]/20 p-8 sm:p-12" style={{ background: "linear-gradient(135deg, #3E2579 0%, #6542C5 40%, #D7713A 100%)" }}>
             <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-2xl" />
-            <div className="absolute -bottom-24 -left-10 h-64 w-64 rounded-full bg-accent-400/20 blur-2xl" />
+            <div className="absolute -bottom-24 -left-10 h-64 w-64 rounded-full bg-[#F2B38C]/20 blur-2xl" />
             <div className="relative text-center">
               <h2 className="font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
                 Stop Studying More. Start Studying Smarter.
@@ -793,8 +792,7 @@ function FinalCTA() {
                 <Button
                   size="lg"
                   variant="secondary"
-                  magnetic
-                  className="bg-white text-primary-700 hover:bg-primary-50 shadow-md"
+                  className="btn-render-sweep-lg bg-white text-[#3E2579] hover:bg-[#F5F3FD] shadow-md rounded-none"
                 >
                   Create My Personalized Plan <ArrowRight size={18} />
                 </Button>

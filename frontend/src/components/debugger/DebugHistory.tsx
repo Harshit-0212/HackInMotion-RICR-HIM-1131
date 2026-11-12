@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import {
   History,
   Trash2,
@@ -62,7 +62,7 @@ export function DebugHistory({
   if (isLoading) {
     return (
       <div className="p-6 text-center text-xs text-gray-500 dark:text-slate-400">
-        <Sparkles className="w-5 h-5 text-blue-500 animate-spin mx-auto mb-2" />
+        <Sparkles className="w-5 h-5 text-[#6542C5] dark:text-[#B59AF7] animate-spin mx-auto mb-2" />
         Loading previous sessions...
       </div>
     );
@@ -86,7 +86,7 @@ export function DebugHistory({
     <div className="rounded-2xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 shadow-xs overflow-hidden">
       <div className="p-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50/70 dark:bg-slate-800/40 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <History className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          <History className="w-4 h-4 text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7]" />
           <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
             Saved Debugging History ({sessions.length})
           </h3>
@@ -110,7 +110,7 @@ export function DebugHistory({
               onClick={() => onSelectSession(sess._id)}
               className={`p-3.5 flex items-center justify-between gap-3 cursor-pointer transition-colors group ${
                 isActive
-                  ? 'bg-blue-50/70 dark:bg-blue-950/40 border-l-4 border-blue-600'
+                  ? 'bg-[#F5F3FD] dark:bg-[#B59AF7]/10/70 dark:bg-blue-950/40 border-l-4 border-blue-600'
                   : 'hover:bg-gray-50/70 dark:hover:bg-slate-800/40'
               }`}
             >
@@ -155,7 +155,7 @@ export function DebugHistory({
                 )}
 
                 <div className="flex items-center gap-2.5 mt-1 text-[11px] text-gray-500 dark:text-slate-400">
-                  <span className="flex items-center gap-1 uppercase font-mono font-medium text-blue-600 dark:text-blue-400">
+                  <span className="flex items-center gap-1 uppercase font-mono font-medium text-[#6542C5] dark:text-[#B59AF7] dark:text-[#B59AF7]">
                     <Code2 className="w-3 h-3" />
                     {sess.language}
                   </span>

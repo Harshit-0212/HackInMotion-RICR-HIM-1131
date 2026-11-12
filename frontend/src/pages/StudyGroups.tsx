@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users,
@@ -529,7 +529,7 @@ function GroupChat({
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                     placeholder="Message your group, or ask the AI…"
-                    className="h-11 flex-1 rounded-xl border border-ink-200 bg-white px-4 text-sm text-ink-900 placeholder:text-ink-400 focus:border-primary-500 focus:outline-none dark:border-ink-700 dark:bg-ink-900 dark:text-ink-50"
+                    className="h-11 flex-1 rounded-xl border border-ink-200 bg-white px-4 text-sm text-ink-900 placeholder:text-ink-400 focus:border-[#6542C5] focus:outline-none dark:border-ink-700 dark:bg-ink-900 dark:text-ink-50"
                   />
                   <Button
                     variant="outline"
@@ -562,7 +562,7 @@ function GroupChat({
                 {members.map((m) => (
                   <li key={m.id} className="flex items-center justify-between gap-2 text-sm text-ink-700 dark:text-ink-200">
                     <span className="flex items-center gap-2">
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-semibold text-primary-700 dark:bg-primary-900/40 dark:text-primary-300">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-semibold text-primary-700 dark:bg-primary-900/40 dark:text-[#B59AF7]">
                         {m.name.slice(0, 1).toUpperCase()}
                       </span>
                       {m.name}
@@ -656,7 +656,7 @@ function MessageBubble({ message, isOwn }: { message: GroupMessage; isOwn: boole
     >
       <div
         className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white ${
-          isAI ? 'bg-gradient-to-br from-primary-600 to-accent-500' : 'bg-primary-600'
+          isAI ? 'bg-gradient-to-br from-[#6542C5] to-accent-500' : 'bg-[#6542C5]'
         }`}
       >
         {isAI ? <Sparkles size={14} /> : message.senderName.slice(0, 1).toUpperCase()}
@@ -668,7 +668,7 @@ function MessageBubble({ message, isOwn }: { message: GroupMessage; isOwn: boole
             isAI
               ? 'rounded-bl-md border border-primary-200 bg-primary-50 text-ink-800 dark:border-primary-800 dark:bg-primary-900/20 dark:text-ink-100'
               : isOwn
-                ? 'rounded-br-md bg-primary-600 text-white'
+                ? 'rounded-br-md bg-[#6542C5] text-white'
                 : 'rounded-bl-md bg-ink-100 text-ink-800 dark:bg-ink-800 dark:text-ink-100'
           }`}
         >

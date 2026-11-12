@@ -24,7 +24,7 @@ export function RecommendedSection({ weakTopics }: RecommendedSectionProps) {
       type: 'Next Logical Topic',
       estimatedTime: '30 min concept',
       icon: Zap,
-      tagColor: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/40',
+      tagColor: 'bg-[#F5F3FD] text-[#6542C5] border-[#6542C5]/20 dark:bg-[#B59AF7]/10 dark:text-[#B59AF7] dark:border-[#B59AF7]/30',
     },
     {
       id: 'rec-3',
@@ -90,7 +90,7 @@ export function RecommendedSection({ weakTopics }: RecommendedSectionProps) {
                 </div>
 
                 <Link to="/app/assessments" className="shrink-0">
-                  <button className="h-8 w-8 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition-all">
+                  <button className="h-8 w-8 rounded-none bg-white dark:bg-[#1D1922] border border-[#D8D0C5] dark:border-white/10 flex items-center justify-center text-[#5F5668] dark:text-[#B8AFBE] group-hover:bg-[#6542C5] group-hover:text-white dark:group-hover:bg-[#B59AF7] dark:group-hover:text-[#141217] transition-all">
                     <ArrowRight size={14} />
                   </button>
                 </Link>

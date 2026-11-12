@@ -1,18 +1,19 @@
-﻿import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import {
   Sparkles,
   ArrowRight,
   Brain,
-  RefreshCw,
   FileText,
-  Users,
   Compass,
   Code,
   GraduationCap,
   Target,
   BookOpen,
+  Flame,
+  Shield,
+  Award,
+  Zap,
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/store/AuthContext';
@@ -26,8 +27,6 @@ import { AIInsightCard } from '@/components/dashboard/AIInsightCard';
 import { DashboardSkeleton } from '@/components/dashboard/DashboardSkeleton';
 import { MetricCard } from '@/components/ui/MetricCard';
 import { ActionCard } from '@/components/ui/ActionCard';
-import { useState, useEffect } from 'react';
-import { Flame, Shield, Award, CheckCircle2 } from 'lucide-react';
 import { gamificationService, type UserGamificationData } from '@/services/gamificationService';
 
 export function Dashboard() {
@@ -39,7 +38,7 @@ export function Dashboard() {
     gamificationService.getProfile().then(setGamification).catch(() => {});
   }, []);
 
-  const firstName = user?.name ? user.name.split(' ')[0] : 'Student';
+  const firstName = user?.name ? user.name.split(' ')[0] : 'Learner';
 
   const todaySession = useMemo(
     () =>
@@ -50,7 +49,6 @@ export function Dashboard() {
 
   const hasMissed = plan?.sessions.some((s) => s.status === 'missed') ?? false;
 
-  // Show loading skeleton while initializing data
   if (!isReady) {
     return (
       <AppLayout>
@@ -64,95 +62,96 @@ export function Dashboard() {
     return (
       <AppLayout>
         <div className="space-y-6">
-          {/* Contextual Header */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-slate-200/80 dark:border-slate-800/80 pb-5">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-[#D8D0C5] dark:border-white/10 pb-5">
             <div>
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-                <Sparkles size={14} /> Learning Workspace
+              <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-[#6542C5] dark:text-[#B59AF7]">
+                <Sparkles size={14} /> Cadence Workspace
               </div>
-              <h1 className="mt-1 font-space text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-                Welcome to Cadence, {firstName}
+              <h1 className="mt-1 font-space text-2xl sm:text-3xl font-bold tracking-tight text-[#211D28] dark:text-[#F5F0E8]">
+                Welcome, {firstName}
               </h1>
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                A focused coding and curriculum environment built for mastery.
+              <p className="mt-1 text-xs sm:text-sm text-[#5F5668] dark:text-[#B8AFBE]">
+                Master core computer science algorithms and code comprehension with rigorous verification.
               </p>
             </div>
             <Link to="/app/journey">
-              <button className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-sm hover:bg-blue-700 transition-colors">
-                <Compass size={14} /> Open Journey
+              <button className="btn-render-sweep inline-flex h-9 items-center gap-1.5 bg-[#6542C5] dark:bg-[#B59AF7] px-4 text-xs font-bold text-white dark:text-[#141217] shadow-sm rounded-none">
+                <span className="relative z-10 inline-flex items-center gap-1.5">
+                  <Compass size={14} /> Open Journey
+                </span>
               </button>
             </Link>
           </div>
 
-          {/* Quick Metrics (Watermelon UI Metric Blocks) */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Quick Metrics */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <MetricCard
               label="Curriculum"
               value="5 Stages"
               subtitle="Arrays Fundamentals ready"
-              icon={<Compass size={18} className="text-blue-600 dark:text-blue-400" />}
+              icon={<Compass size={16} />}
             />
             <MetricCard
               label="Comprehension"
               value="Interactive"
               subtitle="Code trace exercises"
-              icon={<GraduationCap size={18} className="text-emerald-600 dark:text-emerald-400" />}
+              icon={<GraduationCap size={16} />}
             />
             <MetricCard
-              label="Coding Bank"
+              label="Coding Practice"
               value="Active"
               subtitle="Server-judged tests"
-              icon={<Code size={18} className="text-purple-600 dark:text-purple-400" />}
+              icon={<Code size={16} />}
             />
             <MetricCard
-              label="AI Tutor"
+              label="AI Study Tutor"
               value="Ready"
-              subtitle="Contextual explanations"
-              icon={<Brain size={18} className="text-indigo-600 dark:text-indigo-400" />}
+              subtitle="Personal Gemini mentor"
+              icon={<Brain size={16} />}
             />
           </div>
 
           {/* Onboarding Call to Action */}
-          <div className="rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white dark:bg-[#111827] p-6 sm:p-8">
+          <div className="border border-[#D8D0C5] dark:border-white/10 bg-[#FBF8F2] dark:bg-[#1D1922] p-6 sm:p-8 rounded-none shadow-xs">
             <div className="max-w-2xl space-y-4">
-              <span className="inline-flex items-center gap-1.5 rounded-md bg-blue-50 dark:bg-blue-950/60 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-900/60">
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-mono font-bold uppercase tracking-wider bg-[#F5F3FD] dark:bg-[#B59AF7]/10 text-[#6542C5] dark:text-[#B59AF7] border border-[#6542C5]/20 dark:border-[#B59AF7]/30">
                 Getting Started
               </span>
-              <h2 className="font-space text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-                Choose where you want to begin today
+              <h2 className="font-space text-2xl font-bold tracking-tight text-[#211D28] dark:text-[#F5F0E8]">
+                Select your focus area for today
               </h2>
-              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                Explore the mastery-based learning journey, trace code logic in comprehension exercises, or configure a customized study plan tailored to your target exam dates.
+              <p className="text-xs sm:text-sm text-[#5F5668] dark:text-[#B8AFBE] leading-relaxed">
+                Step through the interactive learning journey, test your code tracing abilities with comprehension exercises, or configure a structured syllabus.
               </p>
-              <div className="flex flex-wrap gap-3 pt-2">
+              <div className="flex flex-wrap gap-2.5 pt-2">
                 <Link to="/app/journey">
-                  <button className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-5 text-xs font-bold shadow-sm transition-colors">
-                    Start Learning Journey <ArrowRight size={14} />
+                  <button className="btn-render-sweep inline-flex h-9 items-center justify-center gap-2 bg-[#6542C5] dark:bg-[#B59AF7] text-white dark:text-[#141217] px-4 text-xs font-bold shadow-sm rounded-none">
+                    <span className="relative z-10 inline-flex items-center gap-1.5">
+                      Start Journey <ArrowRight size={13} />
+                    </span>
                   </button>
                 </Link>
                 <Link to="/app/comprehension">
-                  <button className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-5 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-colors">
-                    <GraduationCap size={15} className="text-emerald-600 dark:text-emerald-400" />
-                    Code Comprehension Hub
+                  <button className="btn-render-sweep-dark inline-flex h-9 items-center justify-center gap-2 border border-[#D8D0C5] dark:border-white/10 bg-[#E8E1D7] dark:bg-[#28222F] px-4 text-xs font-semibold text-[#211D28] dark:text-[#F5F0E8] rounded-none">
+                    <span className="relative z-10 inline-flex items-center gap-1.5">
+                      <GraduationCap size={14} className="text-[#6542C5] dark:text-[#B59AF7]" />
+                      Code Comprehension
+                    </span>
                   </button>
                 </Link>
                 <Link to="/app/coding">
-                  <button className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-5 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-colors">
-                    <Code size={15} className="text-purple-600 dark:text-purple-400" />
-                    Practice Problems
-                  </button>
-                </Link>
-                <Link to="/app/plan">
-                  <button className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                    <BookOpen size={15} />
-                    Create Study Plan
+                  <button className="btn-render-sweep-dark inline-flex h-9 items-center justify-center gap-2 border border-[#D8D0C5] dark:border-white/10 bg-[#E8E1D7] dark:bg-[#28222F] px-4 text-xs font-semibold text-[#211D28] dark:text-[#F5F0E8] rounded-none">
+                    <span className="relative z-10 inline-flex items-center gap-1.5">
+                      <Code size={14} className="text-[#6542C5] dark:text-[#B59AF7]" />
+                      Practice Bank
+                    </span>
                   </button>
                 </Link>
               </div>
             </div>
           </div>
 
-          {/* Preset Courses Preview */}
           <MyCoursesSection plan={plan} />
         </div>
       </AppLayout>
@@ -162,116 +161,167 @@ export function Dashboard() {
   return (
     <AppLayout>
       <div className="space-y-6">
-        {/* Contextual Header with concise description */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-slate-200/80 dark:border-slate-800/80 pb-5">
+        {/* Editorial Header */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-[#D8D0C5] dark:border-white/10 pb-5">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            <div className="flex items-center gap-2 text-[11px] font-mono font-bold uppercase tracking-wider text-[#8A8192]">
               Workspace Overview
             </div>
-            <h1 className="mt-1 font-space text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-              Cadence Dashboard
+            <h1 className="mt-1 font-space text-2xl sm:text-3xl font-bold tracking-tight text-[#211D28] dark:text-[#F5F0E8]">
+              Dashboard
             </h1>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              Track active course progress, complete daily sessions, and verify code comprehension.
+            <p className="mt-0.5 text-xs sm:text-sm text-[#5F5668] dark:text-[#B8AFBE]">
+              Track curriculum stages, practice algorithmic problems, and build steady study momentum.
             </p>
           </div>
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             <Link to="/app/journey">
-              <button className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-blue-600 px-3.5 text-xs font-bold text-white shadow-sm hover:bg-blue-700 transition-colors">
-                <Compass size={14} /> Learning Journey
+              <button className="btn-render-sweep inline-flex h-8 items-center gap-1.5 bg-[#6542C5] dark:bg-[#B59AF7] px-3.5 text-xs font-bold text-white dark:text-[#141217] shadow-sm rounded-none">
+                <span className="relative z-10 inline-flex items-center gap-1.5">
+                  <Compass size={13} /> Learning Journey
+                </span>
               </button>
             </Link>
             <Link to="/app/comprehension">
-              <button className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-colors">
-                <GraduationCap size={14} className="text-emerald-600 dark:text-emerald-400" /> Comprehension
+              <button className="btn-render-sweep-dark inline-flex h-8 items-center gap-1.5 border border-[#D8D0C5] dark:border-white/10 bg-[#E8E1D7] dark:bg-[#28222F] px-3.5 text-xs font-semibold text-[#211D28] dark:text-[#F5F0E8] rounded-none">
+                <span className="relative z-10 inline-flex items-center gap-1.5">
+                  <GraduationCap size={13} className="text-[#6542C5] dark:text-[#B59AF7]" /> Comprehension
+                </span>
               </button>
             </Link>
           </div>
         </div>
 
-        {/* Adaptive Re-planning notification banner if sessions were missed */}
+        {/* Schedule adjustment alert */}
         {hasMissed && (
-          <motion.div
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="rounded-2xl border border-amber-200/80 dark:border-amber-900/60 bg-amber-50/70 dark:bg-amber-950/20 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
-          >
+          <div className="border border-[#F2B38C] bg-[#FDF6F0] dark:border-[#F2B38C]/30 dark:bg-[#F2B38C]/10 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-none">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 shrink-0">
-                <RefreshCw size={17} />
-              </div>
+              <Zap size={18} className="text-[#D7713A] dark:text-[#F2B38C] shrink-0" />
               <div>
-                <h4 className="font-space text-xs font-bold uppercase tracking-wider text-amber-900 dark:text-amber-200">
+                <h4 className="text-xs font-bold text-[#211D28] dark:text-[#F5F0E8]">
                   Schedule adjustment recommended
                 </h4>
-                <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
+                <p className="text-xs text-[#5F5668] dark:text-[#B8AFBE] mt-0.5">
                   You have a pending session from earlier. Auto-adjust will rebalance your study targets.
                 </p>
               </div>
             </div>
             <button
               onClick={autoAdjustPlan}
-              className="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors shrink-0"
+              className="px-3 py-1.5 bg-[#D7713A] hover:bg-[#B85322] text-white text-xs font-bold shrink-0 rounded-none transition-colors"
             >
               Auto-Adjust Schedule
             </button>
-          </motion.div>
+          </div>
         )}
 
-        {/* Top Actionable Metric Cards (Watermelon UI Component Pattern) */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Real Gamification Streak & Stats Bar */}
+        {gamification && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="border border-[#D8D0C5] dark:border-white/10 bg-[#FBF8F2] dark:bg-[#1D1922] p-3 rounded-none flex items-center gap-3">
+              <div className="p-2 bg-[#FDF6F0] dark:bg-[#F2B38C]/10 text-[#D7713A] dark:text-[#F2B38C]">
+                <Flame size={18} />
+              </div>
+              <div>
+                <div className="text-[10px] font-mono uppercase text-[#8A8192]">Day Streak</div>
+                <div className="font-space font-bold text-lg text-[#211D28] dark:text-[#F5F0E8]">
+                  {gamification.currentStreak} {gamification.currentStreak === 1 ? 'day' : 'days'}
+                </div>
+              </div>
+            </div>
+
+            <div className="border border-[#D8D0C5] dark:border-white/10 bg-[#FBF8F2] dark:bg-[#1D1922] p-3 rounded-none flex items-center gap-3">
+              <div className="p-2 bg-[#F5F3FD] dark:bg-[#B59AF7]/10 text-[#6542C5] dark:text-[#B59AF7]">
+                <Shield size={18} />
+              </div>
+              <div>
+                <div className="text-[10px] font-mono uppercase text-[#8A8192]">Freezes</div>
+                <div className="font-space font-bold text-lg text-[#211D28] dark:text-[#F5F0E8]">
+                  {gamification.streakFreezesAvailable} available
+                </div>
+              </div>
+            </div>
+
+            <div className="border border-[#D8D0C5] dark:border-white/10 bg-[#FBF8F2] dark:bg-[#1D1922] p-3 rounded-none flex items-center gap-3">
+              <div className="p-2 bg-[#F2FAF5] dark:bg-[#48BB78]/10 text-[#2F855A] dark:text-[#48BB78]">
+                <Award size={18} />
+              </div>
+              <div>
+                <div className="text-[10px] font-mono uppercase text-[#8A8192]">Level {gamification.level}</div>
+                <div className="font-space font-bold text-lg text-[#211D28] dark:text-[#F5F0E8]">
+                  {gamification.totalXp} XP
+                </div>
+              </div>
+            </div>
+
+            <div className="border border-[#D8D0C5] dark:border-white/10 bg-[#FBF8F2] dark:bg-[#1D1922] p-3 rounded-none flex items-center gap-3">
+              <div className="p-2 bg-[#E8E1D7] dark:bg-[#28222F] text-[#5F5668] dark:text-[#B8AFBE]">
+                <Target size={18} />
+              </div>
+              <div>
+                <div className="text-[10px] font-mono uppercase text-[#8A8192]">Weekly Quests</div>
+                <div className="font-space font-bold text-lg text-[#211D28] dark:text-[#F5F0E8]">
+                  {(gamification.weeklyQuests || []).filter((q) => !q.completed).length} in progress
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Actionable Metrics */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <MetricCard
             label="Daily Goal"
             value={todaySession ? `${todaySession.estimatedMinutes}m` : 'Completed'}
             subtitle={todaySession ? todaySession.topic : 'All tasks up to date'}
             badge={todaySession ? 'Active' : 'Done'}
-            icon={<Target size={17} className="text-blue-600 dark:text-blue-400" />}
+            icon={<Target size={16} />}
           />
           <MetricCard
             label="Plan Completion"
             value={`${plan?.completionPercent ?? 0}%`}
             subtitle="Overall syllabus coverage"
             trend={{ value: '+12% this week', isPositive: true }}
-            icon={<BookOpen size={17} className="text-indigo-600 dark:text-indigo-400" />}
+            icon={<BookOpen size={16} />}
           />
           <MetricCard
             label="Comprehension"
             value="Stage 1 & 2"
             subtitle="Arrays code trace ready"
-            icon={<GraduationCap size={17} className="text-emerald-600 dark:text-emerald-400" />}
+            icon={<GraduationCap size={16} />}
           />
           <MetricCard
             label="Weak Spots"
             value={weakTopics?.length || 0}
             subtitle={weakTopics?.length ? 'Targeted review recommended' : 'No gaps detected'}
-            badge={weakTopics?.length ? 'Action' : 'Good'}
-            icon={<Brain size={17} className="text-purple-600 dark:text-purple-400" />}
+            badge={weakTopics?.length ? 'Review' : 'Clear'}
+            icon={<Brain size={16} />}
           />
         </div>
 
-        {/* PRIMARY HIERARCHY: Continue Learning Hero */}
+        {/* PRIMARY: Continue Learning Module */}
         <section>
           <ContinueLearningCard plan={plan} todaySession={todaySession} />
         </section>
 
-        {/* PRIMARY HIERARCHY: Today's Plan Checklist & Progress Section */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Plan Checklist & Progress */}
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           <TodaysPlanSection plan={plan} />
           <LearningProgressSection progress={progress} />
         </section>
 
-        {/* SECONDARY HIERARCHY: Active Courses Cards */}
+        {/* Active Courses */}
         <section>
           <MyCoursesSection plan={plan} />
         </section>
 
-        {/* ACTION CARDS (Watermelon UI Action Card Pattern) */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Quick Action Tiles */}
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
           <Link to="/app/journey">
             <ActionCard
               title="Arrays Fundamentals"
               description="Progress through 5 stages of sequential traversal, comparisons, and boundary checkpoints."
-              icon={<Compass size={20} />}
+              icon={<Compass size={18} />}
               actionText="Resume journey"
               badge="Curriculum"
               tone="accent"
@@ -281,7 +331,7 @@ export function Dashboard() {
             <ActionCard
               title="Code Comprehension"
               description="Inspect code snippets, predict output, evaluate boundary conditions, and verify answers."
-              icon={<GraduationCap size={20} />}
+              icon={<GraduationCap size={18} />}
               actionText="Open exercises"
               badge="Mastery"
               tone="success"
@@ -291,7 +341,7 @@ export function Dashboard() {
             <ActionCard
               title="Resume Optimizer"
               description="Build ATS-tailored tech resumes and polish bullet points with Gemini AI."
-              icon={<FileText size={20} />}
+              icon={<FileText size={18} />}
               actionText="Open builder"
               badge="Career"
               tone="default"
@@ -299,8 +349,8 @@ export function Dashboard() {
           </Link>
         </section>
 
-        {/* SUPPORTING HIERARCHY: Personalized Recommendations & AI Insight */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Personalized Recommendations & AI Insight */}
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           <RecommendedSection weakTopics={weakTopics} />
           <AIInsightCard weakTopics={weakTopics} />
         </section>

@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import { motion } from 'framer-motion';
 
 export interface StatTrend {
   value: string;
@@ -18,9 +17,7 @@ export interface MetricCardProps {
 }
 
 /**
- * MetricCard - Inspired by Watermelon UI Metric Block (ui.watermelon.sh/blocks/metrics)
- * Clean, restrained, high-contrast metric display tailored for Cadence.
- * Replaces generic AI multi-nested cards with clean typography and semantic accents.
+ * MetricCard - Crisp, architectural data tile with Graphite/Iris/Apricot geometry (0-2px border-radius)
  */
 export function MetricCard({
   label,
@@ -32,56 +29,51 @@ export function MetricCard({
   className = '',
   onClick,
 }: MetricCardProps) {
-  const Component = onClick ? motion.button : motion.div;
+  const Component = onClick ? 'button' : 'div';
 
   return (
     <Component
-      whileHover={onClick ? { y: -2 } : undefined}
-      whileTap={onClick ? { scale: 0.99 } : undefined}
       onClick={onClick}
-      className={`relative overflow-hidden rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white dark:bg-[#111827] p-5 text-left transition-all duration-200 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 ${
-        onClick ? 'cursor-pointer' : ''
+      className={`relative overflow-hidden rounded-[2px] border border-[#D8D0C5] dark:border-white/10 bg-[#FBF8F2] dark:bg-[#1D1922] p-4 text-left transition-colors duration-150 shadow-xs hover:border-[#6542C5] dark:hover:border-[#B59AF7]/50 ${
+        onClick ? 'cursor-pointer w-full' : ''
       } ${className}`}
     >
-      <div className="flex items-start justify-between gap-3">
-        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+      <div className="flex items-start justify-between gap-2">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-[#5F5668] dark:text-[#B8AFBE]">
           {label}
         </span>
         {icon && (
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200 border border-slate-200/50 dark:border-slate-700/50">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center bg-[#E8E1D7]/60 text-[#6542C5] dark:bg-[#28222F] dark:text-[#B59AF7] border border-[#D8D0C5] dark:border-white/10 rounded-[2px]">
             {icon}
           </div>
         )}
       </div>
 
-      <div className="mt-3 flex items-baseline gap-2.5">
-        <span className="font-space text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+      <div className="mt-2 flex items-baseline gap-2">
+        <span className="font-space text-2xl font-bold tracking-tight text-[#211D28] dark:text-[#F5F0E8]">
           {value}
         </span>
         {badge && (
-          <span className="inline-flex items-center rounded-md bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 text-[11px] font-semibold text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/60">
+          <span className="inline-flex items-center px-1.5 py-0.2 text-[10px] font-mono font-semibold uppercase bg-[#6542C5]/10 text-[#6542C5] dark:bg-[#B59AF7]/20 dark:text-[#B59AF7] border border-[#6542C5]/20 dark:border-[#B59AF7]/30">
             {badge}
           </span>
         )}
       </div>
 
       {(subtitle || trend) && (
-        <div className="mt-2 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+        <div className="mt-1 flex items-center gap-1.5 text-xs text-[#8A8192] truncate">
           {trend && (
             <span
-              className={`font-semibold ${
-                trend.isPositive
-                  ? 'text-emerald-600 dark:text-emerald-400'
-                  : 'text-amber-600 dark:text-amber-400'
+              className={`font-semibold font-mono text-[11px] ${
+                trend.isPositive ? 'text-[#2F855A] dark:text-[#48BB78]' : 'text-[#E53E3E] dark:text-[#FC8181]'
               }`}
             >
               {trend.value}
             </span>
           )}
-          {subtitle && <span>{subtitle}</span>}
+          {subtitle && <span className="truncate">{subtitle}</span>}
         </div>
       )}
     </Component>
   );
 }
-

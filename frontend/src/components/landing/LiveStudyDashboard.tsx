@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { Flame, Clock, Brain, Target, TrendingUp, Zap, Activity, AlertCircle } from 'lucide-react';
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
@@ -109,7 +109,7 @@ export function LiveStudyDashboard() {
       className="relative w-full max-w-md"
     >
       <motion.div style={{ x: parallaxX, y: parallaxY }} className="w-full">
-        <div className="absolute -inset-4 rounded-3xl bg-gradient-to-br from-primary-500/35 via-violet-500/25 to-accent-500/30 blur-2xl animate-border-glow" />
+        <div className="absolute -inset-4 rounded-3xl bg-gradient-to-br from-[#6542C5]/35 via-violet-500/25 to-accent-500/30 blur-2xl animate-border-glow" />
 
         <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-ink-900/75 p-6 backdrop-blur-2xl shadow-lift">
           <div className="mb-5 flex items-center justify-between">
@@ -135,7 +135,7 @@ export function LiveStudyDashboard() {
                 <p className="font-display text-xl font-bold text-white">Dynamic Programming</p>
                 <p className="mt-0.5 text-sm text-ink-300">Intermediate · 2/5 concepts</p>
               </div>
-              <div className="rounded-lg bg-gradient-to-r from-primary-500 via-violet-500 to-accent-400 px-3 py-1.5 text-xs font-semibold text-white shadow-glow">
+              <div className="rounded-lg bg-gradient-to-r from-[#6542C5] via-violet-500 to-accent-400 px-3 py-1.5 text-xs font-semibold text-white shadow-glow">
                 In Progress
               </div>
             </div>
@@ -159,13 +159,13 @@ export function LiveStudyDashboard() {
               animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.4 }}
-              className="mb-5 flex items-start gap-3 rounded-xl border border-primary-400/20 bg-primary-500/8 p-3"
+              className="mb-5 flex items-start gap-3 rounded-xl border border-[#B59AF7]/20 bg-[#6542C5]/8 p-3"
             >
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary-500 to-violet-500 text-white">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#6542C5] to-violet-500 text-white">
                 <Brain size={14} />
               </div>
               <div>
-                <p className="text-xs font-semibold text-primary-300">AI Recommendation</p>
+                <p className="text-xs font-semibold text-[#B59AF7]">AI Recommendation</p>
                 <p className="text-sm text-ink-200">{RECOMMENDATIONS[recIndex]}</p>
               </div>
             </motion.div>
@@ -173,7 +173,7 @@ export function LiveStudyDashboard() {
 
           <div className="grid grid-cols-2 gap-3">
             <StatTile icon={Clock} label="Focus Timer" value={formatTimer(timer)} accent="text-accent-300" pulse />
-            <StatTile icon={Target} label="Mastered" value={`${mastered} topics`} accent="text-primary-300" />
+            <StatTile icon={Target} label="Mastered" value={`${mastered} topics`} accent="text-[#B59AF7]" />
             <StatTile icon={TrendingUp} label="Retention" value={`${retention}%`} accent="text-violet-300" />
             <StatTile icon={Activity} label="AI Confidence" value={`${confidence}%`} accent="text-coral-300" live />
             <StatTile icon={Zap} label="Focus Score" value={`${focusScore}%`} accent="text-accent-300" />

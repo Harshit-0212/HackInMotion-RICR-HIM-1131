@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+﻿import { motion } from 'framer-motion';
 import { staggerContainer, fadeUp, viewportConfig } from '@/lib/animations';
 import type { ReactNode } from 'react';
 
@@ -48,7 +48,7 @@ export function SectionHeading({
     <RevealItem className="mx-auto mb-12 max-w-2xl text-center">
       <motion.span
         variants={fadeUp}
-        className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-primary-400/30 bg-primary-500/10 px-3 py-1 text-xs font-semibold text-primary-300"
+        className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-[#B59AF7]/30 bg-[#6542C5]/10 px-3 py-1 text-xs font-semibold text-[#B59AF7]"
       >
         {tag}
       </motion.span>

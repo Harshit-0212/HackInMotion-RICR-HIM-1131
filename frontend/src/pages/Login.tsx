@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+﻿import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -122,11 +122,11 @@ export function Login() {
             <input
               type="checkbox"
               defaultChecked
-              className="h-4 w-4 rounded border-white/10 bg-white/5 text-primary-600 focus:ring-primary-500 focus:ring-offset-ink-950"
+              className="h-4 w-4 rounded border-white/10 bg-white/5 text-[#6542C5] focus:ring-primary-500 focus:ring-offset-ink-950"
             />
             Remember me
           </label>
-          <Link to="/forgot-password" className="font-bold text-primary-400 hover:text-primary-300">
+          <Link to="/forgot-password" className="font-bold text-[#B59AF7] hover:text-[#B59AF7]">
             Forgot password?
           </Link>
         </div>
@@ -148,7 +148,7 @@ export function Login() {
           whileTap={{ scale: 0.98 }}
           type="submit"
           disabled={loading}
-          className="relative w-full h-11 rounded-xl bg-gradient-to-r from-primary-500 via-violet-500 to-accent-500 text-sm font-bold text-white overflow-hidden shadow-glow flex items-center justify-center gap-1.5 transition-all duration-300 disabled:opacity-50"
+          className="relative w-full h-11 rounded-xl bg-gradient-to-r from-[#6542C5] via-violet-500 to-accent-500 text-sm font-bold text-white overflow-hidden shadow-glow flex items-center justify-center gap-1.5 transition-all duration-300 disabled:opacity-50"
         >
           {/* Shine Sweep Overlay */}
           <motion.div

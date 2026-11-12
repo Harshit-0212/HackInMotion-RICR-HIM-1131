@@ -44,7 +44,7 @@ export function Settings() {
               className="flex w-full items-center justify-between rounded-xl border border-ink-200 p-4 transition hover:border-ink-300 dark:border-ink-700"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-600 dark:bg-primary-900/40">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-[#6542C5] dark:bg-primary-900/40">
                   {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
                 </div>
                 <div className="text-left">
@@ -114,7 +114,7 @@ export function Settings() {
               </div>
               <div className="flex items-center justify-between rounded-xl border border-ink-200 p-4 dark:border-ink-700">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-600 dark:bg-primary-900/40">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-[#6542C5] dark:bg-primary-900/40">
                     <Target size={20} />
                   </div>
                   <div>
@@ -171,7 +171,7 @@ function ToggleRow({
   return (
     <div className="flex items-center justify-between rounded-xl border border-ink-200 p-4 dark:border-ink-700">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-600 dark:bg-primary-900/40">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-[#6542C5] dark:bg-primary-900/40">
           <Icon size={20} />
         </div>
         <div>
@@ -181,7 +181,7 @@ function ToggleRow({
       </div>
       <button
         onClick={() => onChange(!checked)}
-        className={`relative h-6 w-11 rounded-full transition ${checked ? 'bg-primary-600' : 'bg-ink-200 dark:bg-ink-700'}`}
+        className={`relative h-6 w-11 rounded-full transition ${checked ? 'bg-[#6542C5]' : 'bg-ink-200 dark:bg-ink-700'}`}
       >
         <span
           className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${checked ? 'left-[22px]' : 'left-0.5'}`}

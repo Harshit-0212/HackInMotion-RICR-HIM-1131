@@ -1,4 +1,4 @@
-/**
+﻿/**
  * LearningJourney.tsx
  *
  * The main learning journey page. Lazy-loads the React Flow canvas so it does
@@ -64,7 +64,7 @@ const STATE_CONFIG: Record<
     label: 'In Progress',
     icon: PlayCircle,
     tone: 'primary',
-    nodeClass: 'bg-primary-50 border-primary-400 dark:bg-primary-900/30 dark:border-primary-500',
+    nodeClass: 'bg-primary-50 border-[#B59AF7] dark:bg-primary-900/30 dark:border-[#6542C5]',
     ringClass: 'ring-primary-400',
   },
   available: {
@@ -78,7 +78,7 @@ const STATE_CONFIG: Record<
     label: 'Ready for Checkpoint',
     icon: Target,
     tone: 'primary',
-    nodeClass: 'bg-primary-50 border-primary-500 dark:bg-primary-900/40 dark:border-primary-400',
+    nodeClass: 'bg-primary-50 border-[#6542C5] dark:bg-primary-900/40 dark:border-[#B59AF7]',
     ringClass: 'ring-primary-500',
   },
   locked: {
@@ -227,7 +227,7 @@ function StageDetailDrawer({
             </div>
             <div className="h-2 rounded-full bg-ink-100 dark:bg-ink-800 overflow-hidden">
               <div
-                className="h-full rounded-full bg-primary-500 transition-all duration-500"
+                className="h-full rounded-full bg-[#6542C5] transition-all duration-500"
                 style={{ width: `${totalRequired > 0 ? (completedCount / totalRequired) * 100 : 0}%` }}
               />
             </div>
@@ -489,7 +489,7 @@ export function LearningJourney() {
         <div className="p-4 sm:p-6 lg:p-8">
           <div className="max-w-lg mx-auto text-center py-16 space-y-4">
             <div className="w-16 h-16 rounded-2xl bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center mx-auto">
-              <BookOpen size={28} className="text-primary-600 dark:text-primary-400" />
+              <BookOpen size={28} className="text-[#6542C5] dark:text-[#B59AF7]" />
             </div>
             <h2 className="font-display text-xl font-bold text-ink-900 dark:text-ink-50">
               No journey available yet
@@ -537,7 +537,7 @@ export function LearningJourney() {
           <div className="hidden sm:flex items-center gap-3 min-w-[140px]">
             <div className="flex-1 h-1.5 rounded-full bg-ink-100 dark:bg-ink-800 overflow-hidden">
               <div
-                className="h-full rounded-full bg-primary-500 transition-all duration-700"
+                className="h-full rounded-full bg-[#6542C5] transition-all duration-700"
                 style={{ width: `${stages.length > 0 ? (passedCount / stages.length) * 100 : 0}%` }}
               />
             </div>
@@ -572,7 +572,7 @@ export function LearningJourney() {
                 aria-label="Map view"
                 className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold transition-colors ${
                   view === 'map'
-                    ? 'bg-primary-600 text-white'
+                    ? 'bg-[#6542C5] text-white'
                     : 'text-ink-600 dark:text-ink-300 hover:bg-ink-50 dark:hover:bg-ink-800'
                 }`}
               >
@@ -584,7 +584,7 @@ export function LearningJourney() {
                 aria-label="List view"
                 className={`flex items-center gap-1.5 px-3 py-2 text-xs font-semibold transition-colors border-l border-ink-200 dark:border-ink-700 ${
                   view === 'list'
-                    ? 'bg-primary-600 text-white'
+                    ? 'bg-[#6542C5] text-white'
                     : 'text-ink-600 dark:text-ink-300 hover:bg-ink-50 dark:hover:bg-ink-800'
                 }`}
               >

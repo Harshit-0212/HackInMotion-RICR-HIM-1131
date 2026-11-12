@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ClipboardList,
@@ -275,7 +275,7 @@ export function Assessments() {
                     onClick={() => setSource('manual')}
                     className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
                       source === 'manual'
-                        ? 'bg-primary-600 text-white shadow-soft'
+                        ? 'bg-[#6542C5] text-white shadow-soft'
                         : 'text-ink-500 hover:text-ink-800 dark:text-ink-400 dark:hover:text-ink-100'
                     }`}
                   >
@@ -285,7 +285,7 @@ export function Assessments() {
                     onClick={() => setSource('document')}
                     className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
                       source === 'document'
-                        ? 'bg-primary-600 text-white shadow-soft'
+                        ? 'bg-[#6542C5] text-white shadow-soft'
                         : 'text-ink-500 hover:text-ink-800 dark:text-ink-400 dark:hover:text-ink-100'
                     }`}
                   >
@@ -316,7 +316,7 @@ export function Assessments() {
                       value={subject}
                       onChange={(e) => setSubject(e.target.value)}
                       placeholder="e.g. Data Structures, Operating Systems, DBMS…"
-                      className="mb-2 h-11 w-full rounded-xl border border-ink-200 bg-white px-3.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-50"
+                      className="mb-2 h-11 w-full rounded-xl border border-ink-200 bg-white px-3.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-[#6542C5] focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-50"
                     />
                     <datalist id="subject-suggestions">
                       {subjectSuggestions.map((s) => (
@@ -331,7 +331,7 @@ export function Assessments() {
                             onClick={() => setSubject(s)}
                             className={`rounded-xl border px-4 py-2 text-sm font-medium transition ${
                               subject === s
-                                ? 'border-primary-500 bg-primary-50 text-primary-700 dark:bg-primary-900/40 dark:text-primary-200'
+                                ? 'border-[#6542C5] bg-primary-50 text-primary-700 dark:bg-primary-900/40 dark:text-primary-200'
                                 : 'border-ink-200 text-ink-600 hover:border-ink-300 dark:border-ink-700 dark:text-ink-300'
                             }`}
                           >
@@ -358,7 +358,7 @@ export function Assessments() {
                         <button
                           onClick={handleSuggestTopics}
                           disabled={suggestingTopics}
-                          className="flex items-center gap-1 text-xs font-medium text-primary-600 hover:underline disabled:opacity-50 dark:text-primary-400"
+                          className="flex items-center gap-1 text-xs font-medium text-[#6542C5] hover:underline disabled:opacity-50 dark:text-[#B59AF7]"
                         >
                           <Sparkles size={12} /> {suggestingTopics ? 'Suggesting…' : 'Suggest with AI'}
                         </button>
@@ -394,7 +394,7 @@ export function Assessments() {
                           }
                         }}
                         placeholder="Add a specific topic…"
-                        className="h-9 flex-1 rounded-lg border border-ink-200 bg-white px-3 text-xs text-ink-900 placeholder:text-ink-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-50"
+                        className="h-9 flex-1 rounded-lg border border-ink-200 bg-white px-3 text-xs text-ink-900 placeholder:text-ink-400 focus:border-[#6542C5] focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-50"
                       />
                       <button
                         onClick={addCustomTopic}
@@ -412,7 +412,7 @@ export function Assessments() {
                           onClick={() => setDifficulty(d)}
                           className={`rounded-xl border p-3 text-sm font-medium capitalize transition ${
                             difficulty === d
-                              ? 'border-primary-500 bg-primary-50 text-primary-700 dark:bg-primary-900/40 dark:text-primary-200'
+                              ? 'border-[#6542C5] bg-primary-50 text-primary-700 dark:bg-primary-900/40 dark:text-primary-200'
                               : 'border-ink-200 text-ink-500 hover:border-ink-300 dark:border-ink-700 dark:text-ink-400'
                           }`}
                         >
@@ -550,7 +550,7 @@ function TakingView({
 
         <div className="mb-4 h-1.5 overflow-hidden rounded-full bg-ink-100 dark:bg-ink-800">
           <div
-            className="h-full rounded-full bg-primary-600 transition-all"
+            className="h-full rounded-full bg-[#6542C5] transition-all"
             style={{ width: `${((currentQ + 1) / test.questions.length) * 100}%` }}
           />
         </div>
@@ -570,13 +570,13 @@ function TakingView({
               onClick={() => pick(opt)}
               className={`flex w-full items-center gap-3 rounded-xl border p-4 text-left transition ${
                 selected === opt
-                  ? 'border-primary-500 bg-primary-50 dark:border-primary-500 dark:bg-primary-900/30'
+                  ? 'border-[#6542C5] bg-primary-50 dark:border-[#6542C5] dark:bg-primary-900/30'
                   : 'border-ink-200 hover:border-ink-300 dark:border-ink-700'
               }`}
             >
               <div
                 className={`flex h-5 w-5 items-center justify-center rounded-full border-2 transition ${
-                  selected === opt ? 'border-primary-600 bg-primary-600' : 'border-ink-300 dark:border-ink-600'
+                  selected === opt ? 'border-primary-600 bg-[#6542C5]' : 'border-ink-300 dark:border-ink-600'
                 }`}
               >
                 {selected === opt && <Check size={12} className="text-white" />}
@@ -622,7 +622,7 @@ function ResultView({ result, test, onReset }: { result: MockTestResult; test: M
           <div
             className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl text-white shadow-soft ${
               passed
-                ? 'bg-gradient-to-br from-accent-500 to-primary-600'
+                ? 'bg-gradient-to-br from-accent-500 to-[#6542C5]'
                 : 'bg-gradient-to-br from-warning-500 to-error-500'
             }`}
           >
@@ -705,7 +705,7 @@ function ReviewRow({ q, index, correct }: { q: Question; index: number; correct:
           )}
           {q.explanation && (
             <p className="mt-1.5 flex items-start gap-1.5 text-xs text-ink-500 dark:text-ink-400">
-              <Lightbulb size={12} className="mt-0.5 shrink-0 text-primary-500" />
+              <Lightbulb size={12} className="mt-0.5 shrink-0 text-[#6542C5]" />
               <span>{q.explanation}</span>
             </p>
           )}
@@ -757,9 +757,9 @@ function DocumentUploadPanel({
       {uploadStatus === 'idle' && (
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="flex w-full flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-ink-300 p-10 text-center transition hover:border-primary-400 hover:bg-primary-50/40 dark:border-ink-700 dark:hover:border-primary-600 dark:hover:bg-primary-900/10"
+          className="flex w-full flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-ink-300 p-10 text-center transition hover:border-[#B59AF7] hover:bg-primary-50/40 dark:border-ink-700 dark:hover:border-primary-600 dark:hover:bg-primary-900/10"
         >
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-50 text-primary-600 dark:bg-primary-900/40 dark:text-primary-300">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-50 text-[#6542C5] dark:bg-primary-900/40 dark:text-[#B59AF7]">
             <Upload size={20} />
           </div>
           <div>
@@ -775,7 +775,7 @@ function DocumentUploadPanel({
 
       {uploadStatus === 'analyzing' && (
         <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-ink-200 p-10 text-center dark:border-ink-700">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#6542C5] border-t-transparent" />
           <p className="text-sm font-medium text-ink-700 dark:text-ink-200">Analyzing your document with AI…</p>
           <p className="text-xs text-ink-400">This can take up to a minute for longer documents.</p>
         </div>
@@ -831,7 +831,7 @@ function DocumentUploadPanel({
               <ul className="space-y-1 text-sm text-ink-600 dark:text-ink-300">
                 {docAnalysis.analysis.priorities.map((p) => (
                   <li key={p} className="flex gap-2">
-                    <span className="text-primary-500">•</span> {p}
+                    <span className="text-[#6542C5]">•</span> {p}
                   </li>
                 ))}
               </ul>
@@ -846,7 +846,7 @@ function DocumentUploadPanel({
                 onClick={() => setDifficulty(d)}
                 className={`rounded-xl border p-3 text-sm font-medium capitalize transition ${
                   difficulty === d
-                    ? 'border-primary-500 bg-primary-50 text-primary-700 dark:bg-primary-900/40 dark:text-primary-200'
+                    ? 'border-[#6542C5] bg-primary-50 text-primary-700 dark:bg-primary-900/40 dark:text-primary-200'
                     : 'border-ink-200 text-ink-500 hover:border-ink-300 dark:border-ink-700 dark:text-ink-400'
                 }`}
               >

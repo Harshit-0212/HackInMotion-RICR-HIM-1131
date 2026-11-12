@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { motion, useTransform, type MotionValue, useSpring, AnimatePresence } from 'framer-motion';
 import {
   Brain,
@@ -47,7 +47,7 @@ export function AICore({ scrollYProgress }: AICoreProps) {
       {/* Ambient background glow behind the core */}
       <motion.div
         style={{ scale: springScale }}
-        className="absolute h-56 w-56 rounded-full bg-gradient-to-tr from-primary-500/25 via-violet-500/20 to-accent-400/20 blur-3xl"
+        className="absolute h-56 w-56 rounded-full bg-gradient-to-tr from-[#6542C5]/25 via-violet-500/20 to-accent-400/20 blur-3xl"
       />
 
       {/* ========================================================
@@ -99,7 +99,7 @@ export function AICore({ scrollYProgress }: AICoreProps) {
           <motion.div
             animate={{ scale: [1, 1.08, 1], opacity: [0.75, 1, 0.75] }}
             transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-            className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-primary-500 via-violet-500 to-accent-400 text-white"
+            className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-[#6542C5] via-violet-500 to-accent-400 text-white"
           >
             <Brain size={30} className="drop-shadow-[0_0_6px_rgba(255,255,255,0.7)]" />
           </motion.div>
@@ -162,11 +162,11 @@ export function AICore({ scrollYProgress }: AICoreProps) {
 function Stage1Particles({ scrollYProgress }: { scrollYProgress: MotionValue<number> }) {
   // Particles coordinates at scroll 0, pulling to center (0, 0) by scroll 0.20
   const particles = [
-    { startX: -120, startY: -100, color: 'bg-primary-400' },
+    { startX: -120, startY: -100, color: 'bg-[#B59AF7]' },
     { startX: 130, startY: -90, color: 'bg-accent-400' },
     { startX: -140, startY: 80, color: 'bg-violet-400' },
     { startX: 120, startY: 100, color: 'bg-pink-400' },
-    { startX: 0, startY: -140, color: 'bg-aurora-400' },
+    { startX: 0, startY: -140, color: 'bg-emerald-400' },
     { startX: -10, startY: 130, color: 'bg-coral-400' },
   ];
 
@@ -238,7 +238,7 @@ function Stage2WeakSpots({ scrollYProgress }: { scrollYProgress: MotionValue<num
       endX: 160,
       endY: 120, // Drifts further away
       type: 'strong',
-      glow: 'shadow-[0_0_12px_rgba(52,211,153,0.25)] border-aurora-400/30',
+      glow: 'shadow-[0_0_12px_rgba(52,211,153,0.25)] border-emerald-400/30',
       tag: 'Mastered',
     },
   ];
@@ -264,8 +264,8 @@ function Stage2WeakSpots({ scrollYProgress }: { scrollYProgress: MotionValue<num
                   node.type === 'weak'
                     ? 'text-coral-400'
                     : node.type === 'strong'
-                      ? 'text-aurora-400'
-                      : 'text-primary-300'
+                      ? 'text-emerald-400'
+                      : 'text-[#B59AF7]'
                 }`}
               >
                 {node.val}
@@ -274,7 +274,7 @@ function Stage2WeakSpots({ scrollYProgress }: { scrollYProgress: MotionValue<num
             {node.tag && (
               <span
                 className={`mt-1 text-[8px] font-semibold uppercase tracking-wide ${
-                  node.type === 'weak' ? 'text-error-400' : 'text-aurora-400'
+                  node.type === 'weak' ? 'text-error-400' : 'text-emerald-400'
                 }`}
               >
                 {node.tag}
@@ -307,7 +307,7 @@ function Stage3Timeline({ scrollYProgress }: { scrollYProgress: MotionValue<numb
       {/* Vertical timeline track line */}
       <div className="absolute left-[36px] top-4 h-[300px] w-0.5 bg-white/10">
         <motion.div
-          className="absolute top-0 w-full bg-gradient-to-b from-primary-500 to-accent-400"
+          className="absolute top-0 w-full bg-gradient-to-b from-[#6542C5] to-accent-400"
           style={{ height: lineLength }}
         />
       </div>
@@ -324,7 +324,7 @@ function Stage3Timeline({ scrollYProgress }: { scrollYProgress: MotionValue<numb
               {/* Timeline circle node */}
               <motion.div
                 style={{ scale: nodeScale }}
-                className="absolute left-[-5px] z-10 flex h-4 w-4 items-center justify-center rounded-full bg-ink-950 border-2 border-primary-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]"
+                className="absolute left-[-5px] z-10 flex h-4 w-4 items-center justify-center rounded-full bg-ink-950 border-2 border-[#6542C5] shadow-[0_0_8px_rgba(99,102,241,0.5)]"
               >
                 <div className="h-1.5 w-1.5 rounded-full bg-accent-400 animate-pulse" />
               </motion.div>
@@ -415,11 +415,11 @@ function Stage4Metrics({ scrollYProgress }: { scrollYProgress: MotionValue<numbe
       {/* AI Decision Panel */}
       <motion.div
         style={{ opacity: promptOpacity, y: promptY }}
-        className="w-[280px] rounded-2xl border border-primary-500/20 bg-gradient-to-br from-primary-950/80 to-ink-950/90 p-3.5 backdrop-blur-md shadow-glow-violet"
+        className="w-[280px] rounded-2xl border border-[#6542C5]/20 bg-gradient-to-br from-primary-950/80 to-ink-950/90 p-3.5 backdrop-blur-md shadow-glow-violet"
       >
         <div className="flex items-center gap-1.5 mb-1.5">
-          <Sparkles size={11} className="text-primary-300 animate-pulse" />
-          <span className="text-[9px] font-bold uppercase tracking-wider text-primary-300">Nova Adaptation Engine</span>
+          <Sparkles size={11} className="text-[#B59AF7] animate-pulse" />
+          <span className="text-[9px] font-bold uppercase tracking-wider text-[#B59AF7]">Nova Adaptation Engine</span>
         </div>
         <p className="text-[10.5px] leading-relaxed text-ink-200">
           "Your attention retention fell in Dynamic Programming. I've re-shuffled tomorrow's schedule to give you a
@@ -442,7 +442,7 @@ function Stage5Ecosystem({ scrollYProgress }: { scrollYProgress: MotionValue<num
       title: "Today's focus",
       val: 'DP Practice',
       icon: Target,
-      color: 'text-primary-300 bg-primary-500/10',
+      color: 'text-[#B59AF7] bg-[#6542C5]/10',
       x: 125,
       y: -100,
     },
@@ -458,7 +458,7 @@ function Stage5Ecosystem({ scrollYProgress }: { scrollYProgress: MotionValue<num
       title: 'Next concept',
       val: 'Graphs Node',
       icon: BookOpen,
-      color: 'text-aurora-400 bg-aurora-500/10',
+      color: 'text-emerald-400 bg-emerald-500/10',
       x: 125,
       y: 100,
     },

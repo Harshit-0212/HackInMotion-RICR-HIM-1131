@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+﻿import { motion } from 'framer-motion';
 import { Flame, Target, Brain, BookOpen, Zap, Trophy, Lock, Award } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -64,7 +64,7 @@ export function Achievements() {
             </div>
           </Card>
           <Card padding="lg" className="flex items-center gap-4" hover>
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-50 text-primary-600 dark:bg-primary-900/40">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-50 text-[#6542C5] dark:bg-primary-900/40">
               <Zap size={28} />
             </div>
             <div>
@@ -105,7 +105,7 @@ export function Achievements() {
                   >
                     <Card padding="lg" hover className="border-accent-200 dark:border-accent-800">
                       <div className="flex items-center gap-4">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500 to-primary-600 text-white shadow-soft">
+                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500 to-[#6542C5] text-white shadow-soft">
                           <Icon size={26} />
                         </div>
                         <div>
@@ -158,7 +158,7 @@ export function Achievements() {
                       </div>
                       <div className="h-2 overflow-hidden rounded-full bg-ink-100 dark:bg-ink-800">
                         <motion.div
-                          className="h-full rounded-full bg-gradient-to-r from-primary-500 to-accent-400"
+                          className="h-full rounded-full bg-gradient-to-r from-[#6542C5] to-accent-400"
                           initial={{ width: 0 }}
                           animate={{ width: `${pct}%` }}
                           transition={{ duration: 1, delay: i * 0.1 }}
