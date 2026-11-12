@@ -459,7 +459,7 @@ export function CodingProblemDetail() {
               <button
                 type="button"
                 onClick={loadProblem}
-                className="btn-render-sweep inline-flex items-center gap-1.5 px-4 py-2 rounded-none bg-[#6542C5] dark:bg-[#B59AF7] text-white dark:text-[#141217] text-xs font-semibold shadow-xs"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#6542C5] hover:bg-[#51329F] dark:bg-[#B59AF7] dark:hover:bg-[#C6AFFB] text-white dark:text-[#141217] text-xs font-semibold shadow-xs transition-colors"
               >
                 <RefreshCw className="w-3.5 h-3.5" /> Retry Loading
               </button>
@@ -587,7 +587,7 @@ export function CodingProblemDetail() {
               disabled={isRunDisabled}
               onClick={handleRunCode}
               title="Compile & execute code with custom input"
-              className="btn-render-sweep flex items-center gap-1.5 px-3.5 py-1.5 rounded-none bg-[#6542C5] dark:bg-[#B59AF7] text-white dark:text-[#141217] disabled:opacity-50 font-semibold text-xs shadow-xs"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#6542C5] hover:bg-[#51329F] dark:bg-[#B59AF7] dark:hover:bg-[#C6AFFB] text-white dark:text-[#141217] disabled:opacity-50 font-semibold text-xs shadow-xs transition-colors"
             >
               <Play className={`w-3.5 h-3.5 ${isRunning ? 'animate-spin' : 'fill-white'}`} />
               <span>{isRunning ? 'Running…' : 'Run Code'}</span>

@@ -1,18 +1,32 @@
-﻿import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { CheckCircle2, AlertTriangle, Info, X } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, Info, X, Undo2 } from 'lucide-react';
 import { randomId } from '@/utils/async';
 
-type ToastType = 'success' | 'error' | 'info';
+export type ToastType = 'success' | 'error' | 'info';
 
-interface Toast {
+export interface ToastOptions {
+  type?: ToastType;
+  duration?: number;
+  action?: {
+    label: string;
+    onClick: () => void;
+  };
+}
+
+interface ToastItem {
   id: string;
   type: ToastType;
   message: string;
+  action?: {
+    label: string;
+    onClick: () => void;
+  };
 }
 
 interface ToastContextValue {
-  showToast: (message: string, type?: ToastType) => void;
+  showToast: (message: string, optionsOrType?: ToastType | ToastOptions) => void;
+  dismissToast: (id: string) => void;
 }
 
 const ToastContext = createContext<ToastContextValue | null>(null);
@@ -25,29 +39,55 @@ const ICONS: Record<ToastType, typeof CheckCircle2> = {
 
 const STYLES: Record<ToastType, string> = {
   success:
-    'border-accent-200 bg-accent-50 text-accent-800 dark:border-accent-800 dark:bg-accent-900/40 dark:text-accent-100',
-  error: 'border-error-100 bg-error-50 text-error-700 dark:border-error-700 dark:bg-error-700/20 dark:text-error-100',
-  info: 'border-primary-200 bg-primary-50 text-primary-800 dark:border-primary-800 dark:bg-primary-900/40 dark:text-primary-100',
+    'border-[#2F855A]/30 bg-[#F2FAF5] text-[#2F855A] dark:border-[#48BB78]/30 dark:bg-[#1D1922] dark:text-[#48BB78]',
+  error:
+    'border-[#E53E3E]/30 bg-[#FFF5F5] text-[#E53E3E] dark:border-[#FC8181]/30 dark:bg-[#1D1922] dark:text-[#FC8181]',
+  info:
+    'border-[#6542C5]/30 bg-[#F5F3FD] text-[#6542C5] dark:border-[#B59AF7]/30 dark:bg-[#1D1922] dark:text-[#B59AF7]',
 };
 
 export function ToastProvider({ children }: { children: ReactNode }) {
-  const [toasts, setToasts] = useState<Toast[]>([]);
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
 
-  const showToast = useCallback((message: string, type: ToastType = 'success') => {
-    const id = randomId('toast');
-    setToasts((prev) => [...prev, { id, type, message }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4200);
+  const dismissToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  const dismiss = (id: string) => setToasts((prev) => prev.filter((t) => t.id !== id));
+  const showToast = useCallback(
+    (message: string, optionsOrType?: ToastType | ToastOptions) => {
+      const id = randomId('toast');
+      const opts: ToastOptions =
+        typeof optionsOrType === 'string'
+          ? { type: optionsOrType }
+          : optionsOrType || { type: 'success' };
+
+      const type = opts.type || 'success';
+      const duration = opts.duration ?? (opts.action ? 6000 : 4200);
+
+      setToasts((prev) => [
+        ...prev,
+        {
+          id,
+          type,
+          message,
+          action: opts.action,
+        },
+      ]);
+
+      if (duration > 0) {
+        setTimeout(() => {
+          dismissToast(id);
+        }, duration);
+      }
+    },
+    [dismissToast],
+  );
 
   return (
-    <ToastContext.Provider value={{ showToast }}>
+    <ToastContext.Provider value={{ showToast, dismissToast }}>
       {children}
       <div
-        className="fixed bottom-4 right-4 z-[100] flex w-full max-w-sm flex-col gap-2 sm:bottom-6 sm:right-6"
+        className="fixed bottom-4 right-4 z-[100] flex w-full max-w-sm flex-col gap-2.5 sm:bottom-6 sm:right-6 pointer-events-none"
         aria-live="polite"
       >
         <AnimatePresence>
@@ -56,21 +96,43 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             return (
               <motion.div
                 key={toast.id}
-                initial={{ opacity: 0, y: 12, scale: 0.96 }}
+                initial={{ opacity: 0, y: 16, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, x: 40, transition: { duration: 0.2 } }}
-                className={`flex items-start gap-3 rounded-xl2 border px-4 py-3 shadow-lift ${STYLES[toast.type]}`}
+                exit={{ opacity: 0, x: 40, scale: 0.95, transition: { duration: 0.2 } }}
+                className={`pointer-events-auto flex items-center justify-between gap-3 rounded-2xl border p-4 shadow-lg backdrop-blur-md ${
+                  STYLES[toast.type]
+                }`}
                 role="status"
               >
-                <Icon size={18} className="mt-0.5 shrink-0" />
-                <p className="flex-1 text-sm font-medium">{toast.message}</p>
-                <button
-                  onClick={() => dismiss(toast.id)}
-                  aria-label="Dismiss notification"
-                  className="shrink-0 rounded-md p-0.5 opacity-60 transition hover:opacity-100"
-                >
-                  <X size={14} />
-                </button>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <Icon size={18} className="shrink-0" />
+                  <p className="text-xs font-semibold text-[#211D28] dark:text-[#F5F0E8] truncate">
+                    {toast.message}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  {toast.action && (
+                    <button
+                      onClick={() => {
+                        toast.action?.onClick();
+                        dismissToast(toast.id);
+                      }}
+                      className="inline-flex items-center gap-1 rounded-lg bg-[#6542C5] px-2.5 py-1 text-[11px] font-bold text-white hover:bg-[#51329F] dark:bg-[#B59AF7] dark:text-[#141217] dark:hover:bg-[#C6AFFB] transition-colors"
+                    >
+                      <Undo2 size={12} />
+                      <span>{toast.action.label}</span>
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => dismissToast(toast.id)}
+                    aria-label="Dismiss notification"
+                    className="rounded-md p-1 opacity-60 hover:opacity-100 transition-opacity"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
               </motion.div>
             );
           })}

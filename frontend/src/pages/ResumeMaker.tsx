@@ -19,6 +19,7 @@ import {
   Upload,
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { Reveal } from '@/components/ui/Reveal';
 import {
   resumeService,
   type StoredResume,
@@ -479,7 +480,7 @@ export function ResumeMaker() {
                   type="text"
                   value={activeResume.title}
                   onChange={(e) => setActiveResume({ ...activeResume, title: e.target.value })}
-                  className="w-full text-xs px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full text-xs px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#6542C5]/40 dark:focus:ring-[#B59AF7]/30 focus:border-[#6542C5] dark:focus:border-[#B59AF7] transition-shadow"
                   placeholder="e.g. Software Engineer 2026"
                 />
               </div>
@@ -503,7 +504,7 @@ export function ResumeMaker() {
                         value={activeResume.personalDetails.fullName}
                         onChange={(e) => updatePersonal('fullName', e.target.value)}
                         placeholder="John Doe"
-                        className="w-full text-sm px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                        className="w-full text-sm px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#6542C5]/40 dark:focus:ring-[#B59AF7]/30 focus:border-[#6542C5] dark:focus:border-[#B59AF7] transition-shadow"
                       />
                     </div>
                     <div>
@@ -515,7 +516,7 @@ export function ResumeMaker() {
                         value={activeResume.personalDetails.email}
                         onChange={(e) => updatePersonal('email', e.target.value)}
                         placeholder="john@example.com"
-                        className="w-full text-sm px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                        className="w-full text-sm px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#6542C5]/40 dark:focus:ring-[#B59AF7]/30 focus:border-[#6542C5] dark:focus:border-[#B59AF7] transition-shadow"
                       />
                     </div>
                     <div>
@@ -527,7 +528,7 @@ export function ResumeMaker() {
                         value={activeResume.personalDetails.phone || ''}
                         onChange={(e) => updatePersonal('phone', e.target.value)}
                         placeholder="+1 (555) 000-0000"
-                        className="w-full text-sm px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                        className="w-full text-sm px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#6542C5]/40 dark:focus:ring-[#B59AF7]/30 focus:border-[#6542C5] dark:focus:border-[#B59AF7] transition-shadow"
                       />
                     </div>
                     <div>
@@ -539,7 +540,7 @@ export function ResumeMaker() {
                         value={activeResume.personalDetails.location || ''}
                         onChange={(e) => updatePersonal('location', e.target.value)}
                         placeholder="San Francisco, CA"
-                        className="w-full text-sm px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                        className="w-full text-sm px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#6542C5]/40 dark:focus:ring-[#B59AF7]/30 focus:border-[#6542C5] dark:focus:border-[#B59AF7] transition-shadow"
                       />
                     </div>
                     <div>
@@ -551,7 +552,7 @@ export function ResumeMaker() {
                         value={activeResume.personalDetails.linkedIn || ''}
                         onChange={(e) => updatePersonal('linkedIn', e.target.value)}
                         placeholder="linkedin.com/in/username"
-                        className="w-full text-sm px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                        className="w-full text-sm px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#6542C5]/40 dark:focus:ring-[#B59AF7]/30 focus:border-[#6542C5] dark:focus:border-[#B59AF7] transition-shadow"
                       />
                     </div>
                     <div>
@@ -563,7 +564,7 @@ export function ResumeMaker() {
                         value={activeResume.personalDetails.gitHub || ''}
                         onChange={(e) => updatePersonal('gitHub', e.target.value)}
                         placeholder="github.com/username"
-                        className="w-full text-sm px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                        className="w-full text-sm px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#6542C5]/40 dark:focus:ring-[#B59AF7]/30 focus:border-[#6542C5] dark:focus:border-[#B59AF7] transition-shadow"
                       />
                     </div>
                   </div>
@@ -592,7 +593,7 @@ export function ResumeMaker() {
                     value={activeResume.summary}
                     onChange={(e) => setActiveResume({ ...activeResume, summary: e.target.value })}
                     placeholder="Write a concise 3-4 sentence overview of your key expertise, technical background, and major achievements..."
-                    className="w-full text-sm p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    className="w-full text-sm p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#6542C5]/40 dark:focus:ring-[#B59AF7]/30 focus:border-[#6542C5] dark:focus:border-[#B59AF7] transition-shadow"
                   />
                 </div>
               )}
@@ -684,7 +685,7 @@ export function ResumeMaker() {
                               e.target.value.split('\n').filter(Boolean)
                             )
                           }
-                          placeholder="• Engineered high-performance backend APIs...&#10;• Reduced latency by 35% using caching..."
+                          placeholder="� Engineered high-performance backend APIs...&#10;� Reduced latency by 35% using caching..."
                           className="w-full text-xs p-3 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono"
                         />
                       </div>
@@ -772,7 +773,7 @@ export function ResumeMaker() {
                               e.target.value.split('\n').filter(Boolean)
                             )
                           }
-                          placeholder="• Built a full-stack platform using TypeScript and MongoDB...&#10;• Implemented JWT authentication and real-time updates..."
+                          placeholder="� Built a full-stack platform using TypeScript and MongoDB...&#10;� Implemented JWT authentication and real-time updates..."
                           className="w-full text-xs p-3 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono"
                         />
                       </div>
@@ -866,7 +867,7 @@ export function ResumeMaker() {
                       })
                     }
                     placeholder="JavaScript, TypeScript, React, Node.js, Express, MongoDB, Docker, Git, Python..."
-                    className="w-full text-sm p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    className="w-full text-sm p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#6542C5]/40 dark:focus:ring-[#B59AF7]/30 focus:border-[#6542C5] dark:focus:border-[#B59AF7] transition-shadow"
                   />
                   <div className="flex flex-wrap gap-1.5 pt-2">
                     {activeResume.skills.map((skill, i) => (
@@ -933,7 +934,7 @@ export function ResumeMaker() {
                     onClick={() => setEnhanceModalOpen(false)}
                     className="text-slate-400 hover:text-slate-600"
                   >
-                    ✕
+                    ?
                   </button>
                 </div>
 
@@ -1038,7 +1039,7 @@ export function ResumeMaker() {
                     }}
                     className="text-slate-400 hover:text-slate-600"
                   >
-                    ✕
+                    ?
                   </button>
                 </div>
 

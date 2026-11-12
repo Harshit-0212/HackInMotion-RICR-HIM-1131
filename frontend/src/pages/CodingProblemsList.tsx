@@ -1,5 +1,6 @@
-﻿import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   Code2,
   Search,
@@ -18,6 +19,7 @@ import {
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { Reveal, Stagger, StaggerItem } from '@/components/ui/Reveal';
 import { codingService } from '@/services/codingService';
 import type { PublicCodingProblemListItem, ProblemDifficulty } from '@/types/coding';
 
@@ -144,7 +146,7 @@ export function CodingProblemsList() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search problem title, topic, or tag..."
-                className="w-full pl-9 pr-4 py-2 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-800/60 text-xs text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-9 pr-4 py-2 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-800/60 text-xs text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#6542C5]/40 dark:focus:ring-[#B59AF7]/30"
               />
             </div>
             <button
@@ -165,7 +167,7 @@ export function CodingProblemsList() {
               <select
                 value={difficulty}
                 onChange={(e) => handleDifficultyChange(e.target.value)}
-                className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-gray-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-gray-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#6542C5]/40 dark:focus:ring-[#B59AF7]/30"
               >
                 <option value="">All Difficulties</option>
                 <option value="easy">Easy</option>
@@ -177,7 +179,7 @@ export function CodingProblemsList() {
               <select
                 value={topic}
                 onChange={(e) => handleTopicChange(e.target.value)}
-                className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-gray-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-gray-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#6542C5]/40 dark:focus:ring-[#B59AF7]/30"
               >
                 <option value="">All Topics</option>
                 {availableTopics.map((t) => (
@@ -192,7 +194,7 @@ export function CodingProblemsList() {
                 <select
                   value={tag}
                   onChange={(e) => handleTagChange(e.target.value)}
-                  className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-gray-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-gray-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#6542C5]/40 dark:focus:ring-[#B59AF7]/30"
                 >
                   <option value="">All Tags</option>
                   {availableTags.map((tg) => (
@@ -267,12 +269,12 @@ export function CodingProblemsList() {
 
         {/* Problems Grid */}
         {!isLoading && !error && problems.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 min-w-0">
+          <Stagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 min-w-0">
             {problems.map((problem) => (
+              <StaggerItem key={problem.id}>
               <Link
-                key={problem.id}
                 to={`/app/coding/problems/${encodeURIComponent(problem.slug)}`}
-                className="group rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs hover:border-blue-400 dark:hover:border-blue-600 hover:shadow-sm transition-all flex flex-col justify-between"
+                className="group rounded-2xl border border-[var(--border)] bg-[var(--surface)] dark:bg-[#1D1922] p-5 shadow-sm hover:border-[#6542C5]/30 dark:hover:border-[#B59AF7]/30 hover:shadow-md transition-all flex flex-col justify-between"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between gap-2">
@@ -320,8 +322,9 @@ export function CodingProblemsList() {
                   </span>
                 </div>
               </Link>
+              </StaggerItem>
             ))}
-          </div>
+          </Stagger>
         )}
 
         {/* Pagination Controls */}

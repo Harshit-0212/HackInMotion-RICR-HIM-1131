@@ -1,6 +1,8 @@
-﻿import { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Mail, Calendar, Target, Zap, Flame, BookOpen, Edit3, Check, Camera } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { Reveal, Stagger, StaggerItem } from '@/components/ui/Reveal';
+import { motion } from 'framer-motion';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -57,14 +59,14 @@ export function Profile() {
   return (
     <AppLayout>
       <div className="p-4 sm:p-6 lg:p-8">
-        <PageHeader title="Profile" subtitle="Your account and learning summary." />
+        <Reveal variant="fade-in"><PageHeader title="Profile" subtitle="Your account and learning summary." /></Reveal>
 
-        <div className="grid gap-5 lg:grid-cols-3">
+        <Stagger className="grid gap-5 lg:grid-cols-3">
           {/* Profile card */}
-          <Card padding="lg" className="lg:col-span-1">
+          <StaggerItem className="lg:col-span-1"><Card padding="lg" className="h-full">
             <div className="flex flex-col items-center text-center">
-              <div className="relative">
-                <Avatar user={user} size={80} className="text-2xl shadow-soft" />
+              <motion.div whileHover={{ scale: 1.03 }} transition={{ type: "spring", stiffness: 350, damping: 25 }} className="relative group cursor-pointer">
+                <Avatar user={user} size={80} className="text-2xl shadow-soft group-hover:shadow-[0_0_24px_rgba(101,66,197,0.3)] dark:group-hover:shadow-[0_0_24px_rgba(181,154,247,0.25)] transition-shadow" />
                 <button
                   type="button"
                   onClick={handleAvatarPick}
@@ -74,14 +76,14 @@ export function Profile() {
                 >
                   <Camera size={13} />
                 </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  className="hidden"
-                  onChange={handleAvatarChange}
-                />
-              </div>
+              </motion.div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={handleAvatarChange}
+              />
               {editing ? (
                 <div className="mt-4 w-full max-w-xs">
                   <Input value={name} onChange={(e) => setName(e.target.value)} label="Name" />
@@ -112,9 +114,10 @@ export function Profile() {
               <InfoRow icon={Zap} label="Level" value={`${user?.level ?? 1} · ${user?.xp ?? 0} XP`} />
             </div>
           </Card>
+          </StaggerItem>
 
           {/* Stats + activity */}
-          <div className="space-y-5 lg:col-span-2">
+          <StaggerItem className="lg:col-span-2"><div className="space-y-5">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <StatBox icon={Flame} label="Streak" value={`${progress?.streakDays ?? 0} days`} color="warning" />
               <StatBox icon={BookOpen} label="Topics" value={`${progress?.topicsMastered ?? 0}`} color="success" />
@@ -174,7 +177,8 @@ export function Profile() {
               </div>
             </Card>
           </div>
-        </div>
+          </StaggerItem>
+        </Stagger>
       </div>
     </AppLayout>
   );

@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Send,
@@ -22,6 +22,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Card } from '@/components/ui/Card';
 import { ConnectGeminiPrompt } from '@/components/ui/ConnectGeminiPrompt';
+import { Reveal } from '@/components/ui/Reveal';
 import { userApiKeyService } from '@/services/userApiKeyService';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -268,15 +269,17 @@ export function AITutor() {
   return (
     <AppLayout>
       <div className="flex h-[calc(100vh-6.5rem)] flex-col p-4 sm:p-6 lg:p-8">
-        <PageHeader
-          title="AI Tutor"
-          subtitle="Ask anything. Get explanations tuned to your level."
-          action={
-            <Badge tone="primary">
-              <Sparkles size={12} /> AI-powered
-            </Badge>
-          }
-        />
+        <Reveal variant="fade-in">
+          <PageHeader
+            title="AI Tutor"
+            subtitle="Ask anything. Get explanations tuned to your level."
+            action={
+              <Badge tone="primary">
+                <Sparkles size={12} /> AI-powered
+              </Badge>
+            }
+          />
+        </Reveal>
 
         {geminiConnected === false && (
           <div className="mb-4">
@@ -454,7 +457,7 @@ export function AITutor() {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && send(input)}
                   placeholder={listening ? 'Listening…' : pendingFile ? 'Add a message (optional)…' : 'Ask a question…'}
-                  className="h-11 flex-1 rounded-xl border border-ink-200 bg-white px-4 text-sm text-ink-900 placeholder:text-ink-400 focus:border-[#6542C5] focus:outline-none dark:border-ink-700 dark:bg-ink-900 dark:text-ink-50"
+                  className="h-11 flex-1 rounded-xl border border-ink-200 bg-white px-4 text-sm text-ink-900 placeholder:text-ink-400 focus:border-[#6542C5] focus:ring-2 focus:ring-[#6542C5]/30 dark:focus:ring-[#B59AF7]/20 focus:outline-none transition-shadow dark:border-ink-700 dark:bg-ink-900 dark:text-ink-50"
                 />
                 <Button
                   onClick={() => send(input)}

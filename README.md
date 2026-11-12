@@ -25,12 +25,7 @@ _AI-Powered EdTech / Personalized Learning — replace with your official track 
   Gemini analyzes it (topics, priorities, difficulty spread) and generates exam questions grounded
   in that document's actual content.
 - **Manual mock test generation** — generate practice questions for any subject/topic/difficulty
-<<<<<<< HEAD
   without needing a document, also via Gemini.
-=======
-  without needing a document, also 
-  via Gemini.
->>>>>>> c8bab08 ("update frontend and backend")
 - **AI-generated study plans** — Gemini builds a real, ordered session-by-session schedule from
   your goal, subjects, deadline, and weak topics.
 - **Real progress & achievements** — computed live from your actual study plan completions and
@@ -321,7 +316,23 @@ Study Plan, Study Groups, Reset Password) — e.g. in an `assets/screenshots/` f
 
 ## Deployment Link
 
-https:1cadence.netlify.app
+https://1cadence.netlify.app
+
+## UI/UX Design System
+
+- **Distinctive Color Combination**: Retains the curated Graphite / Iris / Apricot theme with semantic Radix Color token scaling (`#F1EDE6` / `#FBF8F2` warm stone canvas in light mode, `#141217` / `#1D1922` deep graphite canvas in dark mode, `#6542C5` / `#B59AF7` Iris primary actions, and `#F2B38C` Apricot highlights).
+- **Responsive Bento Grid Dashboard**: 12-column grid featuring an 8x2 Hero Continue Learning Card, interactive Weak Spots chip module, circular Daily Goal and Comprehension tiles, and animated streak counters.
+- **Micro-Interactions & Cursor Reactions**:
+  - `SpotlightCard`: Dynamic cursor-following radial glow with spring 3D tilt and illuminating gradient border.
+  - `Button`: Magnetic cursor drift (~80px reach), diagonal shine sweep on hover, 4px arrow slide, dynamic click ripples, and inline loader spinners.
+  - `Reveal` & `Stagger`: Scroll-triggered viewport animations using Framer Motion (`whileInView` with `margin: "-80px"`).
+  - Ambient mouse-tracking gradient blob and customizable cursor follower (auto-disabled on touch and `prefers-reduced-motion`).
+- **Productivity & Navigation**:
+  - Full **Command Palette** triggered via `Ctrl+K` or `/` for instant page jumping and AI tutor access.
+  - Built-in **Focus Mode (Pomodoro Timer)** for deep study sessions with streak tracking.
+  - Collapsible desktop sidebar with grouped sections, tooltips, and sliding active indicator pill.
+  - Mobile bottom tab bar for direct 1-tap navigation across core pages.
+  - Smooth page transitions with route-level lazy loading and suspense skeleton loaders.
 
 ## Future Scope
 

@@ -1,4 +1,4 @@
-﻿import { motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { TrendingUp, Flame, Clock, BookOpen, Target, Calendar, Award } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/Badge';
 import { ProgressRing } from '@/components/ui/ProgressRing';
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Reveal, Stagger, StaggerItem } from '@/components/ui/Reveal';
 import { useAppData } from '@/store/AppDataContext';
 
 export function Progress() {
@@ -32,23 +33,28 @@ export function Progress() {
   return (
     <AppLayout>
       <div className="p-4 sm:p-6 lg:p-8">
-        <PageHeader title="Progress" subtitle="Track your study time, mastery, and accuracy trends." />
+        <Reveal variant="fade-in">
+          <PageHeader title="Progress" subtitle="Track your study time, mastery, and accuracy trends." />
+        </Reveal>
 
         {/* Top stats */}
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard icon={Target} label="Overall" value={progress.overallCompletion} suffix="%" color="primary" />
-          <StatCard icon={Flame} label="Streak" value={progress.streakDays} suffix=" days" color="warning" />
-          <StatCard
-            icon={Clock}
-            label="Hours Studied"
-            value={progress.hoursStudied}
-            suffix="h"
-            decimals={1}
-            color="accent"
-          />
-          <StatCard icon={BookOpen} label="Topics Mastered" value={progress.topicsMastered} color="success" />
-        </div>
+        <Stagger className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4" delay={0.05}>
+          <StaggerItem><StatCard icon={Target} label="Overall" value={progress.overallCompletion} suffix="%" color="primary" /></StaggerItem>
+          <StaggerItem><StatCard icon={Flame} label="Streak" value={progress.streakDays} suffix=" days" color="warning" /></StaggerItem>
+          <StaggerItem>
+            <StatCard
+              icon={Clock}
+              label="Hours Studied"
+              value={progress.hoursStudied}
+              suffix="h"
+              decimals={1}
+              color="accent"
+            />
+          </StaggerItem>
+          <StaggerItem><StatCard icon={BookOpen} label="Topics Mastered" value={progress.topicsMastered} color="success" /></StaggerItem>
+        </Stagger>
 
+        <Reveal variant="fade-up" delay={0.1}>
         <div className="mt-5 grid gap-5 lg:grid-cols-3">
           {/* Overall ring */}
           <Card padding="lg" className="flex flex-col items-center" hover>
@@ -80,6 +86,7 @@ export function Progress() {
             </div>
           </Card>
         </div>
+        </Reveal>
 
         {/* Accuracy trend + topic strengths */}
         <div className="mt-5 grid gap-5 lg:grid-cols-2">

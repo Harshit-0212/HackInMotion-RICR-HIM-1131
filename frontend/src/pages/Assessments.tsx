@@ -20,6 +20,7 @@ import {
   Target,
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { Reveal } from '@/components/ui/Reveal';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';

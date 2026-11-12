@@ -6,7 +6,8 @@ export default {
     extend: {
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-        space: ['"Space Grotesk"', '"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        space: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
+        lexend: ['"Lexend"', 'system-ui', 'sans-serif'],
         display: ['"Space Grotesk"', '"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
       },
       colors: {
@@ -129,11 +130,7 @@ export default {
         },
       },
       borderRadius: {
-        none: '0px',
-        xs: '2px',
-        sm: '4px',
-        md: '6px',
-        lg: '8px',
+        xl2: '1.25rem',
       },
       boxShadow: {
         soft: '0 1px 2px 0 rgb(20 18 23 / 0.05), 0 2px 6px -1px rgb(20 18 23 / 0.08)',
@@ -145,13 +142,13 @@ export default {
       },
       keyframes: {
         'fade-in': { from: { opacity: 0 }, to: { opacity: 1 } },
-        'slide-up': { from: { opacity: 0, transform: 'translateY(10px)' }, to: { opacity: 1, transform: 'translateY(0)' } },
+        'slide-up': { from: { opacity: 0, transform: 'translateY(12px)' }, to: { opacity: 1, transform: 'translateY(0)' } },
         blink: { '0%, 80%, 100%': { opacity: 0.2 }, '40%': { opacity: 1 } },
         'gradient-shift': { '0%, 100%': { backgroundPosition: '0% 50%' }, '50%': { backgroundPosition: '100% 50%' } },
       },
       animation: {
-        'fade-in': 'fade-in 0.3s ease-out both',
-        'slide-up': 'slide-up 0.4s cubic-bezier(0.16,1,0.3,1) both',
+        'fade-in': 'fade-in 0.4s ease-out both',
+        'slide-up': 'slide-up 0.5s cubic-bezier(0.16,1,0.3,1) both',
         blink: 'blink 1.4s infinite both',
         'gradient-shift': 'gradient-shift 4s ease infinite',
       },

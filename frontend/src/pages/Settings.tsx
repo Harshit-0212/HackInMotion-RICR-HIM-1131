@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { Moon, Sun, Bell, Clock, Target, LogOut, Trash2, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -10,6 +10,7 @@ import { AISettingsCard } from '@/components/settings/AISettingsCard';
 import { useTheme } from '@/store/ThemeContext';
 import { useAuth } from '@/store/AuthContext';
 import { useToast } from '@/store/ToastContext';
+import { Reveal, Stagger, StaggerItem } from '@/components/ui/Reveal';
 
 export function Settings() {
   const { theme, toggleTheme } = useTheme();
@@ -33,9 +34,9 @@ export function Settings() {
   return (
     <AppLayout>
       <div className="p-4 sm:p-6 lg:p-8">
-        <PageHeader title="Settings" subtitle="Manage your preferences and account." />
+        <Reveal variant="fade-in"><PageHeader title="Settings" subtitle="Manage your preferences and account." /></Reveal>
 
-        <div className="grid gap-5 lg:grid-cols-2">
+        <Stagger className="grid gap-5 lg:grid-cols-2" delay={0.08}>
           {/* Appearance */}
           <Card padding="lg">
             <CardHeader title="Appearance" subtitle="Customize how Cadence looks" />
@@ -149,7 +150,7 @@ export function Settings() {
               </Button>
             </div>
           </Card>
-        </div>
+        </Stagger>
       </div>
     </AppLayout>
   );

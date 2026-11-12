@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users,
@@ -15,6 +15,7 @@ import {
   UserMinus,
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { Reveal, Stagger, StaggerItem } from '@/components/ui/Reveal';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -196,38 +197,39 @@ export function StudyGroups() {
             }
           />
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {groups.map((group, i) => (
-              <motion.div
-                key={group.id}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.04 }}
-              >
-                <Card hover padding="lg" className="flex h-full flex-col">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <h3 className="font-display text-base font-semibold text-ink-900 dark:text-ink-50">
-                        {group.name}
-                      </h3>
-                      <p className="mt-0.5 text-xs text-ink-500 dark:text-ink-400">{group.examName}</p>
+              <StaggerItem key={group.id}>
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.04 }}
+                >
+                  <Card hover padding="lg" className="flex h-full flex-col">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <h3 className="font-display text-base font-semibold text-ink-900 dark:text-ink-50">
+                          {group.name}
+                        </h3>
+                        <p className="mt-0.5 text-xs text-ink-500 dark:text-ink-400">{group.examName}</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <Badge tone="primary">{group.topic}</Badge>
-                    <Badge tone="neutral">
-                      <Users size={11} /> {group.memberCount}
-                    </Badge>
-                  </div>
-                  <div className="mt-auto pt-4">
-                    <Button fullWidth onClick={() => setActiveGroup(group)}>
-                      <MessagesSquare size={16} /> Open Chat
-                    </Button>
-                  </div>
-                </Card>
-              </motion.div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <Badge tone="primary">{group.topic}</Badge>
+                      <Badge tone="neutral">
+                        <Users size={11} /> {group.memberCount}
+                      </Badge>
+                    </div>
+                    <div className="mt-auto pt-4">
+                      <Button fullWidth onClick={() => setActiveGroup(group)}>
+                        <MessagesSquare size={16} /> Open Chat
+                      </Button>
+                    </div>
+                  </Card>
+                </motion.div>
+              </StaggerItem>
             ))}
-          </div>
+          </Stagger>
         )}
       </div>
 

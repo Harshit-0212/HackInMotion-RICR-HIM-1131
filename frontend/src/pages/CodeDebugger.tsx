@@ -13,6 +13,7 @@ import {
   Terminal,
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { Reveal } from '@/components/ui/Reveal';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { DryRunPlayer } from '@/components/debugger/DryRunPlayer';
 import { AnalysisResults } from '@/components/debugger/AnalysisResults';
@@ -222,7 +223,7 @@ export function CodeDebugger() {
               <select
                 value={language}
                 onChange={(e) => handleLanguageChange(e.target.value as SupportedDebuggerLanguage)}
-                className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-gray-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-gray-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#6542C5]/40 dark:focus:ring-[#B59AF7]/30 focus:border-[#6542C5]"
               >
                 <option value="cpp">C++ (GCC / Clang)</option>
                 <option value="c">C (ANSI / C11)</option>
@@ -278,7 +279,7 @@ export function CodeDebugger() {
           </div>
 
           {/* Code Editor Area */}
-          <div className="relative rounded-xl border border-gray-200 dark:border-slate-800 bg-slate-950 overflow-hidden font-mono text-xs">
+          <div className="relative rounded-xl border border-[var(--border)] focus-within:border-[#6542C5] focus-within:ring-2 focus-within:ring-[#6542C5]/30 dark:focus-within:ring-[#B59AF7]/20 transition-all bg-slate-950 overflow-hidden font-mono text-xs">
             <div className="px-3 py-1.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
               <span className="flex items-center gap-1.5">
                 <FileCode className="w-3.5 h-3.5 text-[#B59AF7]" />
@@ -306,7 +307,7 @@ export function CodeDebugger() {
               value={userQuestion}
               onChange={(e) => setUserQuestion(e.target.value)}
               placeholder="e.g. Why is it throwing an out-of-bounds error on the last element?"
-              className="w-full px-3.5 py-2 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-gray-800 dark:text-slate-200 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3.5 py-2 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-gray-800 dark:text-slate-200 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#6542C5]/40 dark:focus:ring-[#B59AF7]/30 focus:border-[#6542C5]"
             />
           </div>
 

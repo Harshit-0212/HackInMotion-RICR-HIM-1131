@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export interface ActionCardProps {
   title: string;
@@ -35,9 +35,6 @@ const toneStyles = {
   },
 };
 
-/**
- * ActionCard - Architectural card with sharp geometry (0-2px border-radius)
- */
 export function ActionCard({
   title,
   description,
@@ -51,36 +48,40 @@ export function ActionCard({
   const styles = toneStyles[tone];
 
   return (
-    <div
+    <motion.div
+      whileHover={{ y: -2 }}
+      transition={{ duration: 0.15, ease: 'easeOut' }}
       onClick={onClick}
-      className={`group relative flex flex-col justify-between overflow-hidden rounded-[2px] border bg-[#FBF8F2] dark:bg-[#1D1922] p-5 shadow-xs transition-colors duration-150 ${styles.border} ${
+      className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl border bg-[#FBF8F2] dark:bg-[#1D1922] p-5 shadow-sm transition-colors duration-200 ${styles.border} ${
         onClick ? 'cursor-pointer' : ''
       } ${className}`}
     >
       <div>
-        <div className="flex items-start justify-between gap-3">
-          <div className={`flex h-9 w-9 items-center justify-center rounded-none ${styles.iconBg}`}>
+        <div className="flex items-center justify-between gap-3">
+          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors duration-200 ${styles.iconBg}`}>
             {icon}
           </div>
           {badge && (
-            <span className="inline-flex items-center px-1.5 py-0.2 text-[10px] font-mono font-bold uppercase tracking-wider bg-[#E8E1D7] dark:bg-[#28222F] text-[#5F5668] dark:text-[#B8AFBE] border border-[#D8D0C5] dark:border-white/10">
+            <span className="inline-flex items-center rounded-md bg-[#E8E1D7] dark:bg-[#28222F] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#5F5668] dark:text-[#B8AFBE]">
               {badge}
             </span>
           )}
         </div>
 
-        <h3 className="mt-4 font-space text-base font-bold text-[#211D28] dark:text-[#F5F0E8] tracking-tight">
+        <h3 className="mt-4 font-space text-base font-bold text-[#211D28] dark:text-[#F5F0E8] group-hover:text-[#6542C5] dark:group-hover:text-[#B59AF7] transition-colors">
           {title}
         </h3>
-        <p className="mt-1.5 text-xs text-[#5F5668] dark:text-[#B8AFBE] leading-relaxed">
+        <p className="mt-1.5 text-xs text-[#5F5668] dark:text-[#B8AFBE] line-clamp-2 leading-relaxed">
           {description}
         </p>
       </div>
 
-      <div className="mt-5 pt-3 border-t border-[#D8D0C5]/60 dark:border-white/[0.06] flex items-center gap-1.5 text-xs font-semibold">
+      <div className="mt-5 flex items-center gap-1.5 text-xs font-bold transition-all duration-200">
         <span className={styles.actionText}>{actionText}</span>
-        <ArrowRight size={13} className={`${styles.actionText} transition-transform group-hover:translate-x-1`} />
+        <span className={`transition-transform duration-200 group-hover:translate-x-1 ${styles.actionText}`}>
+          →
+        </span>
       </div>
-    </div>
+    </motion.div>
   );
 }

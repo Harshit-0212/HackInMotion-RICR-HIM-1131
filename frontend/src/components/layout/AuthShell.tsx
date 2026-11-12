@@ -67,7 +67,6 @@ export function AuthShell({
     >
       {/* 1. Dynamic Background layers */}
       <div className="absolute inset-0 -z-20 bg-ink-975" />
-      <div className="absolute inset-0 bg-grid-fine opacity-20 -z-10" />
 
       {/* Slowly moving gradient meshes */}
       <div
