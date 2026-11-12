@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI, SchemaType, type Part } from '@google/generative-ai';
 import { config } from '../config.js';
 import type { ExtractedDocument } from './extractText.js';
+import { userApiKeyStore } from './userApiKeyStore.js';
 
 export interface DocumentAnalysis {
   summary: string;
@@ -23,6 +24,9 @@ export interface GeneratedQuestion {
 
 export class GeminiError extends Error {}
 
+/** Thrown specifically when no Gemini key is configured for a user and no site key exists. */
+export class GeminiKeyError extends GeminiError {}
+
 let client: GoogleGenerativeAI | null = null;
 function getClient(): GoogleGenerativeAI {
   if (!config.geminiApiKey) {
@@ -32,6 +36,19 @@ function getClient(): GoogleGenerativeAI {
   }
   if (!client) client = new GoogleGenerativeAI(config.geminiApiKey);
   return client;
+}
+
+/**
+ * Returns a GoogleGenerativeAI client scoped to this user's key (preferred),
+ * falling back to the site-wide key, or throwing if neither is configured.
+ */
+export async function getClientForUser(userId: string): Promise<GoogleGenerativeAI> {
+  const decrypted = await userApiKeyStore.getDecryptedGeminiKey(userId);
+  if (decrypted) return new GoogleGenerativeAI(decrypted);
+  if (config.geminiApiKey) return new GoogleGenerativeAI(config.geminiApiKey);
+  throw new GeminiKeyError(
+    'No Gemini API key configured. Connect your Gemini API key in Settings → AI Settings.',
+  );
 }
 
 function buildParts(extracted: ExtractedDocument, instructionText: string): Part[] {
@@ -58,8 +75,8 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function generateJson<T>(parts: Part[], schema: object): Promise<T> {
-  const model = getClient().getGenerativeModel({
+async function generateJson<T>(parts: Part[], schema: object, geminiClient?: GoogleGenerativeAI): Promise<T> {
+  const model = (geminiClient ?? getClient()).getGenerativeModel({
     model: config.geminiModel,
     generationConfig: {
       responseMimeType: 'application/json',
@@ -263,6 +280,7 @@ export async function generateQuestionsFromDocument(
   extracted: ExtractedDocument,
   analysis: DocumentAnalysis,
   opts: { numQuestions: number; difficulty: 'easy' | 'medium' | 'hard' | 'mixed' },
+  userId?: string,
 ): Promise<GeneratedQuestion[]> {
   const difficultyInstruction =
     opts.difficulty === 'mixed'
@@ -285,8 +303,9 @@ Rules:
 
 Document content is below.`;
 
+  const geminiClient = userId ? await getClientForUser(userId) : undefined;
   const parts = buildParts(extracted, instruction);
-  const raw = await generateJson<unknown>(parts, questionsSchema);
+  const raw = await generateJson<unknown>(parts, questionsSchema, geminiClient);
   return validateQuestions(raw);
 }
 
@@ -390,8 +409,10 @@ export async function generateTutorReply(
   history: TutorTurn[],
   message: string,
   attachment?: ExtractedDocument | null,
+  userId?: string,
 ): Promise<string> {
-  const model = getClient().getGenerativeModel({
+  const geminiClient = userId ? await getClientForUser(userId) : getClient();
+  const model = geminiClient.getGenerativeModel({
     model: config.geminiModel,
     systemInstruction: TUTOR_SYSTEM_INSTRUCTION,
     generationConfig: { maxOutputTokens: 400 },

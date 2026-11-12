@@ -1,4 +1,4 @@
-import { executeCodeSync } from '../lib/codeExecution.js';
+﻿import { executeCodeSync } from '../lib/codeExecution.js';
 import type { Response } from 'express';
 import type { AuthedRequest } from '../middleware/auth.js';
 import { codingProblemStore, newSubmissionId, type StoredCodingSubmission } from '../lib/codingStore.js';
@@ -184,6 +184,21 @@ export const studentCodingController = {
       return;
     }
 
+    // Submission lock: check if already solved, enforce optimization mode
+    const isOptimization = req.body?.optimize === true;
+    const existingAccepted = await codingProblemStore.getLatestAcceptedSubmission(userId, problem._id);
+    if (existingAccepted && !isOptimization) {
+      res.status(409).json({
+        error: {
+          code: 'ALREADY_SOLVED',
+          message: 'You have already solved this problem. Use "Optimize Solution" to submit an improvement.',
+          submissionId: existingAccepted._id,
+          solvedAt: existingAccepted.createdAt,
+        },
+      });
+      return;
+    }
+
     // Retrieve all test cases (both sample and hidden)
     const allCases = await codingProblemStore.listTestCases(problem._id);
     if (allCases.length === 0) {
@@ -326,6 +341,28 @@ export const studentCodingController = {
         publicResults,
       },
     });
+  },
+
+  /**
+   * GET /api/coding/problems/:slug/submission-status
+   * Returns current user's solve status and accepted code (if solved) for read-only view.
+   */
+  async getSubmissionStatus(req: AuthedRequest, res: Response): Promise<void> {
+    const userId = req.userId!;
+    const { slug } = req.params;
+    if (!slug || typeof slug !== 'string') {
+      res.status(400).json({ error: { message: 'Slug is required.' } });
+      return;
+    }
+
+    const problem = await codingProblemStore.findPublishedBySlug(slug);
+    if (!problem) {
+      res.status(404).json({ error: { message: 'Problem not found or is not published.' } });
+      return;
+    }
+
+    const status = await codingProblemStore.getSubmissionStatus(userId, problem._id);
+    res.json({ data: status });
   },
 };
 

@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import multer from 'multer';
 import { generateTutorReply, parseTutorReply, GeminiError, type TutorTurn } from '../lib/gemini.js';
 import { searchEducationalVideo } from '../lib/youtube.js';
@@ -131,7 +131,7 @@ tutorRouter.post('/chat', requireAuth, (req: AuthedRequest, res) => {
           ? 'What is this? Explain it to me.'
           : 'Summarize this document and highlight what I should study.');
 
-      const raw = await generateTutorReply(turns, effectiveMessage, attachment);
+      const raw = await generateTutorReply(turns, effectiveMessage, attachment, req.userId);
       const { content, videoQuery } = parseTutorReply(raw);
 
       const video = videoQuery

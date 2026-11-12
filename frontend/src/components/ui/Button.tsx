@@ -1,4 +1,4 @@
-import { forwardRef, useRef, type ButtonHTMLAttributes } from 'react';
+﻿import { forwardRef, useRef, type ButtonHTMLAttributes } from 'react';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 
@@ -17,17 +17,18 @@ interface ButtonProps extends Omit<
 }
 
 const VARIANTS: Record<Variant, string> = {
-  primary: 'bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800 shadow-soft disabled:bg-primary-300',
+  primary:
+    'bg-[#0F5132] dark:bg-[#2DD4A7] text-white dark:text-[#0B0D10] font-semibold hover:bg-[#0B3F26] dark:hover:bg-[#34D399] active:scale-[0.98] shadow-sm border border-[#0B3F26]/30 dark:border-white/10 transition-all disabled:opacity-50',
   gradient:
-    'bg-gradient-to-r from-primary-500 via-violet-500 to-accent-500 text-white shadow-glow hover:shadow-glow-cyan disabled:opacity-60',
+    'bg-gradient-to-r from-[#0F5132] via-[#6D4AFF] to-[#C2703A] dark:from-[#2DD4A7] dark:via-[#8B5CF6] dark:to-[#F5B04C] text-white font-semibold shadow-sm hover:opacity-95 active:scale-[0.98] transition-all disabled:opacity-50',
   secondary:
-    'bg-ink-100 text-ink-800 hover:bg-ink-200 active:bg-ink-300 dark:bg-ink-800 dark:text-ink-100 dark:hover:bg-ink-700',
+    'bg-ink-100 text-ink-900 hover:bg-ink-200 active:bg-ink-300 dark:bg-[#1B2027] dark:text-[#F4F1EA] dark:hover:bg-[#262C36] border border-ink-200/60 dark:border-white/[0.08]',
   ghost:
-    'text-ink-600 hover:bg-ink-100 hover:text-ink-900 dark:text-ink-300 dark:hover:bg-ink-800 dark:hover:text-ink-50',
+    'text-ink-600 hover:bg-ink-100 hover:text-ink-900 dark:text-ink-400 dark:hover:bg-[#1B2027] dark:hover:text-[#F4F1EA]',
   outline:
-    'border border-ink-200 text-ink-700 hover:bg-ink-50 hover:border-ink-300 dark:border-ink-700 dark:text-ink-200 dark:hover:bg-ink-800',
-  danger: 'bg-error-600 text-white hover:bg-error-700 active:bg-error-700 shadow-soft',
-  success: 'bg-accent-600 text-white hover:bg-accent-700 active:bg-accent-800 shadow-soft',
+    'border border-ink-200 text-ink-700 hover:bg-ink-50 hover:border-ink-300 dark:border-white/[0.1] dark:text-[#F4F1EA] dark:hover:bg-[#14171C]',
+  danger: 'bg-[#DC2626] text-white hover:bg-[#B91C1C] active:bg-[#991B1B] shadow-sm',
+  success: 'bg-[#10B981] text-white hover:bg-[#059669] active:bg-[#047857] shadow-sm',
 };
 
 const SIZES: Record<Size, string> = {

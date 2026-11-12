@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Moon, Sun, Bell, Clock, Target, LogOut, Trash2, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { AISettingsCard } from '@/components/settings/AISettingsCard';
 import { useTheme } from '@/store/ThemeContext';
 import { useAuth } from '@/store/AuthContext';
 import { useToast } from '@/store/ToastContext';
@@ -125,6 +126,9 @@ export function Settings() {
               </div>
             </div>
           </Card>
+
+          {/* AI Settings / Connect Gemini */}
+          <AISettingsCard />
 
           {/* Account */}
           <Card padding="lg">

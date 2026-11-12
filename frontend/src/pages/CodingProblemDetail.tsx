@@ -96,6 +96,17 @@ export function CodingProblemDetail() {
   const [copiedCaseIdx, setCopiedCaseIdx] = useState<number | null>(null);
   const [constraintsOpen, setConstraintsOpen] = useState(false);
 
+  // Solve status & optimization states
+  const [solvedStatus, setSolvedStatus] = useState<{
+    solved: boolean;
+    submissionId?: string;
+    verdict?: string;
+    solvedAt?: string;
+    language?: string;
+    code?: string;
+  } | null>(null);
+  const [optimizeMode, setOptimizeMode] = useState(false);
+
   // Submit states
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitResult, setSubmitResult] = useState<{
@@ -146,6 +157,14 @@ export function CodingProblemDetail() {
         if (data.sampleCases?.length > 0) {
           setInputVal(data.sampleCases[0].input);
         }
+        // Fetch submission status
+        codingService.getSubmissionStatus(slug).then((status) => {
+          setSolvedStatus(status);
+          if (status.solved && status.code) {
+            setCode(status.code);
+            if (status.language) setSelectedLang(status.language as any);
+          }
+        }).catch(() => {});
       })
       .catch((err: unknown) => {
         const message = err instanceof Error ? err.message : 'Problem not found or not published.';
@@ -286,10 +305,20 @@ export function CodingProblemDetail() {
       const res = await codingService.submitProblem(problem.slug, {
         language: selectedLang,
         code,
-      });
+        ...(optimizeMode ? { optimize: true } : {}),
+      } as any);
       setSubmitResult(res);
       if (res.verdict === 'accepted') {
-        showToast('Accepted! All test cases passed.', 'success');
+        showToast(optimizeMode ? 'Optimization accepted! Your solution was evaluated.' : 'Accepted! All test cases passed.', 'success');
+        setSolvedStatus({
+          solved: true,
+          submissionId: res.submissionId,
+          verdict: 'accepted',
+          solvedAt: new Date().toISOString(),
+          language: selectedLang,
+          code,
+        });
+        setOptimizeMode(false);
       } else if (res.verdict === 'wrong_answer') {
         showToast(`Wrong Answer (${res.passedTests}/${res.totalTests} tests passed)`, 'error');
       } else if (res.verdict === 'compile_error') {
@@ -908,6 +937,7 @@ export function CodingProblemDetail() {
               {/* Textarea Editor */}
               <textarea
                 value={code}
+                readOnly={Boolean(solvedStatus?.solved && !optimizeMode)}
                 onChange={(e) => setCode(e.target.value)}
                 placeholder={
                   isLoadingProblem

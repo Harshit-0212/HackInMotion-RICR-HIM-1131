@@ -1,22 +1,43 @@
-@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --nova-bg: #F8FAFC;
+  --nova-bg: #FAF7F2;
   --nova-surface: #FFFFFF;
-  --nova-text: #0F172A;
-  --nova-text-secondary: #475569;
-  --nova-text-muted: #94A3B8;
-  --nova-border: #E2E8F0;
-  --nova-primary: #2563EB;
-  --nova-primary-hover: #1D4ED8;
-  --nova-primary-soft: #EFF6FF;
-  --nova-success: #16A34A;
-  --nova-warning: #F59E0B;
+  --nova-surface-elevated: #F4EFE6;
+  --nova-text: #16181D;
+  --nova-text-secondary: #4C5562;
+  --nova-text-muted: #75808E;
+  --nova-border: #E6DFC5;
+  --nova-primary: #0F5132;
+  --nova-primary-hover: #0B3F26;
+  --nova-primary-soft: #ECFDF5;
+  --nova-accent: #C2703A;
+  --nova-violet: #6D4AFF;
+  --nova-success: #10B981;
+  --nova-warning: #F5B04C;
   --nova-error: #DC2626;
+}
+
+.dark {
+  --nova-bg: #0B0D10;
+  --nova-surface: #14171C;
+  --nova-surface-elevated: #1B2027;
+  --nova-text: #F4F1EA;
+  --nova-text-secondary: #A7B0BA;
+  --nova-text-muted: #75808E;
+  --nova-border: rgba(255, 255, 255, 0.08);
+  --nova-primary: #34D399;
+  --nova-primary-hover: #2DD4A7;
+  --nova-primary-soft: rgba(52, 211, 153, 0.12);
+  --nova-accent: #F5B04C;
+  --nova-violet: #8B5CF6;
+  --nova-success: #34D399;
+  --nova-warning: #F5B04C;
+  --nova-error: #F87171;
 }
 
 html {

@@ -1,4 +1,4 @@
-/** @type {import('tailwindcss').Config} */
+﻿/** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   darkMode: 'class',
@@ -10,19 +10,36 @@ export default {
         display: ['"Space Grotesk"', '"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
       },
       colors: {
-        // Brand: Electric Indigo
+        // Brand: Midnight Ember Emerald / Forest
         primary: {
-          50: '#EEF0FF',
-          100: '#E0E3FF',
-          200: '#C7CCFF',
-          300: '#A5A9FF',
-          400: '#8183F8',
-          500: '#6366F1',
-          600: '#4F46E5',
-          700: '#4338CA',
-          800: '#3730A3',
-          900: '#312F81',
-          950: '#1E1B4B',
+          50: '#ECFDF5',
+          100: '#D1FAE5',
+          200: '#A7F3D0',
+          300: '#6EE7B7',
+          400: '#34D399',
+          500: '#10B981',
+          600: '#0F5132',
+          700: '#0B3F26',
+          800: '#072E1B',
+          900: '#041E11',
+          950: '#02120A',
+        },
+        // Secondary accent: Warm Amber / Copper
+        amber: {
+          50: '#FFFBEB',
+          100: '#FEF3C7',
+          200: '#FDE68A',
+          300: '#FCD34D',
+          400: '#FBBF24',
+          500: '#F5B04C',
+          600: '#C2703A',
+          700: '#B45309',
+          800: '#92400E',
+          900: '#78350F',
+        },
+        copper: {
+          500: '#C2703A',
+          600: '#A85A28',
         },
         // Accent: Neon Cyan / Aqua
         accent: {
@@ -82,21 +99,21 @@ export default {
           800: '#9A3412',
           900: '#7C2D12',
         },
-        // Ink: Midnight navy / near-black neutrals
+        // Ink: Porcelain / Warm Charcoal / Midnight Slate
         ink: {
-          50: '#F6F7FA',
-          100: '#EBEDF3',
-          200: '#D8DCE6',
-          300: '#B7BECE',
-          400: '#8B93A8',
-          500: '#666F87',
-          600: '#4C5470',
-          700: '#3A4058',
-          800: '#262B3D',
-          900: '#171A26',
-          925: '#121322',
-          950: '#0D0F17',
-          975: '#080910',
+          50: '#FAF7F2',
+          100: '#F4EFE6',
+          200: '#E6DFC5',
+          300: '#D2C8AC',
+          400: '#A7B0BA',
+          500: '#75808E',
+          600: '#4C5562',
+          700: '#2D343F',
+          800: '#1B2027',
+          900: '#14171C',
+          925: '#0E1014',
+          950: '#0B0D10',
+          975: '#060709',
         },
         success: {
           50: '#EDFBF3',

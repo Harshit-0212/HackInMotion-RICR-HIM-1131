@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.js';
 import { studentCodingController } from '../controllers/studentCoding.js';
 
@@ -10,6 +10,7 @@ studentCodingRouter.use(requireAuth);
 // Static filter route registered BEFORE dynamic slug route
 studentCodingRouter.get('/problems/filters', studentCodingController.getFilters);
 studentCodingRouter.get('/problems', studentCodingController.listProblems);
+studentCodingRouter.get('/problems/:slug/submission-status', studentCodingController.getSubmissionStatus);
 studentCodingRouter.get('/problems/:slug', studentCodingController.getProblemBySlug);
 studentCodingRouter.post('/problems/:slug/submit', studentCodingController.submitProblem);
 studentCodingRouter.post('/run', studentCodingController.runCode);

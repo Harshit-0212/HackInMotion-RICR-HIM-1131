@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Send,
@@ -21,6 +21,8 @@ import {
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Card } from '@/components/ui/Card';
+import { ConnectGeminiPrompt } from '@/components/ui/ConnectGeminiPrompt';
+import { userApiKeyService } from '@/services/userApiKeyService';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { tutorService, SUGGESTED_PROMPTS } from '@/services/tutorService';
@@ -53,6 +55,13 @@ export function AITutor() {
   const [pendingPreviewUrl, setPendingPreviewUrl] = useState<string | null>(null);
   const [showCamera, setShowCamera] = useState(false);
   const [attachMenuOpen, setAttachMenuOpen] = useState(false);
+  const [geminiConnected, setGeminiConnected] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    userApiKeyService.getGeminiStatus()
+      .then((s) => setGeminiConnected(s.connected || Boolean(s.siteFallbackAvailable)))
+      .catch(() => setGeminiConnected(true));
+  }, []);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
@@ -268,6 +277,12 @@ export function AITutor() {
             </Badge>
           }
         />
+
+        {geminiConnected === false && (
+          <div className="mb-4">
+            <ConnectGeminiPrompt feature="the AI Study Tutor" />
+          </div>
+        )}
 
         <Card padding="none" className="flex min-h-0 flex-1 overflow-hidden">
           {/* Desktop chat history sidebar */}

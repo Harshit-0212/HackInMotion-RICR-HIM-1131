@@ -1,4 +1,4 @@
-import type { HTMLAttributes } from 'react';
+﻿import type { HTMLAttributes } from 'react';
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
   hover?: boolean;
@@ -15,7 +15,7 @@ const PADDING: Record<NonNullable<CardProps['padding']>, string> = {
 export function Card({ hover = false, padding = 'md', className = '', children, ...props }: CardProps) {
   return (
     <div
-      className={`rounded-2xl border border-ink-200/70 bg-white shadow-soft dark:border-ink-800 dark:bg-ink-900 overflow-hidden ${hover ? 'transition-all duration-200 ease-out hover:shadow-[0_8px_24px_rgba(15,23,42,0.08)] hover:border-[rgba(37,99,235,0.20)] hover:-translate-y-0.5' : ''} ${PADDING[padding]} ${className}`}
+      className={`rounded-2xl border border-ink-200/70 bg-white shadow-soft dark:border-white/[0.08] dark:bg-[#14171C] overflow-hidden ${hover ? 'transition-all duration-200 ease-out hover:shadow-[0_8px_24px_rgba(15,23,42,0.08)] hover:border-[rgba(37,99,235,0.20)] hover:-translate-y-0.5' : ''} ${PADDING[padding]} ${className}`}
       {...props}
     >
       {children}

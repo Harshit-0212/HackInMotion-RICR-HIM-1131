@@ -1,4 +1,4 @@
-import http from 'node:http';
+﻿import http from 'node:http';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -19,6 +19,8 @@ import { adminCodingRouter } from './routes/adminCoding.js';
 import { studentCodingRouter } from './routes/studentCoding.js';
 import { studentJourneyRouter } from './routes/studentJourney.js';
 import { adminJourneyRouter } from './routes/adminJourney.js';
+import { userApiKeyRouter } from './routes/userApiKey.js';
+import { gamificationRouter } from './routes/gamification.js';
 import { getDb } from './lib/db.js';
 import { initSocket } from './lib/socket.js';
 import { sendDueStudyReminders } from './lib/reminders.js';
@@ -86,6 +88,8 @@ app.use('/api/admin/coding', adminCodingRouter);
 app.use('/api/coding', studentCodingRouter);
 app.use('/api/learn', studentJourneyRouter);
 app.use('/api/admin/journey', adminJourneyRouter);
+app.use('/api/user/api-keys', userApiKeyRouter);
+app.use('/api/gamification', gamificationRouter);
 
 app.use((req, res) => {
   res.status(404).json({ error: { message: `No route for ${req.method} ${req.path}` } });
@@ -101,6 +105,11 @@ async function start() {
   if (!config.jwtSecret) {
     console.warn('[nova-server] WARNING: JWT_SECRET is not set. Copy server/.env.example to server/.env and set one.');
   }
+  if (!config.geminiEncryptionKey) {
+    console.warn(
+      '[nova-server] WARNING: GEMINI_ENCRYPTION_KEY is not set. User Gemini key encryption will fail until configured.',
+    );
+  }
   if (!config.geminiApiKey) {
     console.warn(
       '[nova-server] WARNING: GEMINI_API_KEY is not set. Document analysis will fail until it is configured.',
@@ -109,7 +118,7 @@ async function start() {
   if (!config.youtubeApiKey) {
     console.warn(
       '[nova-server] NOTE: YOUTUBE_API_KEY is not set. AI Tutor will not suggest videos until it is configured.',
-    );
+    );  
   }
 
   try {

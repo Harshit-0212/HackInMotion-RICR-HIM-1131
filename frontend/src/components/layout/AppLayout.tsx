@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+﻿import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -245,12 +245,12 @@ export function AppLayout({ children, focusMode = false }: AppLayoutProps) {
   });
 
   const SidebarContent = (
-    <div className="flex h-full flex-col min-h-0 bg-white dark:bg-[#111827]">
+    <div className="flex h-full flex-col min-h-0 bg-white dark:bg-[#0B0D10]">
       {/* Brand Header */}
       <div
         className={`shrink-0 flex items-center ${
           collapsed ? 'justify-center px-2' : 'justify-between px-4'
-        } h-16 border-b border-slate-100 dark:border-slate-800/80`}
+        } h-16 border-b border-slate-100 dark:border-white/[0.08]/80`}
       >
         <Logo to="/app" iconOnly={collapsed} size="sm" />
         {!collapsed && (
@@ -284,7 +284,7 @@ export function AppLayout({ children, focusMode = false }: AppLayoutProps) {
           </div>
         ))}
 
-        <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80">
+        <div className="pt-2 border-t border-slate-100 dark:border-white/[0.08]/80">
           {!collapsed && (
             <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
               Preferences
@@ -302,7 +302,7 @@ export function AppLayout({ children, focusMode = false }: AppLayoutProps) {
       </div>
 
       {/* Footer Account Card */}
-      <div className="shrink-0 p-3 border-t border-slate-100 dark:border-slate-800/80 space-y-2 bg-slate-50/50 dark:bg-[#0E1524]">
+      <div className="shrink-0 p-3 border-t border-slate-100 dark:border-white/[0.08]/80 space-y-2 bg-slate-50/50 dark:bg-[#0E1524]">
         {/* Theme button */}
         <button
           onClick={toggleTheme}
@@ -354,7 +354,7 @@ export function AppLayout({ children, focusMode = false }: AppLayoutProps) {
       {/* Desktop Fixed Sidebar */}
       {!focusMode && (
         <aside
-          className={`fixed inset-y-0 left-0 z-30 hidden lg:flex flex-col border-r border-slate-200/90 dark:border-slate-800/90 bg-white dark:bg-[#111827] transition-all duration-200 ${
+          className={`fixed inset-y-0 left-0 z-30 hidden lg:flex flex-col border-r border-slate-200/90 dark:border-white/[0.08]/90 bg-white dark:bg-[#0B0D10] transition-all duration-200 ${
             collapsed ? 'w-18' : 'w-64'
           }`}
         >
@@ -363,7 +363,7 @@ export function AppLayout({ children, focusMode = false }: AppLayoutProps) {
             <button
               onClick={toggleCollapsed}
               aria-label="Expand sidebar"
-              className="absolute -right-3 top-20 flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#111827] text-slate-500 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              className="absolute -right-3 top-20 flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0B0D10] text-slate-500 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             >
               <PanelLeft size={12} />
             </button>
@@ -387,7 +387,7 @@ export function AppLayout({ children, focusMode = false }: AppLayoutProps) {
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ type: 'spring', damping: 25, stiffness: 250 }}
-              className="absolute inset-y-0 left-0 w-72 max-w-[85vw] bg-white dark:bg-[#111827] shadow-xl border-r border-slate-200 dark:border-slate-800 flex flex-col"
+              className="absolute inset-y-0 left-0 w-72 max-w-[85vw] bg-white dark:bg-[#0B0D10] shadow-xl border-r border-slate-200 dark:border-white/[0.08] flex flex-col"
             >
               {SidebarContent}
             </motion.aside>
@@ -403,7 +403,7 @@ export function AppLayout({ children, focusMode = false }: AppLayoutProps) {
       >
         {/* Contextual App Header (Non-focus mode) */}
         {!focusMode && (
-          <header className="sticky top-0 z-20 h-16 border-b border-slate-200/90 dark:border-slate-800/90 bg-white/90 dark:bg-[#111827]/90 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between">
+          <header className="sticky top-0 z-20 h-16 border-b border-slate-200/90 dark:border-white/[0.08]/90 bg-white/90 dark:bg-[#0B0D10]/90 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between">
             {/* Left: Mobile trigger & Breadcrumbs */}
             <div className="flex items-center gap-3">
               <button
@@ -456,7 +456,7 @@ export function AppLayout({ children, focusMode = false }: AppLayoutProps) {
                         initial={{ opacity: 0, y: -6 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -6 }}
-                        className="absolute right-0 top-11 z-50 w-72 sm:w-80 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111827] p-2.5 shadow-xl"
+                        className="absolute right-0 top-11 z-50 w-72 sm:w-80 rounded-2xl border border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#0B0D10] p-2.5 shadow-xl"
                       >
                         <input
                           ref={searchInputRef}
@@ -504,9 +504,9 @@ export function AppLayout({ children, focusMode = false }: AppLayoutProps) {
                         initial={{ opacity: 0, y: -6 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -6 }}
-                        className="absolute right-0 top-11 z-50 w-80 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111827] p-3 shadow-xl"
+                        className="absolute right-0 top-11 z-50 w-80 rounded-2xl border border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#0B0D10] p-3 shadow-xl"
                       >
-                        <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                        <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-white/[0.08]">
                           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
                             Notifications
                           </span>

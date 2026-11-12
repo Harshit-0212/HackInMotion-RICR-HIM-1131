@@ -1,4 +1,4 @@
-import { fetchApi } from './api';
+﻿import { fetchApi } from './api';
 import type {
   PublicCodingProblemListItem,
   PublicCodingProblemDetail,
@@ -181,5 +181,17 @@ export const codingService = {
     });
   },
 
+
+  // --- Student: Check solve & submission status ---
+  async getSubmissionStatus(slug: string): Promise<{
+    solved: boolean;
+    submissionId?: string;
+    verdict?: string;
+    solvedAt?: string;
+    language?: string;
+    code?: string;
+  }> {
+    return fetchApi(`/coding/problems/${encodeURIComponent(slug)}/submission-status`);
+  },
 };
 

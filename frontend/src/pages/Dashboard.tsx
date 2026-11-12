@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+﻿import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -26,10 +26,18 @@ import { AIInsightCard } from '@/components/dashboard/AIInsightCard';
 import { DashboardSkeleton } from '@/components/dashboard/DashboardSkeleton';
 import { MetricCard } from '@/components/ui/MetricCard';
 import { ActionCard } from '@/components/ui/ActionCard';
+import { useState, useEffect } from 'react';
+import { Flame, Shield, Award, CheckCircle2 } from 'lucide-react';
+import { gamificationService, type UserGamificationData } from '@/services/gamificationService';
 
 export function Dashboard() {
   const { user } = useAuth();
   const { plan, progress, weakTopics, isReady, autoAdjustPlan } = useAppData();
+  const [gamification, setGamification] = useState<UserGamificationData | null>(null);
+
+  useEffect(() => {
+    gamificationService.getProfile().then(setGamification).catch(() => {});
+  }, []);
 
   const firstName = user?.name ? user.name.split(' ')[0] : 'Student';
 

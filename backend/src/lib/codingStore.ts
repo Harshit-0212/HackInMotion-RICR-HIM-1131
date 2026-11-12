@@ -1,4 +1,4 @@
-import { getDb } from './db.js';
+﻿import { getDb } from './db.js';
 import type {
   StoredCodingProblem,
   StoredCodingTestCase,
@@ -75,7 +75,22 @@ export function newSubmissionId(): string {
   return `sub_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
+// In-flight submission mutex to prevent duplicate rapid clicks from creating redundant submissions
+const inFlightSubmissions = new Set<string>();
+
 export const codingProblemStore = {
+  isSubmissionInFlight(userId: string, problemId: string): boolean {
+    return inFlightSubmissions.has(userId + ":" + problemId);
+  },
+  acquireSubmissionLock(userId: string, problemId: string): boolean {
+    const key = userId + ":" + problemId;
+    if (inFlightSubmissions.has(key)) return false;
+    inFlightSubmissions.add(key);
+    return true;
+  },
+  releaseSubmissionLock(userId: string, problemId: string): void {
+    inFlightSubmissions.delete(userId + ":" + problemId);
+  },
   // --- Admin Queries ---
   async listAdmin(filter: {
     status?: ProblemStatus;
@@ -305,6 +320,34 @@ export const codingProblemStore = {
     const col = await codingSubmissionsCollection();
     const count = await col.countDocuments({ userId, problemId, verdict: 'accepted' });
     return count > 0;
+  },
+
+  async getLatestAcceptedSubmission(userId: string, problemId: string): Promise<StoredCodingSubmission | null> {
+    const col = await codingSubmissionsCollection();
+    return col.findOne({ userId, problemId, verdict: 'accepted' }, { sort: { createdAt: -1 } });
+  },
+
+  async getSubmissionStatus(userId: string, problemId: string): Promise<{
+    solved: boolean;
+    submissionId?: string;
+    verdict?: string;
+    solvedAt?: string;
+    language?: string;
+    code?: string;
+  }> {
+    const col = await codingSubmissionsCollection();
+    const accepted = await col.findOne({ userId, problemId, verdict: 'accepted' }, { sort: { createdAt: -1 } });
+    if (!accepted) {
+      return { solved: false };
+    }
+    return {
+      solved: true,
+      submissionId: accepted._id,
+      verdict: accepted.verdict,
+      solvedAt: accepted.createdAt,
+      language: accepted.language,
+      code: accepted.code,
+    };
   },
 };
 
