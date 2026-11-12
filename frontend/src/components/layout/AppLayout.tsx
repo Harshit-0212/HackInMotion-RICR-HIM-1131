@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -30,7 +30,6 @@ import {
   CheckCircle2,
   Clock,
   Play,
-  Flame,
   Calendar,
   Layers,
   BookX,
@@ -48,7 +47,7 @@ import { CommandPalette } from '@/components/ui/CommandPalette';
 import { FocusModeModal } from '@/components/ui/FocusModeModal';
 import { CustomCursor, AmbientBlob } from '@/components/ui/CustomCursor';
 import { BackToTop } from '@/components/ui/BackToTop';
-import { Tooltip } from '@/components/ui/Tooltip';
+import { SidebarTooltip } from '@/components/ui/SidebarTooltip';
 
 export interface NavGroupItem {
   to: string;
@@ -56,7 +55,6 @@ export interface NavGroupItem {
   icon: typeof LayoutDashboard;
   end?: boolean;
   badge?: string;
-  shortcut?: string;
 }
 
 export interface NavGroup {
@@ -76,7 +74,7 @@ export interface AppLayoutProps {
 export function AppLayout({ children, focusMode = false }: AppLayoutProps) {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const { notifications, unreadCount, markAllRead } = useNotifications();
+  const { notifications, unreadCount } = useNotifications();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -128,7 +126,9 @@ export function AppLayout({ children, focusMode = false }: AppLayoutProps) {
       const next = !prev;
       try {
         localStorage.setItem(SIDEBAR_STORAGE_KEY, String(next));
-      } catch {}
+      } catch (e) {
+        void e;
+      }
       return next;
     });
   };
@@ -148,7 +148,9 @@ export function AppLayout({ children, focusMode = false }: AppLayoutProps) {
       const next = { ...prev, [groupId]: !prev[groupId] };
       try {
         localStorage.setItem(GROUP_STATE_STORAGE_KEY, JSON.stringify(next));
-      } catch {}
+      } catch (e) {
+        void e;
+      }
       return next;
     });
   };
@@ -161,40 +163,40 @@ export function AppLayout({ children, focusMode = false }: AppLayoutProps) {
     {
       id: 'core',
       label: 'Core',
-      items: [{ to: '/app', label: 'Overview', icon: LayoutDashboard, end: true, shortcut: 'G D' }],
+      items: [{ to: '/app', label: 'Overview', icon: LayoutDashboard, end: true }],
     },
     {
       id: 'learning',
       label: 'Learning',
       items: [
-        { to: '/app/journey', label: 'Learning Journey', icon: Compass, badge: 'Curriculum', shortcut: 'G J' },
-        { to: '/app/plan', label: 'My Learning', icon: BookOpen, shortcut: 'G P' },
-        { to: '/app/assessments', label: 'Practice & Quizzes', icon: Target, shortcut: 'G Q' },
-        { to: '/app/mistakes', label: 'Mistake Notebook', icon: BookX, shortcut: 'G N' },
-        { to: '/app/flashcards', label: 'Flashcards', icon: Layers, shortcut: 'G F' },
-        { to: '/app/calendar', label: 'Study Calendar', icon: Calendar, shortcut: 'G L' },
+        { to: '/app/journey', label: 'Learning Journey', icon: Compass, badge: 'Curriculum' },
+        { to: '/app/plan', label: 'My Learning', icon: BookOpen },
+        { to: '/app/assessments', label: 'Practice & Quizzes', icon: Target },
+        { to: '/app/mistakes', label: 'Mistake Notebook', icon: BookX },
+        { to: '/app/flashcards', label: 'Flashcards', icon: Layers },
+        { to: '/app/calendar', label: 'Study Calendar', icon: Calendar },
       ],
     },
     {
       id: 'coding',
       label: 'Coding & Mastery',
       items: [
-        { to: '/app/coding', label: 'Coding Practice', icon: Code, shortcut: 'G C' },
-        { to: '/app/comprehension', label: 'Code Comprehension', icon: GraduationCap, shortcut: 'G M' },
-        { to: '/app/debugger', label: 'Code Debugger', icon: Code2, shortcut: 'G X' },
-        { to: '/app/interview', label: 'Interview Prep', icon: BrainCircuit, shortcut: 'G I' },
+        { to: '/app/coding', label: 'Coding Practice', icon: Code },
+        { to: '/app/comprehension', label: 'Code Comprehension', icon: GraduationCap },
+        { to: '/app/debugger', label: 'Code Debugger', icon: Code2 },
+        { to: '/app/interview', label: 'Interview Prep', icon: BrainCircuit },
       ],
     },
     {
       id: 'tools',
       label: 'Support & Tools',
       items: [
-        { to: '/app/tutor', label: 'AI Tutor', icon: Sparkles, shortcut: 'G T' },
-        { to: '/app/groups', label: 'Study Groups', icon: Users, shortcut: 'G G' },
-        { to: '/app/library', label: 'Document Library', icon: FileText, shortcut: 'G B' },
-        { to: '/app/resume', label: 'Resume Maker', icon: FileText, shortcut: 'G R' },
-        { to: '/app/leaderboard', label: 'Leaderboard', icon: Trophy, shortcut: 'G K' },
-        { to: '/app/progress', label: 'Progress & Stats', icon: LineChart, shortcut: 'G S' },
+        { to: '/app/tutor', label: 'AI Tutor', icon: Sparkles },
+        { to: '/app/groups', label: 'Study Groups', icon: Users },
+        { to: '/app/library', label: 'Document Library', icon: FileText },
+        { to: '/app/resume', label: 'Resume Maker', icon: FileText },
+        { to: '/app/leaderboard', label: 'Leaderboard', icon: Trophy },
+        { to: '/app/progress', label: 'Progress & Stats', icon: LineChart },
       ],
     },
     ...(user?.role === 'admin'
@@ -208,7 +210,6 @@ export function AppLayout({ children, focusMode = false }: AppLayoutProps) {
                 label: 'Question Studio',
                 icon: ShieldAlert,
                 badge: 'Admin',
-                shortcut: 'G A',
               },
             ],
           },
@@ -721,7 +722,6 @@ function SidebarLink({
   end,
   collapsed,
   badge,
-  shortcut,
   onClick,
 }: {
   to: string;
@@ -730,11 +730,10 @@ function SidebarLink({
   end?: boolean;
   collapsed: boolean;
   badge?: string;
-  shortcut?: string;
   onClick?: () => void;
 }) {
   return (
-    <Tooltip content={label} side="right">
+    <SidebarTooltip content={label} enabled={collapsed}>
       <NavLink
         to={to}
         end={end}
@@ -777,15 +776,10 @@ function SidebarLink({
                 {badge}
               </span>
             )}
-            {!collapsed && !badge && shortcut && (
-              <span className="ml-auto text-[10px] font-mono text-[#8A8192] opacity-0 transition-opacity group-hover:opacity-100">
-                {shortcut}
-              </span>
-            )}
           </>
         )}
       </NavLink>
-    </Tooltip>
+    </SidebarTooltip>
   );
 }
 

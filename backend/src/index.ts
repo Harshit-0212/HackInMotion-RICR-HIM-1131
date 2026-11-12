@@ -2,7 +2,7 @@ import http from 'node:http';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import { config } from './config.js';
+import { config, getRawGeminiEncryptionKey } from './config.js';
 import { authRouter } from './routes/auth.js';
 import { documentsRouter } from './routes/documents.js';
 import { tutorRouter } from './routes/tutor.js';
@@ -107,11 +107,15 @@ async function start() {
   if (!config.jwtSecret) {
     console.warn('[nova-server] WARNING: JWT_SECRET is not set. Copy server/.env.example to server/.env and set one.');
   }
-  if (!config.geminiEncryptionKey) {
-    console.warn(
-      '[nova-server] WARNING: GEMINI_ENCRYPTION_KEY is not set. User Gemini key encryption will fail until configured.',
-    );
+
+  // Startup log: Log whether GEMINI_ENCRYPTION_KEY is present and its length (never the value)
+  const rawKey = getRawGeminiEncryptionKey();
+  if (rawKey) {
+    console.log(`[nova-server] GEMINI_ENCRYPTION_KEY present (length: ${rawKey.length} chars).`);
+  } else {
+    console.warn('[nova-server] WARNING: GEMINI_ENCRYPTION_KEY is not set (missing). User key encryption will fail until configured.');
   }
+
   if (!config.geminiApiKey) {
     console.warn(
       '[nova-server] WARNING: GEMINI_API_KEY is not set. Document analysis will fail until it is configured.',
