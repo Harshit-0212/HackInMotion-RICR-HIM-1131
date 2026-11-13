@@ -32,6 +32,19 @@ export const gamificationService = {
     return fetchApi('/gamification/profile');
   },
 
+  async getLeaderboard(): Promise<Array<{
+    rank: number;
+    userId: string;
+    name: string;
+    avatar?: string;
+    xp: number;
+    level: number;
+    streak: number;
+    isUser: boolean;
+  }>> {
+    return fetchApi('/gamification/leaderboard');
+  },
+
   async recordEvent(action: 'coding_accepted' | 'comprehension_drill' | 'quiz_completed' | 'curriculum_step' | 'tutor_session'): Promise<{
     profile: UserGamificationData;
     xpAwarded: number;

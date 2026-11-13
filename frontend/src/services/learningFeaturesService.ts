@@ -75,6 +75,20 @@ export const learningFeaturesService = {
     const res = (await fetchApi('/flashcards/due')) as any;
     return res.data?.cards || [];
   },
+  async createFlashcard(card: {
+    front: string;
+    back: string;
+    subject?: string;
+    topic?: string;
+    sourceDocId?: string;
+    sourceMistakeId?: string;
+  }): Promise<FlashcardRecord> {
+    const res = (await fetchApi('/flashcards', {
+      method: 'POST',
+      body: JSON.stringify(card),
+    })) as any;
+    return res.data;
+  },
   async reviewFlashcard(id: string, rating: number): Promise<void> {
     await fetchApi(`/flashcards/${id}/review`, {
       method: 'POST',

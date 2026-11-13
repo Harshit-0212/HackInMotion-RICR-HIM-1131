@@ -35,6 +35,7 @@ import { ProgressRing } from '@/components/ui/ProgressRing';
 import { Reveal, Stagger } from '@/components/ui/Reveal';
 import { Chip } from '@/components/ui/Chip';
 import { ConfettiCanvas } from '@/components/ui/ConfettiCanvas';
+import { ActivityHeatmap } from '@/components/ui/ActivityHeatmap';
 import { gamificationService, type UserGamificationData } from '@/services/gamificationService';
 import { learningFeaturesService } from '@/services/learningFeaturesService';
 import { Layers, Calendar, BrainCircuit } from 'lucide-react';
@@ -466,6 +467,11 @@ export function Dashboard() {
               <ArrowRight size={14} className="text-[#8A8192]" />
             </SpotlightCard>
           </Link>
+        </section>
+
+        {/* Compact Radial Activity Heatmap */}
+        <section>
+          <ActivityHeatmap compact />
         </section>
 
         {/* SUPPORTING: Recommendations & AI Insight */}

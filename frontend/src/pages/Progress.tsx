@@ -8,6 +8,7 @@ import { ProgressRing } from '@/components/ui/ProgressRing';
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Reveal, Stagger, StaggerItem } from '@/components/ui/Reveal';
+import { ActivityHeatmap } from '@/components/ui/ActivityHeatmap';
 import { useAppData } from '@/store/AppDataContext';
 
 export function Progress() {
@@ -53,6 +54,11 @@ export function Progress() {
           </StaggerItem>
           <StaggerItem><StatCard icon={BookOpen} label="Topics Mastered" value={progress.topicsMastered} color="success" /></StaggerItem>
         </Stagger>
+
+        {/* Activity Spectrum Heatmap */}
+        <div className="mt-5">
+          <ActivityHeatmap />
+        </div>
 
         <Reveal variant="fade-up" delay={0.1}>
         <div className="mt-5 grid gap-5 lg:grid-cols-3">

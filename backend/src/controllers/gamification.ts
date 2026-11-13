@@ -1,13 +1,52 @@
-﻿import type { Response } from 'express';
+import type { Response } from 'express';
 import type { AuthedRequest } from '../middleware/auth.js';
 import { gamificationStore, type LearningActionType } from '../lib/gamificationStore.js';
+import { activityStore } from '../lib/activityStore.js';
+import { userStore } from '../lib/users.js';
 
 export const gamificationController = {
+  async getLeaderboard(req: AuthedRequest, res: Response): Promise<void> {
+    try {
+      const topProfiles = await gamificationStore.getLeaderboard(50);
+      const userIds = topProfiles.map((p) => p.userId);
+      
+      const enriched = await Promise.all(
+        topProfiles.map(async (p, idx) => {
+          const userDoc = await userStore.findById(p.userId);
+          return {
+            rank: idx + 1,
+            userId: p.userId,
+            name: userDoc?.full_name || 'Anonymous Scholar',
+            avatar: userDoc?.avatar_image,
+            xp: p.totalXp,
+            level: p.level,
+            streak: p.currentStreak,
+            isUser: p.userId === req.userId,
+          };
+        })
+      );
+
+      res.json({ data: enriched });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to fetch leaderboard.';
+      res.status(500).json({ error: { message } });
+    }
+  },
+
   async getProfile(req: AuthedRequest, res: Response): Promise<void> {
     const userId = req.userId!;
     try {
       const profile = await gamificationStore.getProfile(userId);
-      res.json({ data: profile });
+      const today = new Date().toISOString().slice(0, 10);
+      const computed = await activityStore.computeStreak(userId, today);
+      
+      const mergedProfile = {
+        ...profile,
+        currentStreak: Math.max(profile.currentStreak || 0, computed.currentStreak),
+        longestStreak: Math.max(profile.longestStreak || 0, computed.longestStreak),
+      };
+      
+      res.json({ data: mergedProfile });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to fetch gamification profile.';
       res.status(500).json({ error: { message } });

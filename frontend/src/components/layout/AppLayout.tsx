@@ -45,6 +45,7 @@ import { useNotifications } from '@/store/NotificationContext';
 import { userApiKeyService, type UserApiKeyStatus } from '@/services/userApiKeyService';
 import { CommandPalette } from '@/components/ui/CommandPalette';
 import { FocusModeModal } from '@/components/ui/FocusModeModal';
+import { MiniPomodoroTimer } from '@/components/ui/MiniPomodoroTimer';
 import { CustomCursor, AmbientBlob } from '@/components/ui/CustomCursor';
 import { BackToTop } from '@/components/ui/BackToTop';
 import { SidebarTooltip } from '@/components/ui/SidebarTooltip';
@@ -549,14 +550,8 @@ export function AppLayout({ children, focusMode = false }: AppLayoutProps) {
 
             {/* Right: Quick actions */}
             <div className="flex items-center gap-2">
-              {/* Focus Mode button */}
-              <button
-                onClick={() => setFocusModalOpen(true)}
-                className="hidden sm:inline-flex items-center gap-1.5 h-9 rounded-xl border border-[#D8D0C5] dark:border-white/10 bg-[#E8E1D7]/50 dark:bg-[#28222F]/60 px-3 text-xs font-medium text-[#5F5668] dark:text-[#B8AFBE] hover:text-[#6542C5] dark:hover:text-[#B59AF7] transition-colors"
-              >
-                <Clock size={14} />
-                <span>Focus Mode</span>
-              </button>
+              {/* Mini Pomodoro Persistent Timer */}
+              <MiniPomodoroTimer onOpenModal={() => setFocusModalOpen(true)} />
 
               {/* Command Palette Trigger */}
               <button

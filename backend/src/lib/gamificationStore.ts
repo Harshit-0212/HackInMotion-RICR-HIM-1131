@@ -1,4 +1,5 @@
 import { getDb } from './db.js';
+import { activityStore, type ActivityEventType } from './activityStore.js';
 
 export interface UserGamificationProfile {
   userId: string;
@@ -130,6 +131,28 @@ export const gamificationStore = {
     }
 
     return doc;
+  },
+
+  async getLeaderboard(limit = 50): Promise<Array<{
+    userId: string;
+    totalXp: number;
+    level: number;
+    currentStreak: number;
+  }>> {
+    const db = await getDb();
+    const col = db.collection<UserGamificationProfile>(COLLECTION);
+    const docs = await col
+      .find({})
+      .sort({ totalXp: -1 })
+      .limit(limit)
+      .project<{ userId: string; totalXp: number; level: number; currentStreak: number }>({
+        userId: 1,
+        totalXp: 1,
+        level: 1,
+        currentStreak: 1,
+      })
+      .toArray();
+    return docs;
   },
 
   /**
@@ -310,6 +333,21 @@ export const gamificationStore = {
     };
 
     await col.updateOne({ userId }, { $set: updatedProfile });
+
+    // Also write to activity_events idempotently
+    try {
+      const typeMap: Record<LearningActionType, ActivityEventType> = {
+        coding_accepted: 'coding_submission',
+        comprehension_drill: 'session',
+        quiz_completed: 'mock_test',
+        curriculum_step: 'session',
+        tutor_session: 'tutor',
+      };
+      const actType = typeMap[action] || 'session';
+      await activityStore.recordActivity(userId, actType, userLocalDate, xpGained, { action }, fullKey);
+    } catch {
+      // Activity store failure shouldn't fail gamification
+    }
 
     return {
       profile: updatedProfile,

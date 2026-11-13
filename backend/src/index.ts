@@ -22,6 +22,8 @@ import { adminJourneyRouter } from './routes/adminJourney.js';
 import { userApiKeyRouter } from './routes/userApiKey.js';
 import { gamificationRouter } from './routes/gamification.js';
 import { featuresRouter } from './routes/features.js';
+import { activityRouter } from './routes/activity.js';
+import { activityStore } from './lib/activityStore.js';
 import { getDb } from './lib/db.js';
 import { initSocket } from './lib/socket.js';
 import { sendDueStudyReminders } from './lib/reminders.js';
@@ -91,6 +93,7 @@ app.use('/api/learn', studentJourneyRouter);
 app.use('/api/admin/journey', adminJourneyRouter);
 app.use('/api/user/api-keys', userApiKeyRouter);
 app.use('/api/gamification', gamificationRouter);
+app.use('/api/activity', activityRouter);
 app.use('/api', featuresRouter);
 
 app.use((req, res) => {
@@ -130,6 +133,7 @@ async function start() {
   try {
     await getDb();
     console.log(`[nova-server] MongoDB connected (${config.mongoUri} / db "${config.mongoDbName}")`);
+    await activityStore.ensureIndexes().catch((err) => console.error('[nova-server] Activity indexes failed:', err));
     await seedArraysJourneyIfMissing().catch((err) => console.error('[nova-server] Seed journey failed:', err));
   } catch (err) {
     console.error(

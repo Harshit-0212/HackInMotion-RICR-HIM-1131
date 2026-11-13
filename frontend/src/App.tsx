@@ -6,6 +6,7 @@ import { AppDataProvider } from '@/store/AppDataContext';
 import { NotificationProvider } from '@/store/NotificationContext';
 import { ThemeProvider } from '@/store/ThemeContext';
 import { ToastProvider } from '@/store/ToastContext';
+import { PomodoroProvider } from '@/store/PomodoroContext';
 import { FullPageLoader } from '@/components/ui/FullPageLoader';
 import { ErrorBoundary } from '@/ErrorBoundary';
 
@@ -337,15 +338,17 @@ export default function App() {
     <ErrorBoundary>
       <ThemeProvider>
         <ToastProvider>
-          <AuthProvider>
-            <NotificationProvider>
-              <AppDataProvider>
-                <BrowserRouter>
-                  <AppRoutes />
-                </BrowserRouter>
-              </AppDataProvider>
-            </NotificationProvider>
-          </AuthProvider>
+          <PomodoroProvider>
+            <AuthProvider>
+              <NotificationProvider>
+                <AppDataProvider>
+                  <BrowserRouter>
+                    <AppRoutes />
+                  </BrowserRouter>
+                </AppDataProvider>
+              </NotificationProvider>
+            </AuthProvider>
+          </PomodoroProvider>
         </ToastProvider>
       </ThemeProvider>
     </ErrorBoundary>

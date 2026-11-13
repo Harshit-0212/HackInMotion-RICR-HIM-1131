@@ -23,6 +23,23 @@ export function generateResumePdfBuffer(resume: StoredResume): Promise<Buffer> {
 
       const contentWidth = doc.page.width - doc.page.margins.left - doc.page.margins.right;
 
+      // Header: Profile photo (if present, template allows photo, and valid data URL or base64)
+      const isAts = resume.template === 'classic-ats';
+      const photoUrl = resume.personalDetails.photoUrl;
+      if (!isAts && photoUrl && typeof photoUrl === 'string' && photoUrl.startsWith('data:image/')) {
+        try {
+          const base64Data = photoUrl.split(',')[1];
+          if (base64Data) {
+            const imgBuffer = Buffer.from(base64Data, 'base64');
+            // Render 54x54 photo centered above name or on top
+            doc.image(imgBuffer, (doc.page.width - 54) / 2, doc.y, { width: 54, height: 54 });
+            doc.y += 60;
+          }
+        } catch {
+          // If image decoding fails, proceed gracefully
+        }
+      }
+
       // Header: Name
       const name = resume.personalDetails.fullName || resume.title || 'Resume';
       doc

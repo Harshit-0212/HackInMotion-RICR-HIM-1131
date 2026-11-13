@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { AuthCredentials, SignupPayload, User } from '@/types';
 import { authService } from '@/services/authService';
+import { activityService } from '@/services/activityService';
 import { connectSocket, disconnectSocket } from '@/services/socket';
 
 interface AuthContextValue {
@@ -25,7 +26,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(fetchedUser);
       setIsInitializing(false);
       const token = authService.getToken();
-      if (fetchedUser && token) connectSocket(token);
+      if (fetchedUser && token) {
+        connectSocket(token);
+        // Daily idempotent checkin for streaks
+        activityService.checkin().catch(() => {});
+      }
     });
   }, []);
 
@@ -33,7 +38,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const loggedIn = await authService.login(credentials);
     setUser(loggedIn);
     const token = authService.getToken();
-    if (token) connectSocket(token);
+    if (token) {
+      connectSocket(token);
+      activityService.checkin().catch(() => {});
+    }
     return loggedIn;
   };
 
@@ -41,7 +49,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const created = await authService.signup(payload);
     setUser(created);
     const token = authService.getToken();
-    if (token) connectSocket(token);
+    if (token) {
+      connectSocket(token);
+      activityService.checkin().catch(() => {});
+    }
     return created;
   };
 
@@ -49,7 +60,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const loggedIn = await authService.loginWithGoogle(credential);
     setUser(loggedIn);
     const token = authService.getToken();
-    if (token) connectSocket(token);
+    if (token) {
+      connectSocket(token);
+      activityService.checkin().catch(() => {});
+    }
     return loggedIn;
   };
 

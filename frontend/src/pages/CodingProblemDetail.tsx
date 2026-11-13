@@ -24,6 +24,7 @@ import {
   Maximize2,
   Minimize2,
   Info,
+  Sparkles,
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PanelErrorBoundary } from '@/components/ui/PanelErrorBoundary';
@@ -893,8 +894,31 @@ export function CodingProblemDetail() {
                 )}
               </div>
 
-              {/* Reset starter code action */}
+              {/* Reset starter code action & Optimize mode toggle */}
               <div className="flex items-center gap-2 shrink-0">
+                {solvedStatus?.solved && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOptimizeMode(!optimizeMode);
+                      showToast(
+                        !optimizeMode
+                          ? 'Optimization mode enabled: you can now edit and re-evaluate your solution.'
+                          : 'Read-only mode restored for your accepted solution.',
+                        'info'
+                      );
+                    }}
+                    className={`flex items-center gap-1 px-2.5 py-1 rounded-md border text-[11px] font-semibold transition-colors ${
+                      optimizeMode
+                        ? 'border-emerald-500 bg-emerald-500/20 text-emerald-300'
+                        : 'border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700'
+                    }`}
+                  >
+                    <Sparkles className="w-3 h-3 text-[#B59AF7]" />
+                    <span>{optimizeMode ? 'Optimizing' : 'Optimize Solution'}</span>
+                  </button>
+                )}
+
                 <button
                   type="button"
                   onClick={handleResetCode}

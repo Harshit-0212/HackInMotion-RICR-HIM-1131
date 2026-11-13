@@ -1,53 +1,32 @@
-import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, RotateCcw, X, Flame } from 'lucide-react';
+import { usePomodoro } from '@/store/PomodoroContext';
 
 export function FocusModeModal({
   isOpen,
   onClose,
-  onSessionComplete,
 }: {
   isOpen: boolean;
   onClose: () => void;
-  onSessionComplete?: (minutes: number) => void;
 }) {
-  const [secondsLeft, setSecondsLeft] = useState(25 * 60);
-  const [isActive, setIsActive] = useState(false);
-  const [sessionType, setSessionType] = useState<'work' | 'break'>('work');
+  const {
+    isActive,
+    mode,
+    durationMinutes,
+    remainingSeconds,
+    toggleTimer,
+    resetTimer,
+    setMode,
+  } = usePomodoro();
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    if (isActive && secondsLeft > 0) {
-      interval = setInterval(() => {
-        setSecondsLeft((s) => s - 1);
-      }, 1000);
-    } else if (secondsLeft === 0) {
-      setIsActive(false);
-      if (sessionType === 'work') {
-        if (onSessionComplete) onSessionComplete(25);
-        setSessionType('break');
-        setSecondsLeft(5 * 60);
-      } else {
-        setSessionType('work');
-        setSecondsLeft(25 * 60);
-      }
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isActive, secondsLeft, sessionType, onSessionComplete]);
-
-  const toggle = () => setIsActive(!isActive);
-  const reset = () => {
-    setIsActive(false);
-    setSecondsLeft(sessionType === 'work' ? 25 * 60 : 5 * 60);
-  };
-
-  const mins = Math.floor(secondsLeft / 60);
-  const secs = secondsLeft % 60;
+  const mins = Math.floor(remainingSeconds / 60);
+  const secs = remainingSeconds % 60;
   const timeFormatted = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  const totalDuration = sessionType === 'work' ? 25 * 60 : 5 * 60;
-  const progressPercent = Math.round(((totalDuration - secondsLeft) / totalDuration) * 100);
+  const totalDuration = durationMinutes * 60;
+  const progressPercent = Math.min(
+    100,
+    Math.max(0, Math.round(((totalDuration - remainingSeconds) / totalDuration) * 100))
+  );
 
   return (
     <AnimatePresence>
@@ -65,7 +44,7 @@ export function FocusModeModal({
             initial={{ opacity: 0, scale: 0.9, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 15 }}
-            className="relative w-full max-w-md rounded-3xl border border-[#D8D0C5] dark:border-white/10 bg-[#FBF8F2] dark:bg-[#1D1922] p-8 text-center shadow-2xl"
+            className="relative w-full max-w-md rounded-3xl border border-[#D8D0C5] dark:border-white/10 bg-[#FBF8F2] dark:bg-[#1D1922] p-8 text-center shadow-2xl z-10"
           >
             <button
               onClick={onClose}
@@ -78,16 +57,44 @@ export function FocusModeModal({
               <Flame size={16} /> Focus Mode (Pomodoro)
             </div>
 
+            {/* Mode selection tabs */}
+            <div className="mt-4 flex justify-center gap-2">
+              <button
+                onClick={() => {
+                  setMode('work');
+                }}
+                className={`px-3 py-1 text-xs font-semibold rounded-lg transition-colors ${
+                  mode === 'work'
+                    ? 'bg-[#6542C5] text-white dark:bg-[#B59AF7] dark:text-[#141217]'
+                    : 'bg-[#E8E1D7] text-[#5F5668] dark:bg-[#28222F] dark:text-[#B8AFBE]'
+                }`}
+              >
+                Focus (25m)
+              </button>
+              <button
+                onClick={() => {
+                  setMode('break');
+                }}
+                className={`px-3 py-1 text-xs font-semibold rounded-lg transition-colors ${
+                  mode === 'break'
+                    ? 'bg-[#6542C5] text-white dark:bg-[#B59AF7] dark:text-[#141217]'
+                    : 'bg-[#E8E1D7] text-[#5F5668] dark:bg-[#28222F] dark:text-[#B8AFBE]'
+                }`}
+              >
+                Break (5m)
+              </button>
+            </div>
+
             <div className="my-8">
               <div className="font-space text-6xl font-bold tracking-tight text-[#211D28] dark:text-[#F5F0E8]">
                 {timeFormatted}
               </div>
               <p className="mt-2 text-xs text-[#5F5668] dark:text-[#B8AFBE]">
-                {sessionType === 'work' ? 'Deep Study Interval · Stay Focused' : 'Short Break · Relax and breathe'}
+                {mode === 'work' ? 'Deep Study Interval · Stay Focused' : 'Short Break · Relax and breathe'}
               </p>
             </div>
 
-            {/* Circular progress bar indicator */}
+            {/* Progress bar indicator */}
             <div className="mb-6 h-2 w-full rounded-full bg-[#E8E1D7] dark:bg-[#28222F] overflow-hidden">
               <div
                 className="h-full rounded-full bg-[#6542C5] dark:bg-[#B59AF7] transition-all duration-300"
@@ -97,7 +104,7 @@ export function FocusModeModal({
 
             <div className="flex items-center justify-center gap-4">
               <button
-                onClick={toggle}
+                onClick={toggleTimer}
                 className="inline-flex h-12 w-28 items-center justify-center gap-2 rounded-2xl bg-[#6542C5] text-white font-bold hover:bg-[#51329F] dark:bg-[#B59AF7] dark:text-[#141217] dark:hover:bg-[#C6AFFB] shadow-md transition-colors"
               >
                 {isActive ? <Pause size={18} /> : <Play size={18} />}
@@ -105,7 +112,7 @@ export function FocusModeModal({
               </button>
 
               <button
-                onClick={reset}
+                onClick={resetTimer}
                 aria-label="Reset timer"
                 className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-[#D8D0C5] dark:border-white/10 text-[#5F5668] dark:text-[#B8AFBE] hover:bg-[#E8E1D7] dark:hover:bg-[#28222F] transition-colors"
               >
@@ -118,4 +125,3 @@ export function FocusModeModal({
     </AnimatePresence>
   );
 }
-
