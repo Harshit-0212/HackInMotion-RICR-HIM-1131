@@ -39,6 +39,8 @@ Cadence is a full-stack, AI-driven study platform that builds a **personalized, 
 plan** from a student's goals, available time, and diagnosed knowledge level, then keeps adapting
 it as the student studies:
 
+- **Bulk Question Generation & Taxonomy**: Comprehensive `field > subject > topic` database tree spanning Computer Science, Aptitude, Verbal, Engineering branches, Interview Practice, and Special exams. Features 2-pass quality control with independent Gemini solver validation, duplicate rejection, and a Coverage Dashboard highlighting curriculum gaps with one-click gap filling.
+- **Global Pomodoro & Activity Spectrum**: Global persistent timer across tabs and views, paired with a 7-ring radial consistency spectrum and streak tracker.
 - An AI tutor (Gemini-backed) answers questions conversationally and can suggest relevant YouTube
   videos.
 - Students can upload their own study material (PDF/DOCX) and get AI-generated, document-grounded

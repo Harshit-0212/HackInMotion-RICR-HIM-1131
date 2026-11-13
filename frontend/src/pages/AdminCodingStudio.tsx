@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Code2,
   Plus,
@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { BulkQuestionStudio } from '@/components/admin/BulkQuestionStudio';
 import { codingService } from '@/services/codingService';
 import type {
   StoredCodingProblem,
@@ -40,6 +41,7 @@ import { useToast } from '@/store/ToastContext';
 
 export function AdminCodingStudio() {
   const { showToast } = useToast();
+  const [activeMainStudioTab, setActiveMainStudioTab] = useState<'coding' | 'bulk'>('coding');
 
   const [problems, setProblems] = useState<StoredCodingProblem[]>([]);
   const [total, setTotal] = useState(0);
@@ -427,9 +429,37 @@ export function AdminCodingStudio() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         <PageHeader
           title="Admin Question Studio"
-          subtitle="Manage competitive programming challenges, test cases, and private editorial solutions backed directly by MongoDB."
+          subtitle="Manage competitive programming challenges, bulk questions, taxonomy tree, and quality control."
         />
 
+        {/* Top Studio Switcher */}
+        <div className="flex items-center gap-2 border-b border-gray-200 dark:border-slate-800 pb-3">
+          <button
+            onClick={() => setActiveMainStudioTab('coding')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              activeMainStudioTab === 'coding'
+                ? 'bg-[#6542C5] text-white dark:bg-[#B59AF7] dark:text-[#141217] shadow-sm'
+                : 'text-[#5F5668] hover:bg-[#E8E1D7] dark:text-[#B8AFBE] dark:hover:bg-[#28222F]'
+            }`}
+          >
+            Coding Problems
+          </button>
+          <button
+            onClick={() => setActiveMainStudioTab('bulk')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              activeMainStudioTab === 'bulk'
+                ? 'bg-[#6542C5] text-white dark:bg-[#B59AF7] dark:text-[#141217] shadow-sm'
+                : 'text-[#5F5668] hover:bg-[#E8E1D7] dark:text-[#B8AFBE] dark:hover:bg-[#28222F]'
+            }`}
+          >
+            Bulk Question Generator & Taxonomy
+          </button>
+        </div>
+
+        {activeMainStudioTab === 'bulk' ? (
+          <BulkQuestionStudio />
+        ) : (
+          <>
         {/* Action Header: Create, AI Generator, Refresh */}
         <div className="flex flex-wrap items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-xs">
           <div className="flex flex-wrap items-center gap-2">
@@ -1332,6 +1362,8 @@ export function AdminCodingStudio() {
               </form>
             </div>
           </div>
+        )}
+          </>
         )}
       </div>
     </AppLayout>
